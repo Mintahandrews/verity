@@ -1,0 +1,20 @@
+{
+  "name": "verity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @verity/extension",
+    "build": "npm run build -w @verity/extension",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "test": "npm test -w @verity/core",
+    "icons": "node scripts/gen-icons.mjs"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
+  }
+}

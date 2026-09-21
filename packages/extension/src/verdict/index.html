@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Verity — Verdict</title>
+    <style>
+      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
+      main { max-width: 640px; margin: 40px auto; padding: 0 16px; }
+      .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+      .chip { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; color: #fff; }
+      .chip.verified { background: #16a34a; }
+      .chip.unverified { background: #64748b; }
+      .chip.suspicious { background: #ea580c; }
+      h1 { font-size: 20px; margin: 12px 0 4px; }
+      .when { color: #94a3b8; font-size: 12px; }
+      .signal { border-top: 1px solid #e2e8f0; padding: 14px 0; }
+      .signal h2 { font-size: 14px; margin: 0 0 2px; }
+      .signal .summary { margin: 0 0 6px; color: #334155; }
+      .signal ul { margin: 0; padding-left: 18px; color: #64748b; font-size: 13px; }
+      .outcome { font-weight: 700; margin-right: 6px; }
+      .outcome.positive { color: #16a34a; }
+      .outcome.negative { color: #ea580c; }
+      .outcome.neutral, .outcome.unsupported { color: #94a3b8; }
+      .outcome.error { color: #dc2626; }
+      footer { max-width: 640px; margin: 16px auto; padding: 0 16px; font-size: 12px; color: #94a3b8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="card" id="card"><p>Loading…</p></div>
+    </main>
+    <footer>
+      Verity never labels media “fake”. Unverified means we couldn’t confirm
+      provenance — not that the content is false.
+    </footer>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>
