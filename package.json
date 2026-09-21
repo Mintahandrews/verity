@@ -11,11 +11,12 @@
     "build": "npm run build -w @verity/extension",
     "registry": "npm run start -w @verity/registry",
     "typecheck": "npm run typecheck -ws --if-present",
-    "test": "npm test -w @verity/core",
+    "test": "npm test -ws --if-present",
     "icons": "node scripts/gen-icons.mjs"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "protobufjs@7.6.6": true
   }
 }

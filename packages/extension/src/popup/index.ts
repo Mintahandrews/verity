@@ -10,7 +10,14 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   window.close();
 });
 
-const { stats } = (await chrome.storage.local.get('stats')) as {
+const { stats, reverseSearch } = (await chrome.storage.local.get(['stats', 'reverseSearch'])) as {
   stats?: { scanned?: number };
+  reverseSearch?: boolean;
 };
 document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
+
+const rs = document.getElementById('rs') as HTMLInputElement;
+rs.checked = reverseSearch ?? false;
+rs.addEventListener('change', () => {
+  void chrome.storage.local.set({ reverseSearch: rs.checked });
+});

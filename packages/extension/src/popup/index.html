@@ -51,12 +51,20 @@
       }
       .hint { color: var(--color-moss-shadow); }
       .stats b { color: var(--color-electric-sprout); font-weight: 600; }
+      .opt {
+        display: flex; gap: var(--space-1); align-items: flex-start;
+        margin-top: var(--space-2); font-size: var(--text-caption);
+        color: var(--color-lichen-sage); cursor: pointer;
+      }
+      .opt input { accent-color: var(--color-electric-sprout); margin-top: 2px; }
+      .opt span { color: var(--color-moss-shadow); }
     </style>
   </head>
   <body>
     <h1>Verity <em>checks</em></h1>
     <p class="sub">What can we verify — not just “is it fake”.</p>
     <button id="scan">Scan this page</button>
+    <label class="opt"><input type="checkbox" id="rs" /> Reverse-search public image URLs <span>(sends URL to Google Lens)</span></label>
     <p class="stats">Media checked: <b id="count">0</b></p>
     <p class="hint">Or right-click any image → “Verify with Verity”.</p>
     <script type="module" src="./index.ts"></script>

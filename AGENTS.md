@@ -35,8 +35,14 @@ full vision and roadmap.
   in analyze mode (`?u=`) instead. That mode also serves as a standalone checker.
 - c2pa (`@contentauth/c2pa-web`) runs in the offscreen document — MV3 WASM requires
   `'wasm-unsafe-eval'` CSP and a DOM-capable context for its web worker.
-- Current phase: **2** in progress (registry + hashing done; reverse-search and
-  AI-ensemble signals next). See `docs/DESIGN.md`.
+- Signals registered in `src/analysis.ts`: c2pa → ai-metadata (deterministic
+  generator fingerprints) → metadata → reverse-search (Google Lens, opt-in via
+  `chrome.storage.local.reverseSearch`, public URLs only) → ai-model (ONNX
+  classifier via onnxruntime-web, only when `aiModelUrl` is configured — lazy
+  chunk, honest 0.7 confidence cap).
+- Registry similarity search uses an in-memory BK-tree (`store.ts`/`bktree.ts`).
+- Current phase: **2** complete (registry + hashing + reverse-search adapter +
+  AI ensemble). Next: Phase 3 (Telegram bot, claim checking). See `docs/DESIGN.md`.
 
 ## Design language
 

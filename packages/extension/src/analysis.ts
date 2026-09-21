@@ -2,9 +2,17 @@ import { SignalRegistry, fuse, pHash64, pHashHex, sha256Hex } from '@verity/core
 import type { MediaDescriptor, SignalResult, Verdict } from '@verity/core';
 import { c2paSignal } from './offscreen/signals/c2pa';
 import { metadataSignal } from './offscreen/signals/metadata';
+import { aiMetadataSignal } from './offscreen/signals/ai-metadata';
+import { aiModelSignal } from './offscreen/signals/ai-model';
+import { reverseSearchSignal } from './offscreen/signals/reverse-search';
 import { lookupVerdict, submitVerdict, type RegistryHit } from './registry-client';
 
-const registry = new SignalRegistry().register(c2paSignal).register(metadataSignal);
+const registry = new SignalRegistry()
+  .register(c2paSignal)
+  .register(aiMetadataSignal)
+  .register(metadataSignal)
+  .register(reverseSearchSignal)
+  .register(aiModelSignal);
 
 export async function fetchMedia(url: string): Promise<Blob> {
   const res = await fetch(url, { credentials: 'include' });

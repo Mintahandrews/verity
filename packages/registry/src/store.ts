@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Verdict } from '@verity/core';
+import { BKTree } from './bktree.ts';
 
 export interface RegistryRecord {
   sha256: string;
@@ -16,23 +17,14 @@ export interface SimilarHit {
   distance: number;
 }
 
-function hammingHex(a: string, b: string): number {
-  let d = BigInt(`0x${a}`) ^ BigInt(`0x${b}`);
-  let n = 0;
-  while (d) {
-    n += Number(d & 1n);
-    d >>= 1n;
-  }
-  return n;
-}
-
 /**
- * JSON-file store — zero dependencies, self-hostable anywhere. Scales to tens
- * of thousands of records; migrate to SQLite + a BK-tree pHash index when it
- * outgrows that (see docs/DESIGN.md Phase 2 notes).
+ * JSON-file store — zero dependencies, self-hostable anywhere. Similarity
+ * search runs on an in-memory BK-tree over pHashes, rebuilt on load.
  */
 export class RegistryStore {
   private records = new Map<string, RegistryRecord>();
+  private phashIndex = new Map<string, RegistryRecord[]>();
+  private tree = new BKTree();
   private dirty = false;
   private file: string;
 
@@ -40,7 +32,10 @@ export class RegistryStore {
     this.file = file;
     if (existsSync(file)) {
       const rows = JSON.parse(readFileSync(file, 'utf8')) as RegistryRecord[];
-      for (const r of rows) this.records.set(r.sha256, r);
+      for (const r of rows) {
+        this.records.set(r.sha256, r);
+        this.indexPhash(r);
+      }
     }
     const timer = setInterval(() => this.flush(), 5000);
     timer.unref();
@@ -62,17 +57,29 @@ export class RegistryStore {
 
   put(rec: RegistryRecord): void {
     this.records.set(rec.sha256, rec);
+    this.indexPhash(rec);
     this.dirty = true;
   }
 
+  private indexPhash(rec: RegistryRecord): void {
+    if (!rec.phash) return;
+    this.tree.add(BigInt(`0x${rec.phash}`));
+    const list = this.phashIndex.get(rec.phash) ?? [];
+    list.push(rec);
+    this.phashIndex.set(rec.phash, list);
+  }
+
   similar(phash: string, maxDist: number): SimilarHit[] {
-    const hits: SimilarHit[] = [];
-    for (const r of this.records.values()) {
-      if (!r.phash) continue;
-      const distance = hammingHex(phash, r.phash);
-      if (distance <= maxDist) hits.push({ record: r, distance });
-    }
-    return hits.sort((a, b) => a.distance - b.distance).slice(0, 10);
+    return this.tree
+      .query(BigInt(`0x${phash}`), maxDist)
+      .flatMap(({ hash, distance }) =>
+        (this.phashIndex.get(hash.toString(16).padStart(16, '0')) ?? []).map((record) => ({
+          record,
+          distance,
+        })),
+      )
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 10);
   }
 
   count(): number {

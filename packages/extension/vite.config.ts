@@ -1,4 +1,4 @@
-import { cpSync, existsSync } from 'node:fs';
+import { cpSync, existsSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,23 +17,34 @@ const C2PA_ASSETS = [
   join(c2paDist, 'c2pa_worker.js'),
 ];
 
-function copyC2paAssets(): Plugin {
+// onnxruntime-web WASM — only loaded at runtime if an aiModelUrl is configured.
+// (no package.json export — resolve the entrypoint, dist is its dirname)
+const ortDist = dirname(require.resolve('onnxruntime-web'));
+
+function copyWasmAssets(): Plugin {
   return {
-    name: 'verity:copy-c2pa-assets',
+    name: 'verity:copy-wasm-assets',
     closeBundle() {
+      const out = join(here, 'dist', 'assets');
       for (const src of C2PA_ASSETS) {
         if (!existsSync(src)) {
           this.warn(`c2pa asset not found: ${src}`);
           continue;
         }
-        cpSync(src, join(here, 'dist', 'assets', src.split('/').pop()!));
+        cpSync(src, join(out, src.split('/').pop()!));
+      }
+      if (existsSync(ortDist)) {
+        const ortOut = join(out, 'ort');
+        for (const f of readdirSync(ortDist)) {
+          if (/ort.*\.(wasm|mjs)$/.test(f)) cpSync(join(ortDist, f), join(ortOut, f));
+        }
       }
     },
   };
 }
 
 export default defineConfig({
-  plugins: [crx({ manifest }), copyC2paAssets()],
+  plugins: [crx({ manifest }), copyWasmAssets()],
   build: {
     rollupOptions: {
       input: {
