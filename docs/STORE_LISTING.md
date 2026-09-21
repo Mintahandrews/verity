@@ -62,10 +62,10 @@ confirmed - not that the content is false.
 ## Store Visual Assets
 - **Store icon (128x128)**: `packages/extension/public/icons/icon128.png`
 - **Hero & Promotional Graphic (1400x560 / 440x280)**: `docs/assets/verity-hero-banner.jpg`
-- **Extension Screenshots (1280x800)**:
-  1. Context menu → "Verify with Verity" on a real page
-  2. Verdict page showing a verified result with evidence rows
-  3. Verdict page showing a suspicious result (tampered or contradictory context)
-  4. Popup showing toggles + local check history count
-  5. The public newsroom registry dashboard (`/dashboard`)
+- **Ready Screenshots (1280x800 Captured)**:
+  1. **Verified Verdict Page**: [`docs/assets/screenshot-verdict-verified.png`](assets/screenshot-verdict-verified.png) &mdash; Displays C2PA Content Credentials provenance, DigiCert trust anchor, and camera hardware assertion rows.
+  2. **Suspicious Verdict Page**: [`docs/assets/screenshot-verdict-suspicious.png`](assets/screenshot-verdict-suspicious.png) &mdash; Displays contradictory evidence detection (repurposed footage matched via pHash BK-tree and AFP ClaimReview debunk).
+  3. **Public Registry Landing & FAQ**: [`docs/assets/screenshot-landing.png`](assets/screenshot-landing.png) &mdash; Public-facing interface with real-time verification stats and multi-signal taxonomy.
+  4. **Newsroom Forensic Dashboard**: [`docs/assets/screenshot-dashboard.png`](assets/screenshot-dashboard.png) &mdash; Live SHA-256 hash search, recent checks, and journalistic verification log.
+
 

@@ -43,6 +43,7 @@
     "test": "npm test --workspaces --if-present",
     "icons": "node scripts/gen-icons.mjs",
     "anims": "node scripts/gen-anims.mjs",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "pack": "npm run build && mkdir -p release && cd packages/extension/dist && zip -qr ../../../release/verity-extension.zip . && echo \"packed release/verity-extension.zip\"",
     "start": "node packages/$VERITY_PKG/src/$VERITY_ENTRY"
   },

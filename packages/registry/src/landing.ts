@@ -26,12 +26,12 @@ const CSS = `
   .stat { background: var(--moss); border: 1px solid var(--onyx); border-radius: 40px;
           padding: 5px 16px; font-size: 13px; color: var(--fern); }
   .stat b { color: var(--sprout); font-weight: 600; }
-  section { padding: 40px 0; }
+  section { padding: 64px 0; }
   section + section { border-top: 1px solid var(--mist); }
-  h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; color: var(--onyx); }
+  h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; color: var(--onyx); }
   .kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-            color: var(--verdant); margin: 0 0 10px; }
-  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 24px; }
+            color: var(--verdant); margin: 0 0 12px; }
+  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 32px; }
   .card { background: var(--white); border: 1px solid var(--mist); border-radius: 20px; padding: 22px; }
   .card .mark { width: 30px; height: 30px; border-radius: 40px; display: inline-flex;
                 align-items: center; justify-content: center; font-weight: 700; margin-bottom: 12px; }
@@ -41,18 +41,18 @@ const CSS = `
   .v-unverified .mark { background: var(--stone); color: var(--onyx); }
   .v-suspicious .mark { background: var(--onyx); color: var(--white); }
   .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-             gap: 2px; margin-top: 24px; border-radius: 20px; overflow: hidden; }
+             gap: 2px; margin-top: 32px; border-radius: 20px; overflow: hidden; }
   .sig { background: var(--forest); padding: 18px 20px; font-size: 14px; }
   .sig b { display: block; color: var(--white); font-weight: 600; margin-bottom: 4px; }
   .sig span { color: var(--fern); }
   .howto { background: var(--white); border: 1px solid var(--mist); border-radius: 24px;
-           padding: 32px; margin-top: 24px; }
+           padding: 32px; margin-top: 32px; }
   .howto h3 { margin: 0 0 4px; font-size: 17px; }
   .howto p { margin: 0 0 20px; font-size: 14px; color: #5a5f52; }
   .howto p:last-child { margin-bottom: 0; }
   .howto a { color: var(--verdant); }
   .howto code { background: var(--wash); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
-  .faq-list { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .faq-list { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
   .faq-item { background: var(--white); border: 1px solid var(--mist); border-radius: 20px; padding: 24px 28px; }
   .faq-item h3 { margin: 0 0 8px; font-size: 18px; color: var(--onyx); font-weight: 600; }
   .faq-item p { margin: 0; font-size: 15px; color: #525749; line-height: 1.6; }
@@ -63,7 +63,8 @@ const CSS = `
     #sprout-anim { display: none; }
     .lede { font-size: 16px; }
     .cta .btn { flex: 1 1 auto; text-align: center; padding: 12px 18px; }
-    section { padding: 32px 0; }
+    section { padding: 40px 0; }
+    .verdicts, .signals, .faq-list, .howto { margin-top: 24px; }
     h2 { font-size: 24px; }
     .card, .howto, .faq-item { padding: 20px; border-radius: 18px; }
     .signals { border-radius: 16px; }

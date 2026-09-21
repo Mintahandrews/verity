@@ -94,6 +94,33 @@ flowchart TD
 
 ---
 
+## Interface Previews & Real Screenshots
+
+<table align="center" width="100%">
+  <tr>
+    <td width="50%" align="center">
+      <strong>Verified Verdict (C2PA Provenance)</strong><br />
+      <img src="docs/assets/screenshot-verdict-verified.png" alt="Verity Verified Verdict with C2PA evidence" width="100%" style="border-radius: 8px; margin-top: 6px;" />
+    </td>
+    <td width="50%" align="center">
+      <strong>Suspicious Verdict (Contradictory Context)</strong><br />
+      <img src="docs/assets/screenshot-verdict-suspicious.png" alt="Verity Suspicious Verdict with debunked fact-check evidence" width="100%" style="border-radius: 8px; margin-top: 6px;" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <strong>Public Registry Landing &amp; FAQ</strong><br />
+      <img src="docs/assets/screenshot-landing.png" alt="Verity Public Registry Landing Page" width="100%" style="border-radius: 8px; margin-top: 6px;" />
+    </td>
+    <td width="50%" align="center">
+      <strong>Newsroom Forensic Dashboard</strong><br />
+      <img src="docs/assets/screenshot-dashboard.png" alt="Verity Newsroom Dashboard" width="100%" style="border-radius: 8px; margin-top: 6px;" />
+    </td>
+  </tr>
+</table>
+
+---
+
 ## Monorepo Packages
 
 Verity is architected as an ultra-fast TypeScript monorepo using npm workspaces:
