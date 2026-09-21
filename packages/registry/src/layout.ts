@@ -137,7 +137,6 @@ ${jsonLdScript}
     <a class="wordmark" href="/" aria-label="Verity Home">Verity<span>.</span></a>
     <div class="links">
       <a href="/" ${o.active === 'home' ? 'class="active" aria-current="page"' : ''}>Home</a>
-      <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Telegram bot</a>
       <a class="cta" href="/dashboard" ${o.active === 'registry' ? 'aria-current="page"' : ''}>Registry</a>
     </div>
   </nav></div>
