@@ -55,6 +55,7 @@ export const BASE_CSS = `
   :root {
     --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%2368ef3f' stroke-width='0.75' stroke-linejoin='round'/%3E%3C/svg%3E") 2 2, auto;
     --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 2v10.5l-2.2-2.2a1.8 1.8 0 0 0-2.5 2.5L7.5 18a6 6 0 0 0 4.2 1.8h3.8a4.5 4.5 0 0 0 4.5-4.5V9.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V7.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V2a1.4 1.4 0 0 0-2.8 0z' fill='%23122314' stroke='%2368ef3f' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 7 2, pointer;
+    --cur-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 3.5h8M10 3.5v13M6 16.5h8' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M6 3.5h8M10 3.5v13M6 16.5h8' stroke='%23122314' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.5 3.5h5M10 5.5v9M7.5 16.5h5' stroke='%2368ef3f' stroke-width='0.8' stroke-linecap='round'/%3E%3C/svg%3E") 10 10, text;
   }
 
   html, body {
@@ -64,17 +65,23 @@ export const BASE_CSS = `
     cursor: var(--cur-pointer);
   }
   input[type="text"], input[type="search"], textarea {
-    cursor: text;
+    cursor: var(--cur-text);
     accent-color: var(--sprout);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]:hover, input[type="search"]:hover, textarea:hover {
+    cursor: var(--cur-text);
   }
   :focus-visible {
     outline: 2px solid var(--sprout);
     outline-offset: 2px;
   }
   input[type="text"]:focus, input[type="search"]:focus, textarea:focus {
-    outline: none;
-    border-color: var(--verdant);
-    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.35);
+    outline: none !important;
+    border-color: var(--verdant) !important;
+    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.38) !important;
+    cursor: var(--cur-text);
   }
 `;
 

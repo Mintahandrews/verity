@@ -28,11 +28,17 @@ const CSS = `
   form { display: flex; gap: 8px; margin-bottom: 20px; }
   input[type=text] { flex: 1; border: 1px solid var(--fern); border-radius: 24px;
                      padding: 8px 16px; font: inherit; font-size: 14px; background: var(--bone);
-                     color: var(--onyx); transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+                     color: var(--onyx); cursor: var(--cur-text); -webkit-appearance: none; appearance: none;
+                     transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+  input[type=text]:hover {
+    border-color: var(--lichen);
+    cursor: var(--cur-text);
+  }
   input[type=text]:focus, input[type=text]:focus-visible {
-    outline: none;
-    border-color: var(--verdant);
-    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.35);
+    outline: none !important;
+    border-color: var(--verdant) !important;
+    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.38) !important;
+    cursor: var(--cur-text);
   }
   button { background: var(--sprout); color: var(--carbon); border: 0; border-radius: 28px;
            padding: 8px 20px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
