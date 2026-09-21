@@ -82,6 +82,7 @@ export const aiModelSignal: Signal = {
     }
 
     try {
+      const ort = await import('onnxruntime-web');
       const session = await getSession(modelUrl);
       const input = new ort.Tensor(
         'float32',

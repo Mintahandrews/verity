@@ -49,6 +49,15 @@ const CSS = `
   .howto p:last-child { margin-bottom: 0; }
   .howto a { color: var(--verdant); }
   .howto code { background: var(--wash); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+  @media (max-width: 600px) {
+    header.hero { padding: 24px 0 40px; }
+    .lede { font-size: 16px; }
+    .cta .btn { flex: 1 1 auto; text-align: center; padding: 12px 18px; }
+    section { padding: 36px 0; }
+    h2 { font-size: 24px; }
+    .card, .howto { padding: 20px; border-radius: 18px; }
+    .signals { border-radius: 16px; }
+  }
 `;
 
 /** Public landing page - what Verity is, how to use it, live registry stats. */

@@ -36,6 +36,12 @@ const CSS = `
   .hash { font-size: 11px; color: var(--lichen); word-break: break-all; margin-top: 16px; }
   .checkcta { text-align: center; margin: 28px 0 0; font-size: 14px; color: var(--lichen); }
   .checkcta a { color: var(--verdant); font-weight: 600; text-decoration: none; }
+  @media (max-width: 600px) {
+    .card { padding: 20px; border-radius: 18px; margin-top: 8px; }
+    h1 { font-size: 20px; }
+    .signal { padding: 12px 0; }
+    .signal ul { padding-left: 16px; font-size: 12px; }
+  }
 `;
 
 /** Server-rendered shareable verdict page - same palette as the extension card. */

@@ -19,17 +19,27 @@ export const BASE_CSS = `
          font-size: 16px; line-height: 1.55; letter-spacing: -0.02em; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
   .topband { background: var(--forest); color: var(--white); }
-  nav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+  nav { display: flex; justify-content: space-between; align-items: center;
+        gap: 12px; flex-wrap: wrap; padding: 18px 0; }
   .wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
               color: var(--white); text-decoration: none; }
   .wordmark span { color: var(--sprout); }
-  nav .links a { color: var(--fern); text-decoration: none; font-size: 14px; margin-left: 22px; }
+  nav .links { display: flex; align-items: center; gap: 6px 22px; flex-wrap: wrap; }
+  nav .links a { color: var(--fern); text-decoration: none; font-size: 14px; }
   nav .links a:hover { color: var(--sprout); }
   nav .links a.active { color: var(--sprout); border-bottom: 2px solid var(--sprout); padding-bottom: 2px; }
   nav .links a.cta { background: var(--sprout); color: var(--carbon); border-radius: 40px;
                      padding: 7px 18px; font-weight: 600; }
   nav .links a.cta:hover { background: var(--wash); }
   .wave { display: block; width: 100%; height: 64px; }
+  @media (max-width: 600px) {
+    .wrap { padding: 0 16px; }
+    nav { padding: 14px 0; }
+    nav .links { gap: 4px 16px; }
+    nav .links a { font-size: 13px; }
+    nav .links a.cta { padding: 6px 14px; }
+    .wave { height: 40px; }
+  }
   .sitefoot { border-top: 1px solid var(--mist); margin-top: 56px; padding: 28px 0 44px;
               font-size: 13px; color: var(--lichen); }
   .sitefoot .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }

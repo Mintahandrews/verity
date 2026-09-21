@@ -41,6 +41,15 @@ const CSS = `
   .headline { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .when, .hits { font-size: 12px; color: var(--lichen); white-space: nowrap; }
   .empty { color: var(--lichen); font-size: 14px; padding: 16px 8px; }
+  @media (max-width: 600px) {
+    .pagehead { padding: 16px 0 24px; }
+    .panel { padding: 16px; border-radius: 18px; }
+    form { flex-direction: column; }
+    .row { grid-template-columns: 28px 1fr auto; gap: 10px; padding: 10px 6px; }
+    .row .when { display: none; }
+    .headline { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical; }
+  }
 `;
 
 /** Server-rendered registry dashboard - the newsroom/journalist face. */
