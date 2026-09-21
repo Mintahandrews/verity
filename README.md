@@ -72,6 +72,20 @@ certificate. Signing is fully local; nothing leaves the machine.
 `npm run registry` also serves a dashboard at `/` — verdict stats, recent
 checks, and hash lookup. `GET /api/stats` returns the same numbers as JSON.
 
+## Deployment (Railway)
+
+A public registry runs at `https://registry-production-73c0.up.railway.app`
+(dashboard at `/`). The Railway project deploys from the repo root; each
+service runs `npm start` which dispatches on env vars:
+
+| Service  | VERITY_PKG | VERITY_ENTRY | Extra vars |
+|----------|-----------|--------------|------------|
+| registry | registry  | server.ts    | `PUBLIC_URL`, `VERITY_DB=/data/registry.json` (volume at `/data`) |
+| bot      | bot       | bot.ts       | `TELEGRAM_BOT_TOKEN` (required), `REGISTRY_URL`, `FACT_CHECK_API_KEY` |
+
+Deploy a service: `railway up -s <service> -d`. The registry writes to
+`VERITY_DB` — mount a volume at `/data` or every redeploy resets it.
+
 ## Newsroom bulk intake
 
 ```bash
