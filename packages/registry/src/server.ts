@@ -70,10 +70,10 @@ function send(res: import('node:http').ServerResponse, status: number, body: unk
 async function readBody(req: import('node:stream').Readable): Promise<SubmitBody> {
   let size = 0;
   const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    size += (chunk as Buffer).length;
+  for await (const chunk of req as AsyncIterable<Buffer>) {
+    size += chunk.length;
     if (size > MAX_BODY_BYTES) throw new Error('body too large');
-    chunks.push(chunk as Buffer);
+    chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}') as SubmitBody;
 }
