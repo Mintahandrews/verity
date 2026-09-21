@@ -17,6 +17,7 @@ const CSS = `
   .cardwrap { max-width: 640px; margin: 0 auto; }
   .card { background: var(--white); border: 1px solid var(--fern); border-radius: 24px;
           padding: 32px; margin-top: 16px; }
+  .animbox { width: 96px; height: 96px; margin: 0 0 8px; }
   .chip { display: inline-block; padding: 4px 14px; border-radius: 40px; font-weight: 600;
           font-size: 12px; letter-spacing: 0.03em; }
   .chip.verified { background: var(--sprout); color: var(--carbon); }
@@ -67,9 +68,15 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
     ogTitle: `Verity verdict: ${verdict.state}`,
     ogDescription: verdict.headline,
     css: CSS,
+    script:
+      chipClass === 'failed'
+        ? ''
+        : `<script src="/anim/lottie.min.js"></script>
+<script>lottie.loadAnimation({container:document.getElementById('anim'),renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json'})</script>`,
     body: `
 <div class="wrap cardwrap">
   <div class="card">
+    ${chipClass === 'failed' ? '' : '<div class="animbox" id="anim"></div>'}
     <span class="chip ${chipClass}">${chipLabel}</span>
     <h1>${esc(verdict.headline)}</h1>
     <p class="when">Checked ${esc(new Date(verdict.checkedAt).toLocaleString())}</p>

@@ -5,6 +5,32 @@ import type { MediaKind, Verdict } from '@verity/core';
 import { fetchMedia, runPipeline } from '../analysis';
 import { verdictKey } from '../messages';
 
+// Vendored lottie-web (public/anim/lottie.min.js) loaded via script tag.
+declare const lottie: {
+  loadAnimation(opts: {
+    container: HTMLElement;
+    renderer: string;
+    loop: boolean;
+    autoplay: boolean;
+    path: string;
+  }): void;
+};
+
+function playVerdictAnim(card: HTMLElement, state: string): void {
+  if (typeof lottie === 'undefined' || !['verified', 'unverified', 'suspicious'].includes(state))
+    return;
+  const box = document.createElement('div');
+  box.className = 'animbox';
+  card.prepend(box);
+  lottie.loadAnimation({
+    container: box,
+    renderer: 'svg',
+    loop: false,
+    autoplay: true,
+    path: chrome.runtime.getURL(`anim/${state}.json`),
+  });
+}
+
 const OUTCOME_GLYPH: Record<string, string> = {
   positive: '✓',
   negative: '✗',
@@ -51,6 +77,7 @@ function renderVerdict(verdict: Verdict): void {
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
     ${verdict.shareUrl ? `<p class="share"><a href="${escapeHtml(verdict.shareUrl)}" target="_blank" rel="noopener">Shareable verdict ↗</a></p>` : ''}
   `;
+  playVerdictAnim(card, verdict.error ? 'failed' : verdict.state);
 }
 
 async function render(): Promise<void> {

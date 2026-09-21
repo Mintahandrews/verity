@@ -1,4 +1,7 @@
 import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Verdict, VerdictState } from '@verity/core';
 import { RegistryStore } from './store.ts';
 import { verdictPage } from './page.ts';
@@ -81,6 +84,30 @@ createServer(async (req, res) => {
 
   if (path === '/healthz') {
     send(res, 200, { ok: true, records: store.count() });
+    return;
+  }
+
+  // Static animation assets (lottie player + JSON anims) - self-hosted so
+  // verdict pages make zero third-party requests.
+  if (path.startsWith('/anim/') && req.method === 'GET') {
+    const name = normalize(path.slice(6)).replace(/^(\.\.[/\\])+/, '');
+    const file = join(fileURLToPath(new URL('../public/anim', import.meta.url)), name);
+    const type = name.endsWith('.js')
+      ? 'text/javascript'
+      : name.endsWith('.json')
+        ? 'application/json'
+        : null;
+    const body = type ? await readFile(file).catch(() => null) : null;
+    if (!type || !body) {
+      res.writeHead(404).end();
+      return;
+    }
+    res.writeHead(200, {
+      'content-type': type,
+      'cache-control': 'public, max-age=86400',
+      'access-control-allow-origin': '*',
+    });
+    res.end(body);
     return;
   }
 

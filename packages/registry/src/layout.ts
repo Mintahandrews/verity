@@ -66,6 +66,8 @@ export interface ShellOpts {
   hero?: string;
   /** Main content, rendered on the bone background. */
   body: string;
+  /** Scripts appended before </body> (src or inline). */
+  script?: string;
 }
 
 export function shell(o: ShellOpts): string {
@@ -104,6 +106,7 @@ ${o.body}
   </div>
   <p class="pledge">&ldquo;Unverified means we couldn't confirm provenance - not that the content is false.&rdquo;</p>
 </footer></div>
+${o.script ?? ''}
 </body>
 </html>`;
 }
