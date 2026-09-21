@@ -49,6 +49,11 @@ Environment variables:
 - `REGISTRY_URL` — defaults to `http://localhost:8787`
 - `FACT_CHECK_API_KEY` (optional) — Google Fact Check Tools API key; without it
   the fact-check signal reports `unsupported` and degrades gracefully
+- `OCR` — set to `0` to disable text-in-image extraction (default: on; feeds
+  the fact-check signal so memes/screenshots get claim-checked)
+- `OCR_LANGS` — tesseract language codes, defaults to `eng`
+- `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` — per-user check limit, defaults
+  to 30 per hour
 
 ## Repo layout
 

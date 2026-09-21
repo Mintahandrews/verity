@@ -10,13 +10,18 @@ import {
 } from '@verity/core';
 import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@verity/core';
 import sharp from 'sharp';
+import { c2paSignal } from './c2pa.ts';
+import { extractText } from './ocr.ts';
+import { videoPhash } from './videohash.ts';
 
 const REGISTRY = (process.env.REGISTRY_URL ?? 'http://localhost:8787').replace(/\/$/, '');
 const TIMEOUT_MS = 4000;
+const MAX_OCR_CHARS = 1000;
 
-// Browser-bound signals (c2pa WASM, onnxruntime, Lens) stay extension-side.
-// TODO: wire in c2pa-node for signed-provenance checks server-side.
+// onnxruntime-web and the Lens adapter stay extension-side (browser-bound).
+// C2PA runs here via c2pa-node's native bindings.
 const signals = new SignalRegistry()
+  .register(c2paSignal)
   .register(aiMetadataSignal)
   .register(metadataSignal)
   .register(factCheckSignal);
@@ -105,7 +110,8 @@ export async function analyzeBuffer(
 ): Promise<Verdict> {
   const blob = new Blob([new Uint8Array(buf)]);
   const sha256 = await sha256Hex(await blob.arrayBuffer());
-  const phash = kind === 'image' ? await imagePhash(buf) : null;
+  const phash =
+    kind === 'image' ? await imagePhash(buf) : kind === 'video' ? await videoPhash(buf) : null;
 
   const hit = await lookup(sha256, phash);
   if (hit?.match === 'exact') {
@@ -113,10 +119,18 @@ export async function analyzeBuffer(
     return hit.verdict;
   }
 
+  // Claims live in captions AND in pixels (memes, screenshots) — OCR feeds
+  // both into the fact-check signal's context text.
+  let contextText = caption ?? '';
+  if (kind === 'image' && process.env.OCR !== '0') {
+    const ocrText = await extractText(buf);
+    if (ocrText) contextText = [contextText, ocrText.slice(0, MAX_OCR_CHARS)].filter(Boolean).join('\n');
+  }
+
   const media: MediaDescriptor = {
     url: sourceUrl,
     kind,
-    ...(caption ? { contextText: caption } : {}),
+    ...(contextText ? { contextText } : {}),
   };
   const results = await signals.run({ ...media, blob });
   if (hit?.match === 'similar') results.unshift(priorSighting(hit));

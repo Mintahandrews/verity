@@ -1,6 +1,8 @@
 import { Bot } from 'grammy';
 import type { MediaKind, Verdict } from '@verity/core';
 import { analyzeBuffer } from './pipeline.ts';
+import { shutdownOcr } from './ocr.ts';
+import { RateLimiter } from './ratelimit.ts';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -9,6 +11,13 @@ if (!token) {
 }
 
 const bot = new Bot(token);
+
+// Per-user sliding window: generous enough for a group-chat fact-checker,
+// tight enough to blunt scripted abuse before the API gets rate-limited upstream.
+const limiter = new RateLimiter(
+  Number(process.env.RATE_LIMIT_MAX ?? 30),
+  Number(process.env.RATE_LIMIT_WINDOW_MS ?? 3_600_000),
+);
 
 const STATE_ICON: Record<Verdict['state'], string> = {
   verified: '✅',
@@ -41,6 +50,13 @@ function formatReply(v: Verdict): string {
 
 // Forwarded or fresh photos/videos/documents — the misinfo vector.
 bot.on(['message:photo', 'message:video', 'message:document', 'message:animation'], async (ctx) => {
+  const userId = ctx.from?.id ?? ctx.chat.id;
+  if (!limiter.allow(userId)) {
+    await ctx.reply(
+      `You're checking faster than I can keep up — try again in ~${limiter.retryAfterSeconds(userId)}s.`,
+    );
+    return;
+  }
   try {
     const file = await ctx.getFile(); // bot API limit: 20MB download
     if (!file.file_path) {
@@ -66,6 +82,14 @@ bot.on(['message:photo', 'message:video', 'message:document', 'message:animation
 bot.on('message', (ctx) =>
   ctx.reply('Send or forward me a photo or video — I’ll tell you what can be verified.'),
 );
+
+const shutdown = async (): Promise<void> => {
+  bot.stop();
+  await shutdownOcr();
+  process.exit(0);
+};
+process.once('SIGINT', () => void shutdown());
+process.once('SIGTERM', () => void shutdown());
 
 void bot.start();
 console.log('verity bot running (long polling)');
