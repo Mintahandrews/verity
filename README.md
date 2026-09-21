@@ -75,8 +75,9 @@ checks, and hash lookup. `GET /api/stats` returns the same numbers as JSON.
 ## Deployment (Railway)
 
 A public registry runs at `https://registry-production-73c0.up.railway.app`
-(dashboard at `/`). The Railway project deploys from the repo root; each
-service runs `npm start` which dispatches on env vars:
+(dashboard at `/`) and the Telegram bot is live at
+[`@CheckVerityBot`](https://t.me/CheckVerityBot). The Railway project deploys
+from the repo root; each service runs `npm start` which dispatches on env vars:
 
 | Service  | VERITY_PKG | VERITY_ENTRY | Extra vars |
 |----------|-----------|--------------|------------|
