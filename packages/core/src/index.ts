@@ -18,3 +18,7 @@ export type { AiSignatureHit } from './aisignatures.ts';
 export { aiMetadataSignal } from './signals/ai-metadata.ts';
 export { metadataSignal } from './signals/metadata.ts';
 export { factCheckSignal, classifyRating, claimReviewMatches } from './signals/fact-check.ts';
+export { waybackSignal } from './signals/wayback.ts';
+export { gdeltSignal } from './signals/gdelt.ts';
+export { geolocationSignal } from './signals/geolocation.ts';
+export { hasBreakingMarkers, keywordsFrom } from './signals/claimtext.ts';

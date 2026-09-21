@@ -52,6 +52,8 @@ Environment variables:
 - `OCR` - set to `0` to disable text-in-image extraction (default: on; feeds
   the fact-check signal so memes/screenshots get claim-checked)
 - `OCR_LANGS` - tesseract language codes, defaults to `eng`
+- `GEO_LOOKUP` - set to `1` to let the location cross-check geocode embedded
+  GPS (sends coordinates to BigDataCloud's free client API; default off)
 - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` - per-user check limit, defaults
   to 30 per hour
 

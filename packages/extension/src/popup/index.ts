@@ -10,17 +10,20 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   window.close();
 });
 
-const { stats, reverseSearch, ocrEnabled, aiModelEnabled } = (await chrome.storage.local.get([
-  'stats',
-  'reverseSearch',
-  'ocrEnabled',
-  'aiModelEnabled',
-])) as {
-  stats?: { scanned?: number };
-  reverseSearch?: boolean;
-  ocrEnabled?: boolean;
-  aiModelEnabled?: boolean;
-};
+const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup } =
+  (await chrome.storage.local.get([
+    'stats',
+    'reverseSearch',
+    'ocrEnabled',
+    'aiModelEnabled',
+    'geoLookup',
+  ])) as {
+    stats?: { scanned?: number };
+    reverseSearch?: boolean;
+    ocrEnabled?: boolean;
+    aiModelEnabled?: boolean;
+    geoLookup?: boolean;
+  };
 document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
 
 const rs = document.getElementById('rs') as HTMLInputElement;
@@ -39,4 +42,10 @@ const ai = document.getElementById('ai') as HTMLInputElement;
 ai.checked = aiModelEnabled ?? false; // default off - big download, weak signal
 ai.addEventListener('change', () => {
   void chrome.storage.local.set({ aiModelEnabled: ai.checked });
+});
+
+const geo = document.getElementById('geo') as HTMLInputElement;
+geo.checked = geoLookup ?? false; // default off - coordinates are sensitive
+geo.addEventListener('change', () => {
+  void chrome.storage.local.set({ geoLookup: geo.checked });
 });

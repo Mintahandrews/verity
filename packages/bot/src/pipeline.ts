@@ -3,10 +3,13 @@ import {
   aiMetadataSignal,
   factCheckSignal,
   fuse,
+  gdeltSignal,
+  geolocationSignal,
   metadataSignal,
   pHash64,
   pHashHex,
   sha256Hex,
+  waybackSignal,
 } from '@verity/core';
 import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@verity/core';
 import sharp from 'sharp';
@@ -24,6 +27,9 @@ const signals = new SignalRegistry()
   .register(c2paSignal)
   .register(aiMetadataSignal)
   .register(metadataSignal)
+  .register(geolocationSignal)
+  .register(waybackSignal)
+  .register(gdeltSignal)
   .register(factCheckSignal);
 
 interface RegistryHit {
@@ -138,6 +144,9 @@ export async function analyzeBuffer(
     url: sourceUrl,
     kind,
     ...(contextText ? { contextText } : {}),
+    // Opt-in: sends EXIF coordinates to a geocoder. Telegram strips GPS on
+    // photos anyway; documents/originals may keep it.
+    locationLookup: process.env.GEO_LOOKUP === '1',
   };
   const results = await signals.run({ ...media, blob });
   if (hit?.match === 'similar') results.unshift(priorSighting(hit));

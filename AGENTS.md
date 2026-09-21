@@ -44,8 +44,11 @@ See `docs/DESIGN.md` for the full vision and roadmap.
 - c2pa (`@contentauth/c2pa-web`) runs in the offscreen document - MV3 WASM requires
   `'wasm-unsafe-eval'` CSP and a DOM-capable context for its web worker.
 - Signals registered in `src/analysis.ts`: c2pa → ai-metadata (deterministic
-  generator fingerprints) → metadata → reverse-search (Google Lens, opt-in via
-  `chrome.storage.local.reverseSearch`, public URLs only) → ai-model (ONNX
+  generator fingerprints) → metadata → geolocation (EXIF GPS vs claimed country;
+  geocoding is opt-in via `locationLookup`/popup `geoLookup`) → reverse-search
+  (Google Lens, opt-in via `chrome.storage.local.reverseSearch`, public URLs
+  only) → wayback (archive.org first-sighting; skips telegram URLs) → gdelt
+  (news coverage of claims, keyless) → fact-check → ai-model (ONNX
   classifier via onnxruntime-web, only when `aiModelUrl` is configured - lazy
   chunk, honest 0.7 confidence cap).
 - Registry similarity search uses an in-memory BK-tree (`store.ts`/`bktree.ts`);
@@ -53,8 +56,9 @@ See `docs/DESIGN.md` for the full vision and roadmap.
   samples 3 offsets so trimmed re-uploads still match).
 - Bot pipeline (`packages/bot/src/pipeline.ts`) mirrors the extension's:
   c2pa-node (native bindings, magic-byte MIME sniffing - mismatches throw) →
-  ai-metadata → metadata → fact-check. OCR (tesseract.js) enriches
-  contextText for images so claims in pixels reach fact-check.
+  ai-metadata → metadata → geolocation → wayback → gdelt → fact-check.
+  OCR (tesseract.js) enriches contextText for images so claims in pixels
+  reach fact-check. `GEO_LOOKUP=1` opts into coordinate geocoding.
 - Fact-check signal has pluggable providers: Google Fact Check Tools API
   (keyed) + ClaimReview JSON-LD fetched from URLs in context/`pageUrl`
   (keyless - covers the "page itself is a fact-check" case).

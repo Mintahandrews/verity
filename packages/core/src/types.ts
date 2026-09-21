@@ -32,6 +32,9 @@ export interface MediaDescriptor {
   /** URL of the page/message hosting the media - the fact-check signal fetches
    *  it for ClaimReview markup (the page itself may be a fact-check). */
   pageUrl?: string;
+  /** Opt-in: allow the geolocation signal to send EXIF GPS coordinates to a
+   *  geocoding service. Off by default - coordinates are sensitive. */
+  locationLookup?: boolean;
 }
 
 export interface MediaInput extends MediaDescriptor {

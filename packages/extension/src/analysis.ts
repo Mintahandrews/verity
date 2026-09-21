@@ -3,10 +3,13 @@ import {
   aiMetadataSignal,
   factCheckSignal,
   fuse,
+  gdeltSignal,
+  geolocationSignal,
   metadataSignal,
   pHash64,
   pHashHex,
   sha256Hex,
+  waybackSignal,
 } from '@verity/core';
 import type { MediaDescriptor, SignalResult, Verdict } from '@verity/core';
 import { c2paSignal } from './offscreen/signals/c2pa';
@@ -21,7 +24,10 @@ const registry = new SignalRegistry()
   .register(c2paSignal)
   .register(aiMetadataSignal)
   .register(metadataSignal)
+  .register(geolocationSignal)
   .register(reverseSearchSignal)
+  .register(waybackSignal)
+  .register(gdeltSignal)
   .register(factCheckSignal)
   .register(aiModelSignal);
 
@@ -89,19 +95,19 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
 
   // Claims live in pixels too (memes, screenshots) - OCR enriches the
   // fact-check signal's context text. Lazy-loaded; off via popup toggle.
-  let enriched = media;
-  if (media.kind === 'image') {
-    const { ocrEnabled } = (await chrome.storage.local.get('ocrEnabled')) as {
-      ocrEnabled?: boolean;
-    };
-    if (ocrEnabled !== false) {
-      const ocrText = await extractText(blob);
-      if (ocrText) {
-        const contextText = [media.contextText, ocrText.slice(0, MAX_OCR_CHARS)]
-          .filter(Boolean)
-          .join('\n');
-        enriched = { ...media, contextText };
-      }
+  // locationLookup stays opt-in: coordinates are sent to a geocoder.
+  const { ocrEnabled, geoLookup } = (await chrome.storage.local.get([
+    'ocrEnabled',
+    'geoLookup',
+  ])) as { ocrEnabled?: boolean; geoLookup?: boolean };
+  let enriched: MediaDescriptor = { ...media, locationLookup: geoLookup ?? false };
+  if (media.kind === 'image' && ocrEnabled !== false) {
+    const ocrText = await extractText(blob);
+    if (ocrText) {
+      const contextText = [media.contextText, ocrText.slice(0, MAX_OCR_CHARS)]
+        .filter(Boolean)
+        .join('\n');
+      enriched = { ...enriched, contextText };
     }
   }
 
