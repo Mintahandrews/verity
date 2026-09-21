@@ -1,8 +1,8 @@
 node_modules
 **/node_modules
 **/dist
-design/
-docs/
+/design/
+/docs/
 *.traineddata
 .git
 .DS_Store
