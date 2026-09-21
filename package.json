@@ -11,6 +11,7 @@
     "build": "npm run build -w @verity/extension",
     "registry": "npm run start -w @verity/registry",
     "bot": "npm run start -w @verity/bot",
+    "sign": "npm run sign -w @verity/signer --",
     "typecheck": "npm run typecheck -ws --if-present",
     "test": "npm test -ws --if-present",
     "icons": "node scripts/gen-icons.mjs"

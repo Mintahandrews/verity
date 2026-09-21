@@ -1,4 +1,5 @@
 import { createC2pa } from 'c2pa-node';
+import { sniffMime } from '@verity/core';
 import type { Evidence, MediaKind, Signal, SignalResult } from '@verity/core';
 
 // c2pa-node ships precompiled neon bindings; one instance per process.
@@ -9,27 +10,6 @@ const MIME_BY_KIND: Record<MediaKind, string> = {
   video: 'video/mp4',
   audio: 'audio/mpeg',
 };
-
-/**
- * Magic-byte sniffing. The bot's Blob has no type (we construct it from raw
- * bytes) and c2pa-node *throws* on a MIME/format mismatch, so the declared
- * type can't be trusted — sniff the actual container instead.
- */
-function sniffMime(buf: Buffer): string | null {
-  if (buf.length < 12) return null;
-  if (buf.readUInt32BE(0) === 0x89504e47) return 'image/png';
-  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
-  if (buf.subarray(0, 4).toString('ascii') === 'GIF8') return 'image/gif';
-  if (
-    buf.subarray(0, 4).toString('ascii') === 'RIFF' &&
-    buf.subarray(8, 12).toString('ascii') === 'WEBP'
-  ) {
-    return 'image/webp';
-  }
-  if (buf.subarray(4, 8).toString('ascii') === 'ftyp') return 'video/mp4';
-  if (buf.readUInt32BE(0) === 0x1a45dfa3) return 'video/webm';
-  return null;
-}
 
 // Same plain-language mapping as the extension signal — keep in sync.
 const SOURCE_TYPES: Record<string, string> = {
@@ -62,7 +42,8 @@ export const c2paSignal: Signal = {
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
     const buffer = Buffer.from(await media.blob.arrayBuffer());
-    const mimeType = sniffMime(buffer) ?? media.blob.type ?? MIME_BY_KIND[media.kind];
+    const mimeType =
+      sniffMime(new Uint8Array(buffer)) ?? media.blob.type ?? MIME_BY_KIND[media.kind];
 
     let store;
     try {

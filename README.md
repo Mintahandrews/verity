@@ -55,6 +55,23 @@ Environment variables:
 - `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` — per-user check limit, defaults
   to 30 per hour
 
+## Signing ("prove real")
+
+Creators can sign media so Verity (and any C2PA verifier) returns `verified`:
+
+```bash
+npm run sign -- input.jpg signed.jpg --cert cert.pem --key key.pem
+npm run sign -- input.jpg signed.jpg --test   # ephemeral test cert, dev only
+```
+
+Test certs aren't on the C2PA trust list — production signing needs a real
+certificate. Signing is fully local; nothing leaves the machine.
+
+## Registry dashboard
+
+`npm run registry` also serves a dashboard at `/` — verdict stats, recent
+checks, and hash lookup. `GET /api/stats` returns the same numbers as JSON.
+
 ## Repo layout
 
 ```
@@ -65,6 +82,7 @@ packages/extension  MV3 extension: background router, offscreen WASM analysis,
 packages/registry   Zero-dep verdict API: hash lookup, BK-tree pHash index,
                     shareable /v/:sha pages
 packages/bot        Telegram bot (grammY + sharp) reusing the core pipeline
+packages/signer     "Prove real" CLI — embeds C2PA signed manifests locally
 docs/DESIGN.md      Full product vision, gap map, roadmap
 scripts/gen-icons.mjs  Dependency-free icon generator
 ```

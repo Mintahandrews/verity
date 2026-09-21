@@ -86,6 +86,21 @@ export class RegistryStore {
     return this.records.size;
   }
 
+  /** Newest records first, for the dashboard. */
+  recent(limit = 20): RegistryRecord[] {
+    return [...this.records.values()]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  stats(): Record<string, number> {
+    const by: Record<string, number> = { total: this.records.size };
+    for (const r of this.records.values()) {
+      by[r.verdict.state] = (by[r.verdict.state] ?? 0) + 1;
+    }
+    return by;
+  }
+
   flush(): void {
     if (!this.dirty) return;
     mkdirSync(dirname(this.file), { recursive: true });
