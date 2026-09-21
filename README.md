@@ -257,7 +257,7 @@ Generates `newsroom-report.csv` and `newsroom-report.json` with SHA-256, pHash, 
 ## Production Deployment (Railway)
 
 A live public registry is hosted at:
-👉 **[https://registry-production-73c0.up.railway.app](https://registry-production-73c0.up.railway.app)**
+👉 **[https://verity.codemintah.dev](https://verity.codemintah.dev)**
 
 Live Telegram bot:
 👉 **[@CheckVerityBot](https://t.me/CheckVerityBot)**

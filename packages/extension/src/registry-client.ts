@@ -10,7 +10,7 @@ export interface RegistryHit {
 
 // Public Verity registry (Railway). Self-hosters override via
 // chrome.storage.local.registryUrl.
-const DEFAULT_REGISTRY = 'https://registry-production-73c0.up.railway.app';
+const DEFAULT_REGISTRY = 'https://verity.codemintah.dev';
 const TIMEOUT_MS = 3000;
 
 async function base(): Promise<string> {
