@@ -1,5 +1,5 @@
 // Generates extension icons — no dependencies, writes minimal PNGs.
-// Design: white checkmark on dark indigo background.
+// Design: Electric Sprout checkmark on Forest Depths — neo-botanical system.
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -68,8 +68,8 @@ function distToSeg(px, py, ax, ay, bx, by) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-const BG = [49, 46, 129, 255]; // indigo-900
-const FG = [255, 255, 255, 255];
+const BG = [0x12, 0x23, 0x14, 255]; // Forest Depths
+const FG = [0x68, 0xef, 0x3f, 255]; // Electric Sprout
 const CLEAR = [0, 0, 0, 0];
 
 function pixel(x, y, size) {
@@ -92,7 +92,10 @@ function pixel(x, y, size) {
 }
 
 mkdirSync(OUT_DIR, { recursive: true });
-for (const size of [16, 48, 128]) {
+for (const size of [16, 48, 128, 512]) {
   writeFileSync(join(OUT_DIR, `icon${size}.png`), png(size, pixel));
   console.log(`wrote icon${size}.png`);
 }
+// Telegram bot avatar (BotFather wants >=150px; 512 is the sweet spot).
+writeFileSync(join(OUT_DIR, 'bot-avatar.png'), png(512, pixel));
+console.log('wrote bot-avatar.png');
