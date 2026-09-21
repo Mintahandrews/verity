@@ -46,9 +46,29 @@ const CSS = `
 `;
 
 /** Server-rendered shareable verdict page - same palette as the extension card. */
-export function verdictPage(verdict: Verdict, sha256: string): string {
+export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): string {
   const chipClass = verdict.error ? 'failed' : verdict.state;
   const chipLabel = verdict.error ? 'CHECK FAILED' : verdict.state.toUpperCase();
+  const canonical = publicUrl ? `${publicUrl}/v/${sha256}` : undefined;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: `Verity Verification Verdict: ${verdict.headline}`,
+    description: `Media authenticity evidence report for SHA-256 ${sha256}. State: ${verdict.state}.`,
+    datePublished: verdict.checkedAt,
+    author: {
+      '@type': 'Organization',
+      name: 'Verity Provenance Engine',
+      url: publicUrl || 'https://github.com/verity-project/verity',
+    },
+    about: {
+      '@type': 'MediaObject',
+      sha256: sha256,
+      name: verdict.headline,
+    },
+  };
+
   const signals = verdict.signals
     .filter((s) => s.outcome !== 'unsupported')
     .map(
@@ -64,9 +84,14 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
     .join('');
 
   return shell({
-    title: `Verity - ${verdict.state} verdict`,
-    ogTitle: `Verity verdict: ${verdict.state}`,
+    title: `Verity Verdict: ${verdict.state.toUpperCase()} - ${verdict.headline}`,
+    description: `Authenticity evidence for SHA-256 ${sha256}: ${verdict.headline}. Verified C2PA provenance and metadata forensics.`,
+    canonicalUrl: canonical,
+    ogTitle: `Verity Verdict: ${verdict.state.toUpperCase()} - ${verdict.headline}`,
     ogDescription: verdict.headline,
+    ogImage: publicUrl ? `${publicUrl}/assets/og-image.jpg` : undefined,
+    jsonLd,
+    back: { href: '/dashboard', label: 'Registry' },
     css: CSS,
     script:
       chipClass === 'failed'
@@ -75,16 +100,16 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
 <script>lottie.loadAnimation({container:document.getElementById('anim'),renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json'})</script>`,
     body: `
 <div class="wrap cardwrap">
-  <div class="card">
-    ${chipClass === 'failed' ? '' : '<div class="animbox" id="anim"></div>'}
+  <article class="card">
+    ${chipClass === 'failed' ? '' : '<div class="animbox" id="anim" aria-hidden="true"></div>'}
     <span class="chip ${chipClass}">${chipLabel}</span>
     <h1>${esc(verdict.headline)}</h1>
-    <p class="when">Checked ${esc(new Date(verdict.checkedAt).toLocaleString())}</p>
+    <p class="when">Checked <time datetime="${esc(verdict.checkedAt)}">${esc(new Date(verdict.checkedAt).toLocaleString())}</time></p>
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
-    <p class="hash">sha256 ${esc(sha256)}</p>
-  </div>
-  <p class="checkcta">Check media yourself - forward it to
-    <a href="https://t.me/CheckVerityBot">@CheckVerityBot</a> on Telegram.</p>
+    <p class="hash">SHA-256: <code>${esc(sha256)}</code></p>
+  </article>
+  <p class="checkcta">Check media yourself &mdash; forward it to
+    <a href="https://t.me/CheckVerityBot" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> on Telegram.</p>
 </div>`,
   });
 }

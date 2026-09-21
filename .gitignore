@@ -4,3 +4,6 @@ dist/
 .DS_Store
 *.traineddata
 release/
+registry.json
+*.local
+coverage/

@@ -1,0 +1,60 @@
+name: 🐛 Bug Report
+description: Report an issue or unexpected behavior in Verity (Extension, Registry, Bot, or Core).
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much detail as possible to help reproduce and fix the bug.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of Verity is affected?
+      options:
+        - Browser Extension (packages/extension)
+        - Core Engine & Fusion (packages/core)
+        - Registry API & Dashboard (packages/registry)
+        - Telegram Bot (packages/bot)
+        - Signer CLI (packages/signer)
+        - Documentation / Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can maintainers reproduce this issue?
+      placeholder: |
+        1. Right-click on image with URL '...'
+        2. Click 'Verify with Verity'
+        3. Observe error '...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, OS, Browser & Version (e.g. Chrome 128 / macOS Sonoma / Node 22.4).
+      placeholder: Chrome 128, macOS Sonoma, Node 22.x
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any console logs, media hashes (SHA-256), or screenshots here.

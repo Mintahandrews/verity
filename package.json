@@ -3,6 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "description": "Multi-signal media authenticity engine: C2PA cryptographic provenance, metadata forensics, perceptual hashing, and fact-checking without labeling content 'fake'.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/verity-project/verity.git"
+  },
+  "homepage": "https://github.com/verity-project/verity#readme",
+  "bugs": {
+    "url": "https://github.com/verity-project/verity/issues"
+  },
+  "keywords": [
+    "c2pa",
+    "content-credentials",
+    "deepfake-detection",
+    "media-authenticity",
+    "provenance",
+    "digital-forensics",
+    "perceptual-hashing",
+    "bk-tree",
+    "misinformation-mitigation",
+    "fact-checking",
+    "chrome-extension",
+    "manifest-v3",
+    "synthetic-media",
+    "ai-watermarking",
+    "epistemic-security"
+  ],
   "workspaces": [
     "packages/*"
   ],
@@ -12,8 +39,8 @@
     "registry": "npm run start -w @verity/registry",
     "bot": "npm run start -w @verity/bot",
     "sign": "npm run sign -w @verity/signer --",
-    "typecheck": "npm run typecheck -ws --if-present",
-    "test": "npm test -ws --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
     "icons": "node scripts/gen-icons.mjs",
     "anims": "node scripts/gen-anims.mjs",
     "pack": "npm run build && mkdir -p release && cd packages/extension/dist && zip -qr ../../../release/verity-extension.zip . && echo \"packed release/verity-extension.zip\"",

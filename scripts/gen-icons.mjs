@@ -91,11 +91,29 @@ function pixel(x, y, size) {
   return onCheck ? FG : BG;
 }
 
+const REGISTRY_OUT_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../packages/registry/public/assets',
+);
+
 mkdirSync(OUT_DIR, { recursive: true });
-for (const size of [16, 48, 128, 512]) {
-  writeFileSync(join(OUT_DIR, `icon${size}.png`), png(size, pixel));
+mkdirSync(REGISTRY_OUT_DIR, { recursive: true });
+
+for (const size of [16, 32, 48, 128, 192, 512]) {
+  const iconBuffer = png(size, pixel);
+  writeFileSync(join(OUT_DIR, `icon${size}.png`), iconBuffer);
+  writeFileSync(join(REGISTRY_OUT_DIR, `icon${size}.png`), iconBuffer);
   console.log(`wrote icon${size}.png`);
 }
+
+// Favicon and touch icons for web
+const p32 = png(32, pixel);
+writeFileSync(join(REGISTRY_OUT_DIR, 'favicon.png'), p32);
+const p192 = png(192, pixel);
+writeFileSync(join(REGISTRY_OUT_DIR, 'apple-touch-icon.png'), p192);
+
 // Telegram bot avatar (BotFather wants >=150px; 512 is the sweet spot).
-writeFileSync(join(OUT_DIR, 'bot-avatar.png'), png(512, pixel));
-console.log('wrote bot-avatar.png');
+const botAvatar = png(512, pixel);
+writeFileSync(join(OUT_DIR, 'bot-avatar.png'), botAvatar);
+writeFileSync(join(REGISTRY_OUT_DIR, 'bot-avatar.png'), botAvatar);
+console.log('wrote bot-avatar.png and web icons');

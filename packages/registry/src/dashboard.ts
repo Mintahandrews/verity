@@ -54,7 +54,11 @@ const CSS = `
 `;
 
 /** Server-rendered registry dashboard - the newsroom/journalist face. */
-export function dashboardPage(stats: Record<string, number>, recent: RegistryRecord[]): string {
+export function dashboardPage(
+  stats: Record<string, number>,
+  recent: RegistryRecord[],
+  publicUrl = '',
+): string {
   const rows = recent
     .map(
       (r) => `
@@ -68,14 +72,21 @@ export function dashboardPage(stats: Record<string, number>, recent: RegistryRec
     .join('');
 
   return shell({
-    title: 'Verity - verdict registry',
-    description: 'Public verdict registry: hash-keyed verdicts, recent checks, lookup.',
+    title: 'Verity Registry - Public Media Authenticity & Forensic Lookup',
+    description:
+      'Live newsroom verdict registry: cryptographic provenance lookup, recent checks, and perceptual near-duplicate matching for digital media.',
+    canonicalUrl: publicUrl ? `${publicUrl}/dashboard` : undefined,
+    ogTitle: 'Verity Registry - Live Provenance & Forensic Lookup',
+    ogDescription:
+      'Search verdicts by SHA-256 or perceptual hash. Zero media stored, transparent evidence for digital journalists.',
+    ogImage: publicUrl ? `${publicUrl}/assets/og-image.jpg` : undefined,
     active: 'registry',
+    back: { href: '/', label: 'Home' },
     css: CSS,
     hero: `
   <header class="pagehead">
     <h1>The public verdict <span class="g">registry</span></h1>
-    <p class="sub">Every check makes the network smarter. Verdicts are keyed by content hash - no media is ever stored here.</p>
+    <p class="sub">Every check makes the network smarter. Verdicts are keyed by content hash &mdash; no media is ever stored here.</p>
     <div class="stats">
       <span class="stat"><b>${stats['total'] ?? 0}</b> verdicts</span>
       <span class="stat"><b>${stats['verified'] ?? 0}</b> verified</span>
@@ -92,7 +103,7 @@ export function dashboardPage(stats: Record<string, number>, recent: RegistryRec
       <button type="submit">Look up</button>
     </form>
     <h2>Recent checks</h2>
-    ${rows || '<p class="empty">Nothing checked yet - verdicts appear here as media is verified.</p>'}
+    ${rows || '<p class="empty">Nothing checked yet &mdash; verdicts appear here as media is verified.</p>'}
   </div>
 </div>`,
   });

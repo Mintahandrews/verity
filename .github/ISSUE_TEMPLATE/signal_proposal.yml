@@ -1,0 +1,42 @@
+name: 📡 Verification Signal Proposal
+description: Propose a new evidence signal for the Verity multi-signal verification engine.
+labels: ["signal-proposal", "research"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Verity evaluates media authenticity through multiple orthogonal evidence signals. 
+        Remember Verity's golden rule: **Only cryptographic provenance (C2PA) can verify.** Other signals can only corroborate, cross-reference, or flag contradictions.
+  - type: input
+    id: signal_name
+    attributes:
+      label: Proposed Signal Name
+      description: Short descriptive name (e.g., SynthID Watermark Detector, Audio Spectrogram Inconsistency).
+    validations:
+      required: true
+  - type: dropdown
+    id: execution_environment
+    attributes:
+      label: Execution Environment
+      description: Where will this signal execute?
+      options:
+        - In-browser Offscreen Document (pure client-side WASM/JS, zero telemetry)
+        - Core Pipeline (shared Node/TS)
+        - Server / Registry side only
+        - External API integration (requires opt-in key)
+    validations:
+      required: true
+  - type: textarea
+    id: methodology
+    attributes:
+      label: Technical Methodology
+      description: How does this signal extract evidence? Cite research papers, standards, or specifications if applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: failure_modes
+    attributes:
+      label: False Positives & Failure Modes
+      description: What causes this signal to fail or mislead? How does it degrade gracefully without labeling media 'fake'?
+    validations:
+      required: true

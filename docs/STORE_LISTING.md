@@ -56,13 +56,16 @@ confirmed - not that the content is false.
 - No accounts, no analytics, no ads, no sale of data.
 - Media bytes never leave the device (registry API accepts hashes only).
 
-## Screenshots needed (1280×800)
+## Search & Discovery Tags (Store Keywords)
+`c2pa`, `content credentials`, `media authenticity`, `deepfake detection`, `image provenance`, `digital forensics`, `reverse image search`, `fact check`, `misinformation`, `photo verification`, `camera metadata`
 
-1. Context menu → "Verify with Verity" on a real page
-2. Verdict page showing a verified result with evidence rows
-3. Verdict page showing a suspicious result (use a flagged item from the registry)
-4. Popup showing toggles + check count
-5. The registry landing page (https://registry-production-73c0.up.railway.app)
+## Store Visual Assets
+- **Store icon (128x128)**: `packages/extension/public/icons/icon128.png`
+- **Hero & Promotional Graphic (1400x560 / 440x280)**: `docs/assets/verity-hero-banner.jpg`
+- **Extension Screenshots (1280x800)**:
+  1. Context menu → "Verify with Verity" on a real page
+  2. Verdict page showing a verified result with evidence rows
+  3. Verdict page showing a suspicious result (tampered or contradictory context)
+  4. Popup showing toggles + local check history count
+  5. The public newsroom registry dashboard (`/dashboard`)
 
-Store icon: `packages/extension/public/icons/icon128.png`
-Small promo tile (optional): generate 440×280 from `scripts/gen-icons.mjs` if desired.

@@ -1,0 +1,42 @@
+name: ✨ Feature Request
+description: Suggest an idea, enhancement, or new integration for Verity.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We welcome community ideas to push open-source media verification forward!
+  - type: dropdown
+    id: component
+    attributes:
+      label: Target Component
+      description: Where would this feature live?
+      options:
+        - Browser Extension
+        - Registry Server / Public Web
+        - Core Engine
+        - Telegram Bot
+        - Signer CLI
+        - Developer Tools & API
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement / Motivation
+      description: Is your feature request related to a problem or missing capability?
+      placeholder: I find it frustrating when...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed design, user experience, or architectural change.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other alternative solutions or features you've considered?

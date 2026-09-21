@@ -46,7 +46,17 @@ function isVerdict(v: unknown): v is Verdict {
     o !== null &&
     VALID_STATES.includes(o.state) &&
     typeof o.headline === 'string' &&
-    Array.isArray(o.signals)
+    Array.isArray(o.signals) &&
+    typeof o.checkedAt === 'string' &&
+    typeof o.confidence === 'number' &&
+    o.signals.every(
+      (s) =>
+        typeof s === 'object' &&
+        s !== null &&
+        typeof s.signalName === 'string' &&
+        typeof s.summary === 'string' &&
+        Array.isArray(s.evidence)
+    )
   );
 }
 
@@ -68,7 +78,7 @@ async function readBody(req: import('node:http').IncomingMessage): Promise<Submi
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}') as SubmitBody;
 }
 
-createServer(async (req, res) => {
+const handle = async (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'access-control-allow-origin': '*',
@@ -82,8 +92,125 @@ createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', PUBLIC_URL);
   const path = url.pathname;
 
+  // Global security & caching headers
+  res.setHeader('x-content-type-options', 'nosniff');
+  res.setHeader('x-frame-options', 'SAMEORIGIN');
+  res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
+
   if (path === '/healthz') {
     send(res, 200, { ok: true, records: store.count() });
+    return;
+  }
+
+  // SEO: robots.txt
+  if (path === '/robots.txt' && req.method === 'GET') {
+    res.writeHead(200, {
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'public, max-age=86400',
+    });
+    res.end(`User-agent: *
+Allow: /
+Disallow: /api/verdicts$
+
+Sitemap: ${PUBLIC_URL}/sitemap.xml
+`);
+    return;
+  }
+
+  // SEO: sitemap.xml
+  if (path === '/sitemap.xml' && req.method === 'GET') {
+    const recent = store.recent(50);
+    const urls = [
+      `  <url><loc>${PUBLIC_URL}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+      `  <url><loc>${PUBLIC_URL}/dashboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>`,
+      ...recent.map(
+        (r) =>
+          `  <url><loc>${PUBLIC_URL}/v/${r.sha256}</loc><lastmod>${r.createdAt.split('T')[0]}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
+      ),
+    ];
+    res.writeHead(200, {
+      'content-type': 'application/xml; charset=utf-8',
+      'cache-control': 'public, max-age=3600',
+    });
+    res.end(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>`);
+    return;
+  }
+
+  // GEO: llms.txt (Generative Engine Optimization standard for AI search scrapers)
+  if ((path === '/llms.txt' || path === '/.well-known/llms.txt') && req.method === 'GET') {
+    res.writeHead(200, {
+      'content-type': 'text/markdown; charset=utf-8',
+      'cache-control': 'public, max-age=86400',
+    });
+    res.end(`# Verity: Multi-Signal Media Authenticity Engine
+
+> An open-source media verification engine evaluating cryptographic provenance (C2PA), perceptual near-duplicate matching, metadata forensics, and fact-checking.
+
+## Philosophy & Core Invariants
+- **Provenance, not AI guessing**: Only valid cryptographic signatures (C2PA) verify origin. Probabilistic AI detectors can never verify media.
+- **Never calls media "fake"**: Most viral misinformation consists of authentic footage shared with fabricated contexts (cheapfakes). Verity outputs: Verified, Unverified, or Suspicious.
+- **Strict Privacy**: Zero media bytes stored. Only SHA-256 and pHash fingerprints are queried.
+
+## Available APIs
+- \`GET /api/verdicts/:sha256\`: Look up an existing media verdict by hex SHA-256 digest.
+- \`GET /api/similar?phash=:hex&maxdist=8\`: Query BK-tree index for perceptual near-duplicates (16-char hex pHash).
+- \`GET /api/stats\`: Real-time counts of checked, verified, unverified, and suspicious media.
+- \`POST /api/verdicts\`: Submit a locally computed verdict ({ sha256, phash?, verdict }).
+
+## Human Interfaces
+- Public Landing & FAQ: ${PUBLIC_URL}/
+- Live Newsroom Registry: ${PUBLIC_URL}/dashboard
+- Telegram Bot: https://t.me/CheckVerityBot
+- Open-Source GitHub Repository: https://github.com/verity-project/verity
+`);
+    return;
+  }
+
+  // Favicon shortcut
+  if (path === '/favicon.ico' && req.method === 'GET') {
+    const iconFile = join(fileURLToPath(new URL('../public/assets/favicon.png', import.meta.url)));
+    const body = await readFile(iconFile).catch(() => null);
+    if (body) {
+      res.writeHead(200, {
+        'content-type': 'image/png',
+        'cache-control': 'public, max-age=604800',
+      });
+      res.end(body);
+      return;
+    }
+  }
+
+  // Static assets (images, icons, og-image)
+  if (path.startsWith('/assets/') && req.method === 'GET') {
+    const name = normalize(path.slice(8)).replace(/^(\.\.[/\\])+/, '');
+    const file = join(fileURLToPath(new URL('../public/assets', import.meta.url)), name);
+    const ext = name.slice(name.lastIndexOf('.')).toLowerCase();
+    const mimeMap: Record<string, string> = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.svg': 'image/svg+xml',
+      '.webp': 'image/webp',
+      '.ico': 'image/x-icon',
+      '.json': 'application/json',
+      '.js': 'text/javascript',
+      '.css': 'text/css',
+    };
+    const type = mimeMap[ext];
+    const body = type ? await readFile(file).catch(() => null) : null;
+    if (!type || !body) {
+      res.writeHead(404).end();
+      return;
+    }
+    res.writeHead(200, {
+      'content-type': type,
+      'cache-control': 'public, max-age=604800',
+      'access-control-allow-origin': '*',
+    });
+    res.end(body);
     return;
   }
 
@@ -123,7 +250,7 @@ createServer(async (req, res) => {
   }
   if (path === '/dashboard' && req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(dashboardPage(store.stats(), store.recent(20)));
+    res.end(dashboardPage(store.stats(), store.recent(20), PUBLIC_URL));
     return;
   }
 
@@ -205,11 +332,20 @@ createServer(async (req, res) => {
       return;
     }
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(verdictPage(rec.verdict, rec.sha256));
+    res.end(verdictPage(rec.verdict, rec.sha256, PUBLIC_URL));
     return;
   }
 
   send(res, 404, { error: 'not found' });
+};
+
+// A handler bug or malformed stored record must never take down the process.
+createServer((req, res) => {
+  handle(req, res).catch((err) => {
+    console.error('request failed:', err);
+    if (!res.headersSent) send(res, 500, { error: 'internal error' });
+    else res.end();
+  });
 }).listen(PORT, () => {
   console.log(`verity registry listening on ${PUBLIC_URL}`);
 });

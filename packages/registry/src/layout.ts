@@ -40,6 +40,9 @@ export const BASE_CSS = `
     nav .links a.cta { padding: 6px 14px; }
     .wave { height: 40px; }
   }
+  .backnav { display: inline-block; color: var(--fern); font-size: 13px; text-decoration: none;
+             margin: -4px 0 10px; }
+  .backnav:hover { color: var(--sprout); }
   .sitefoot { border-top: 1px solid var(--mist); margin-top: 56px; padding: 28px 0 44px;
               font-size: 13px; color: var(--lichen); }
   .sitefoot .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
@@ -56,55 +59,101 @@ const WAVE = `<svg class="wave" viewBox="0 0 1440 64" preserveAspectRatio="none"
 
 export interface ShellOpts {
   title: string;
-  description?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  active?: 'home' | 'registry';
+  description?: string | undefined;
+  keywords?: string | undefined;
+  canonicalUrl?: string | undefined;
+  ogTitle?: string | undefined;
+  ogDescription?: string | undefined;
+  ogImage?: string | undefined;
+  active?: 'home' | 'registry' | undefined;
+  /** Back link rendered in the header band above the hero - for deep pages. */
+  back?: { href: string; label: string } | undefined;
   /** Extra <style> content for page-specific rules. */
-  css?: string;
+  css?: string | undefined;
   /** Content rendered inside the dark header band (above the wave). */
-  hero?: string;
+  hero?: string | undefined;
   /** Main content, rendered on the bone background. */
   body: string;
   /** Scripts appended before </body> (src or inline). */
-  script?: string;
+  script?: string | undefined;
+  /** Structured Data JSON-LD for AI answer engines (AEO/GEO) and rich snippets */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>> | undefined;
 }
 
+const DEFAULT_KEYWORDS =
+  'media authenticity, C2PA, content credentials, deepfake detection, digital provenance, image forensics, misinformation verification, perceptual hash, BK-tree, fake news checker, synthetic media';
+const DEFAULT_OG_IMAGE = '/assets/og-image.jpg';
+
 export function shell(o: ShellOpts): string {
+  const ogImg = o.ogImage ?? DEFAULT_OG_IMAGE;
+  const keywords = o.keywords ?? DEFAULT_KEYWORDS;
+  const jsonLdScript = o.jsonLd
+    ? `<script type="application/ld+json">${JSON.stringify(o.jsonLd)}</script>`
+    : '';
+
   return `<!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(o.title)}</title>
 ${o.description ? `<meta name="description" content="${esc(o.description)}">` : ''}
-${o.ogTitle ? `<meta property="og:title" content="${esc(o.ogTitle)}">` : ''}
-${o.ogDescription ? `<meta property="og:description" content="${esc(o.ogDescription)}">` : ''}
+<meta name="keywords" content="${esc(keywords)}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="theme-color" content="#122314">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+${o.canonicalUrl ? `<link rel="canonical" href="${esc(o.canonicalUrl)}">` : ''}
+
+<!-- Icons & PWA -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icon16.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/assets/apple-touch-icon.png">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:site_name" content="Verity">
 <meta property="og:type" content="website">
+<meta property="og:title" content="${esc(o.ogTitle ?? o.title)}">
+<meta property="og:description" content="${esc(o.ogDescription ?? o.description ?? '')}">
+<meta property="og:image" content="${esc(ogImg)}">
+<meta property="og:image:alt" content="Verity - Multi-Signal Media Authenticity Engine">
+${o.canonicalUrl ? `<meta property="og:url" content="${esc(o.canonicalUrl)}">` : ''}
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(o.ogTitle ?? o.title)}">
+<meta name="twitter:description" content="${esc(o.ogDescription ?? o.description ?? '')}">
+<meta name="twitter:image" content="${esc(ogImg)}">
+
+<!-- Structured Data for Answer Engines (AEO) & Generative Search (GEO) -->
+${jsonLdScript}
+
 <style>${BASE_CSS}${o.css ?? ''}</style>
 </head>
 <body>
 <div class="topband">
-  <div class="wrap"><nav>
-    <a class="wordmark" href="/">Verity<span>.</span></a>
+  <div class="wrap"><nav aria-label="Main Navigation">
+    <a class="wordmark" href="/" aria-label="Verity Home">Verity<span>.</span></a>
     <div class="links">
-      <a href="/" ${o.active === 'home' ? 'class="active"' : ''}>Home</a>
-      <a href="${esc(TELEGRAM_BOT)}">Telegram bot</a>
-      <a class="cta" href="/dashboard">Registry</a>
+      <a href="/" ${o.active === 'home' ? 'class="active" aria-current="page"' : ''}>Home</a>
+      <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Telegram bot</a>
+      <a class="cta" href="/dashboard" ${o.active === 'registry' ? 'aria-current="page"' : ''}>Registry</a>
     </div>
   </nav></div>
+  ${o.back ? `<div class="wrap"><a class="backnav" href="${esc(o.back.href)}">&larr; ${esc(o.back.label)}</a></div>` : ''}
   ${o.hero ? `<div class="wrap">${o.hero}</div>` : ''}
   ${WAVE}
 </div>
-<main>
+<main id="main-content">
 ${o.body}
 </main>
-<div class="wrap"><footer class="sitefoot">
+<div class="wrap"><footer class="sitefoot" role="contentinfo">
   <div class="row">
-    <span>Verity - open-source media verification. Only hashes leave your device.</span>
-    <span><a href="/dashboard">Registry</a> · <a href="${esc(TELEGRAM_BOT)}">@CheckVerityBot</a></span>
+    <span>Verity &bull; Open-source media verification engine. Zero media stored.</span>
+    <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/verity-project/verity" target="_blank" rel="noopener noreferrer">GitHub</a></span>
   </div>
-  <p class="pledge">&ldquo;Unverified means we couldn't confirm provenance - not that the content is false.&rdquo;</p>
+  <p class="pledge">&ldquo;Unverified means we couldn't confirm provenance &mdash; not that the content is false.&rdquo;</p>
 </footer></div>
 ${o.script ?? ''}
 </body>

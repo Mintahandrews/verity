@@ -1,119 +1,265 @@
-# Verity
+<div align="center">
 
-**Multi-signal media authenticity engine.** Verity doesn't ask "is this fake?" - it asks
-"what can we *verify*?" and answers with a transparent, evidence-backed verdict:
+# Verity: Multi-Signal Media Authenticity Engine
 
-- ✅ **Verified** - cryptographically signed provenance (C2PA Content Credentials)
-- ❓ **Unverified** - not enough evidence to confirm or refute
-- ⚠️ **Suspicious** - evidence contradicts the content's claims
+<p align="center">
+  <strong>Cryptographic Provenance (C2PA) &bull; Perceptual Hashing (pHash BK-Tree) &bull; Metadata Forensics &bull; Zero-Telemetry Privacy</strong>
+</p>
 
-Most viral misinformation isn't deepfakes - it's real media with false context. Verity
-treats authenticity as a multi-signal problem, not a detection problem.
+[![CI Status](https://github.com/verity-project/verity/actions/workflows/ci.yml/badge.svg)](https://github.com/verity-project/verity/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![C2PA Standard](https://img.shields.io/badge/Standard-C2PA%20Content%20Credentials-00c853.svg)](https://c2pa.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](https://www.typescriptlang.org/)
+[![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-yellow.svg)](packages/extension)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-@CheckVerityBot-229ED9.svg)](https://t.me/CheckVerityBot)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-## Status
+<br />
 
-Phase 3 in progress: extension (C2PA + metadata + badges), the verdict
-registry - a zero-dep, self-hostable API (`npm run registry`) with hash lookup,
-perceptual near-dupe matching, and shareable verdict pages at `/v/:sha` - and a
-Telegram bot (`npm run bot`). The extension works fully offline; the registry
-adds caching + share links.
-Override the registry URL via `chrome.storage.local.set({registryUrl: '…'})`.
-See [`docs/DESIGN.md`](docs/DESIGN.md) for the full vision.
+<img src="docs/assets/verity-hero-banner.jpg" alt="Verity - Multi-Signal Media Authenticity and Digital Provenance Hero Banner" width="100%" style="border-radius: 12px; margin: 16px 0;" />
+
+</div>
+
+---
+
+## What is Verity?
+
+**Verity is an open-source, multi-signal media authenticity engine.** 
+
+Traditional AI detectors attempt to answer *"is this fake?"* using probabilistic classifiers that suffer from severe false-positive rates on real camera photos and easily break against basic compression. Verity fundamentally reframes media analysis:
+
+> **We don't ask *"is this fake?"* &mdash; we ask *"what can we verify?"***
+
+Most viral misinformation on the modern web is not a generative deepfake &mdash; it is **authentic media presented with fabricated context** (*cheapfakes*), recycled war footage, or miscaptioned screenshots. Verity investigates media across multiple deterministic evidence signals and produces a transparent, evidence-backed verdict:
+
+| Verdict | Definition | Visual Indicator |
+| :--- | :--- | :---: |
+| **`Verified`** | Cryptographically signed provenance confirmed (C2PA Content Credentials). Only valid cryptographic certificate chains can verify origin. | `✓` |
+| **`Unverified`** | No cryptographic provenance found. This is the normal baseline for most digital media &mdash; it means origin cannot be proven, **not** that it is false. | `?` |
+| **`Suspicious`** | Concrete evidence contradicts claims (tampered signature, prior sightings under contradictory context, or debunked fact-checks). | `!` |
+
+Verity **never** outputs the word *"fake"*. Every verdict displays the underlying evidentiary chain so humans can inspect the proof themselves.
+
+---
+
+## Key Features & Capabilities
+
+- 🛡️ **C2PA Content Credentials**: Parses and validates tamper-evident C2PA manifests and x509 certificates locally inside a browser WASM sandbox.
+- ⚡ **Perceptual Hash BK-Tree Index**: Ultra-fast Burkhard-Keller metric tree for hamming distance lookups (16-char hex pHash) catching crops, resizes, and compression variations.
+- 🔍 **Metadata Forensics**: Extracts camera EXIF, software editing footprints, AI-generator signatures (e.g. Midjourney, DALL-E, Stable Diffusion tags), and cross-checks GPS vs. claimed geolocation.
+- 📰 **Newsroom Fact-Check Matching**: Local Tesseract OCR extracts text from memes, headlines, and screenshots, cross-referencing ClaimReview databases and GDELT global news index.
+- 🔒 **Zero-Telemetry Privacy**: Your photos and videos **never** leave your machine. Decoding and forensic parsing happen client-side. The registry API receives only SHA-256 and pHash fingerprints.
+- 🌐 **Chrome / Firefox Extension (Manifest V3)**: Inspect any image on the web via right-click context menu or toolbar popup.
+- 🤖 **Telegram Verification Bot**: Forward photos or videos to [`@CheckVerityBot`](https://t.me/CheckVerityBot) for immediate analysis and shareable verdict links.
+- 🖋️ **C2PA Signer CLI ("Prove Real")**: Photographers, journalists, and creators can locally stamp their original media with signed C2PA manifests before publishing.
+
+---
+
+## Architecture Flow
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Device (Local Privacy Sandbox)"]
+        Media["Input Image / Video"]
+        Media --> Hashing["Hash Engine<br/>• SHA-256 Digest<br/>• 64-bit Perceptual Hash (pHash)"]
+        Media --> C2PA["C2PA Engine (WASM)<br/>• Manifest Parsing<br/>• x509 Cert Validation"]
+        Media --> Forensics["Forensic Parser<br/>• EXIF / Camera Model<br/>• Editing Traces / Software<br/>• AI Generator Signatures"]
+        Media --> OCR["OCR Signal (Tesseract)<br/>• Text Extraction<br/>• ClaimReview Search"]
+    end
+
+    subgraph Fusion ["Verity Core Fusion Engine"]
+        Hashing --> Core["Multi-Signal Fusion Engine"]
+        C2PA --> Core
+        Forensics --> Core
+        OCR --> Core
+    end
+
+    subgraph Registry ["Verity Registry (Zero Media Stored)"]
+        Core <--> BKTree["BK-Tree Index<br/>(Perceptual Near-Duplicates)"]
+        Core <--> Cache["Verdict Store<br/>(Hash-keyed Verdicts)"]
+    end
+
+    Core --> Output{"Transparent Verdict"}
+    Output -->|"Valid x509 C2PA Signature"| V["Verified ✓"]
+    Output -->|"No Provenance Available"| U["Unverified ?"]
+    Output -->|"Tampered / Contradicted"| S["Suspicious !"]
+
+    style V fill:#68ef3f,stroke:#122314,stroke-width:2px,color:#122314
+    style U fill:#d6d6d6,stroke:#30322a,stroke-width:2px,color:#222222
+    style S fill:#222222,stroke:#68ef3f,stroke-width:2px,color:#ffffff
+    style Client fill:#122314,stroke:#68ef3f,stroke-width:1px,color:#ffffff
+    style Fusion fill:#273f2b,stroke:#b7bda5,stroke-width:1px,color:#ffffff
+    style Registry fill:#122314,stroke:#b7bda5,stroke-width:1px,color:#ffffff
+```
+
+---
+
+## Monorepo Packages
+
+Verity is architected as an ultra-fast TypeScript monorepo using npm workspaces:
+
+| Package | Path | Description |
+| :--- | :--- | :--- |
+| **`@verity/core`** | [`packages/core`](packages/core) | Pure TypeScript engine: signal registry, fusion logic, forensic rules, fact-check connectors. Zero DOM dependencies. |
+| **`@verity/extension`** | [`packages/extension`](packages/extension) | Chrome & Firefox Manifest V3 extension: offscreen WASM analysis, context menu, popup, in-page badge overlays. |
+| **`@verity/registry`** | [`packages/registry`](packages/registry) | Zero-dependency verdict API server (`node:http`): BK-tree pHash index, `/v/:sha256` share pages, newsroom dashboard, SEO/GEO metadata. |
+| **`@verity/bot`** | [`packages/bot`](packages/bot) | Production Telegram bot (`grammY` + `sharp`) verifying media on mobile with zero user setup. |
+| **`@verity/signer`** | [`packages/signer`](packages/signer) | Local C2PA signing tool for creators to cryptographically sign their originals. |
+
+---
 
 ## Quickstart
 
+### Prerequisites
+
+- **Node.js**: >= 20.x (Node 22 LTS or Node 24 recommended)
+- **npm**: >= 10.x
+
+### 1. Installation
+
+Clone the repository and install workspace dependencies:
+
 ```bash
+git clone https://github.com/verity-project/verity.git
+cd verity
 npm install
-npm run dev        # dev build with HMR
-# or: npm run build
 ```
 
-Then load `packages/extension/dist` at `chrome://extensions` (Developer mode →
-"Load unpacked").
+Verify your setup:
+```bash
+npm run typecheck   # Typecheck all packages
+npm test            # Run Vitest test suites across workspaces
+```
 
-**Verify media:** right-click any image/video → "Verify with Verity", or use the
-toolbar popup → "Scan this page".
+---
 
-## Telegram bot
+### 2. Browser Extension (Chrome & Firefox)
+
+Build the extension with Vite:
 
 ```bash
-TELEGRAM_BOT_TOKEN=… npm run bot
+npm run build       # Production bundle to packages/extension/dist
+# Or for live development with HMR:
+npm run dev
 ```
 
-Forward the bot a photo or video → it replies with a verdict + shareable link.
-Media is analyzed in-process; only hashes and verdict metadata go to the registry.
+**Load the extension in Chrome:**
+1. Open Google Chrome and go to `chrome://extensions/`.
+2. Enable **Developer mode** (toggle in upper right).
+3. Click **Load unpacked** and select `packages/extension/dist`.
+4. Right-click any image on the web &rarr; click **"Verify with Verity"**.
 
-Environment variables:
+To package a zip for Chrome Web Store distribution:
+```bash
+npm run pack        # → release/verity-extension.zip
+```
 
-- `TELEGRAM_BOT_TOKEN` (required) - from [@BotFather](https://t.me/BotFather)
-- `REGISTRY_URL` - defaults to `http://localhost:8787`
-- `FACT_CHECK_API_KEY` (optional) - Google Fact Check Tools API key; without it
-  the fact-check signal reports `unsupported` and degrades gracefully
-- `OCR` - set to `0` to disable text-in-image extraction (default: on; feeds
-  the fact-check signal so memes/screenshots get claim-checked)
-- `OCR_LANGS` - tesseract language codes, defaults to `eng`
-- `GEO_LOOKUP` - set to `1` to let the location cross-check geocode embedded
-  GPS (sends coordinates to BigDataCloud's free client API; default off)
-- `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` - per-user check limit, defaults
-  to 30 per hour
+---
 
-## Signing ("prove real")
+### 3. Verdict Registry Server & Dashboard
 
-Creators can sign media so Verity (and any C2PA verifier) returns `verified`:
+Start the zero-dependency verdict server:
 
 ```bash
-npm run sign -- input.jpg signed.jpg --cert cert.pem --key key.pem
-npm run sign -- input.jpg signed.jpg --test   # ephemeral test cert, dev only
+npm run registry
 ```
 
-Test certs aren't on the C2PA trust list - production signing needs a real
-certificate. Signing is fully local; nothing leaves the machine.
+- Public Landing Page & FAQ: `http://localhost:8787/`
+- Live Newsroom Dashboard: `http://localhost:8787/dashboard`
+- Healthcheck: `http://localhost:8787/healthz`
+- Generative Engine Optimization Spec: `http://localhost:8787/llms.txt`
 
-## Landing page & dashboard
-
-`npm run registry` serves a public landing page at `/` (what Verity is, install
-links, live stats) and a newsroom dashboard at `/dashboard` - verdict stats,
-recent checks, hash lookup. `GET /api/stats` returns the same numbers as JSON.
-
-## Deployment (Railway)
-
-A public registry runs at `https://registry-production-73c0.up.railway.app`
-(landing at `/`, dashboard at `/dashboard`) and the Telegram bot is live at
-[`@CheckVerityBot`](https://t.me/CheckVerityBot). The Railway project deploys
-from the repo root; each service runs `npm start` which dispatches on env vars:
-
-| Service  | VERITY_PKG | VERITY_ENTRY | Extra vars |
-|----------|-----------|--------------|------------|
-| registry | registry  | server.ts    | `PUBLIC_URL`, `VERITY_DB=/data/registry.json` (volume at `/data`) |
-| bot      | bot       | bot.ts       | `TELEGRAM_BOT_TOKEN` (required), `REGISTRY_URL`, `FACT_CHECK_API_KEY` |
-
-Deploy a service: `railway up -s <service> -d`. The registry writes to
-`VERITY_DB` - mount a volume at `/data` or every redeploy resets it.
-
-## Newsroom bulk intake
+#### Key API Endpoints
 
 ```bash
-node packages/bot/src/scan.ts <folder> --out report   # → report.csv + report.json
+# Query verdict by SHA-256 hash
+curl http://localhost:8787/api/verdicts/<sha256-hex>
+
+# Query perceptual near-duplicates (pHash Hamming distance <= 8)
+curl "http://localhost:8787/api/similar?phash=a1b2c3d4e5f67890&maxdist=8"
+
+# Public verification statistics
+curl http://localhost:8787/api/stats
 ```
 
-Recursively analyzes a directory of images/videos through the same pipeline
-as the bot - one row per file, shareable links included when a registry is up.
+---
 
-## Repo layout
+### 4. Telegram Bot
 
+Run the bot locally or on a server:
+
+```bash
+TELEGRAM_BOT_TOKEN="<your-token-from-BotFather>" npm run bot
 ```
-packages/core       Pure TS: types, signal registry, fusion engine, shared
-                    signals (metadata, AI signatures, fact-check)
-packages/extension  MV3 extension: background router, offscreen WASM analysis,
-                    content-script badges, popup, verdict page
-packages/registry   Zero-dep verdict API: hash lookup, BK-tree pHash index,
-                    shareable /v/:sha pages
-packages/bot        Telegram bot (grammY + sharp) reusing the core pipeline
-packages/signer     "Prove real" CLI - embeds C2PA signed manifests locally
-docs/DESIGN.md      Full product vision, gap map, roadmap
-scripts/gen-icons.mjs  Dependency-free icon generator
+
+Forward any photo or video to your bot &mdash; it analyzes the media in-process and returns the verdict with a shareable verification link.
+
+**Optional Environment Variables:**
+- `REGISTRY_URL`: URL of your registry server (defaults to `http://localhost:8787`)
+- `FACT_CHECK_API_KEY`: Google Fact Check Tools API key for ClaimReview queries
+- `OCR`: Set to `0` to disable text extraction (default: `1`)
+- `RATE_LIMIT_MAX`: Requests per user window (defaults to `30`)
+
+---
+
+### 5. Signer CLI ("Prove Real")
+
+Embed authentic C2PA Content Credentials into your original files before publishing:
+
+```bash
+# Production signing with real x509 credentials
+npm run sign -- photo.jpg signed.jpg --cert cert.pem --key key.pem
+
+# Ephemeral test certificate (development only)
+npm run sign -- photo.jpg signed.jpg --test
 ```
+
+---
+
+### 6. Newsroom Bulk Intake Tool
+
+Process a folder of incoming media from the field:
+
+```bash
+node packages/bot/src/scan.ts /path/to/media/folder --out newsroom-report
+```
+Generates `newsroom-report.csv` and `newsroom-report.json` with SHA-256, pHash, forensic indicators, and shareable links for every asset.
+
+---
+
+## Production Deployment (Railway)
+
+A live public registry is hosted at:
+👉 **[https://registry-production-73c0.up.railway.app](https://registry-production-73c0.up.railway.app)**
+
+Live Telegram bot:
+👉 **[@CheckVerityBot](https://t.me/CheckVerityBot)**
+
+To deploy your own instance to Railway:
+```bash
+railway up -s registry -d
+```
+Mount a persistent volume at `/data` and set `VERITY_DB=/data/registry.json`.
+
+---
+
+## Search & Discovery Topics
+
+`c2pa` &bull; `content-credentials` &bull; `media-authenticity` &bull; `deepfake-detection` &bull; `digital-forensics` &bull; `perceptual-hashing` &bull; `bk-tree` &bull; `disinformation-countermeasures` &bull; `misinformation-mitigation` &bull; `fact-checking` &bull; `chrome-extension` &bull; `manifest-v3` &bull; `epistemic-security` &bull; `zero-telemetry` &bull; `open-source`
+
+---
+
+## Community & Contributing
+
+We welcome contributions from open-source developers, digital forensic experts, journalists, and security researchers!
+
+- 📖 **Contributor Guidelines**: Read our [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to add new verification signals.
+- 📜 **Code of Conduct**: We adhere to the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
+- 🔒 **Security Policy**: Read [SECURITY.md](SECURITY.md) to report vulnerabilities privately.
+- 🎓 **Citation**: Using Verity in research? See [CITATION.cff](CITATION.cff).
+
+---
 
 ## License
 
-Apache-2.0
+Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
