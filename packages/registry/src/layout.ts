@@ -89,8 +89,8 @@ ${o.ogDescription ? `<meta property="og:description" content="${esc(o.ogDescript
     <a class="wordmark" href="/">Verity<span>.</span></a>
     <div class="links">
       <a href="/" ${o.active === 'home' ? 'class="active"' : ''}>Home</a>
-      <a href="/dashboard" ${o.active === 'registry' ? 'class="active"' : ''}>Registry</a>
-      <a class="cta" href="${esc(TELEGRAM_BOT)}">Check on Telegram</a>
+      <a href="${esc(TELEGRAM_BOT)}">Telegram bot</a>
+      <a class="cta" href="/dashboard">Registry</a>
     </div>
   </nav></div>
   ${o.hero ? `<div class="wrap">${o.hero}</div>` : ''}
