@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "npm run dev -w @verity/extension",
     "build": "npm run build -w @verity/extension",
+    "registry": "npm run start -w @verity/registry",
     "typecheck": "npm run typecheck -ws --if-present",
     "test": "npm test -w @verity/core",
     "icons": "node scripts/gen-icons.mjs"

@@ -9,8 +9,9 @@ full vision and roadmap.
 - `npm install` — install workspace deps
 - `npm run dev` — vite dev build with HMR (load `packages/extension/dist` in `chrome://extensions`)
 - `npm run build` — production build of the extension
+- `npm run registry` — start the verdict registry API on :8787 (`PORT`, `PUBLIC_URL`, `VERITY_DB` envs)
 - `npm run typecheck` — `tsc --noEmit` across workspaces
-- `npm test` — vitest (core fusion logic)
+- `npm test` — vitest (core: fusion + hashing)
 
 ## Non-negotiable rules
 
@@ -26,9 +27,16 @@ full vision and roadmap.
 - Signals implement `Signal` (`packages/core/src/types.ts`), registered in `SignalRegistry`.
 - Extension flow: context menu / popup → background (router) → offscreen document
   (fetch + WASM + signal analysis) → `fuse()` → `storage.session` → badge + verdict page.
-- c2pa-js runs in the offscreen document — MV3 WASM requires `'wasm-unsafe-eval'` CSP
-  and a DOM-capable context for its web worker.
-- Current phase: **1** (C2PA + metadata + badge + verdict page). See `docs/DESIGN.md`.
+- `src/analysis.ts` `runPipeline()` is the Phase-2 path: sha256 + pHash → registry
+  lookup (exact → cached verdict; similar → prior-sighting signal) → analyze → submit.
+- The registry (`packages/registry`) is optional zero-dep infra: JSON store, `/api/*`
+  JSON routes, shareable `/v/:sha` pages. Extension falls back gracefully when absent.
+- Firefox has no `chrome.offscreen` — background detects and opens the verdict page
+  in analyze mode (`?u=`) instead. That mode also serves as a standalone checker.
+- c2pa (`@contentauth/c2pa-web`) runs in the offscreen document — MV3 WASM requires
+  `'wasm-unsafe-eval'` CSP and a DOM-capable context for its web worker.
+- Current phase: **2** in progress (registry + hashing done; reverse-search and
+  AI-ensemble signals next). See `docs/DESIGN.md`.
 
 ## Design language
 

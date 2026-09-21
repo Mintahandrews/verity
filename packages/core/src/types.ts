@@ -49,4 +49,6 @@ export interface Verdict {
   checkedAt: string;
   /** Set when the check itself failed (fetch error, unreadable bytes, too large). Not a verdict state. */
   error?: string;
+  /** Canonical shareable link, set when the verdict was submitted to a registry. */
+  shareUrl?: string;
 }

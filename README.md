@@ -12,9 +12,12 @@ treats authenticity as a multi-signal problem, not a detection problem.
 
 ## Status
 
-Phase 1 scaffold: browser extension with C2PA verification + metadata forensics +
-three-state badge + verdict page. See [`docs/DESIGN.md`](docs/DESIGN.md) for the full
-vision (verdict registry, reverse search, Telegram bot, newsroom tooling).
+Phase 2 in progress: extension (C2PA + metadata + badges) plus the verdict
+registry — a zero-dep, self-hostable API (`npm run registry`) with hash lookup,
+perceptual near-dupe matching, and shareable verdict pages at `/v/:sha`. The
+extension works fully offline; the registry adds caching + share links.
+Override the registry URL via `chrome.storage.local.set({registryUrl: '…'})`.
+See [`docs/DESIGN.md`](docs/DESIGN.md) for the full vision.
 
 ## Quickstart
 

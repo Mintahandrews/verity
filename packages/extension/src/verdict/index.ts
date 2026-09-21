@@ -2,7 +2,7 @@ import '@fontsource/instrument-serif/400.css';
 import '../design/tokens.css';
 import { errorVerdict } from '@verity/core';
 import type { MediaKind, Verdict } from '@verity/core';
-import { analyzeMedia, fetchMedia } from '../analysis';
+import { fetchMedia, runPipeline } from '../analysis';
 import { verdictKey } from '../messages';
 
 const OUTCOME_GLYPH: Record<string, string> = {
@@ -49,6 +49,7 @@ function renderVerdict(verdict: Verdict): void {
     <h1>${escapeHtml(verdict.headline)}</h1>
     <p class="when">Checked ${new Date(verdict.checkedAt).toLocaleString()}</p>
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
+    ${verdict.shareUrl ? `<p class="share"><a href="${escapeHtml(verdict.shareUrl)}" target="_blank" rel="noopener">Shareable verdict ↗</a></p>` : ''}
   `;
 }
 
@@ -65,7 +66,7 @@ async function render(): Promise<void> {
     let verdict: Verdict;
     try {
       const blob = await fetchMedia(analyzeUrl);
-      verdict = await analyzeMedia({ url: analyzeUrl, kind }, blob);
+      verdict = await runPipeline({ url: analyzeUrl, kind }, blob);
     } catch (e) {
       verdict = errorVerdict(e instanceof Error ? e.message : String(e));
     }
