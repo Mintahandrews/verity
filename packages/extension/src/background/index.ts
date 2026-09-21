@@ -5,7 +5,7 @@ import { OFFSCREEN_URL, VERDICT_PAGE_URL, verdictKey } from '../messages';
 
 const MENU_ID = 'verity:verify';
 
-// Firefox has no chrome.offscreen — analysis falls back to the verdict page
+// Firefox has no chrome.offscreen - analysis falls back to the verdict page
 // running in "analyze mode" (?u= URL to check) in an opened tab.
 const HAS_OFFSCREEN = typeof chrome.offscreen?.createDocument === 'function';
 

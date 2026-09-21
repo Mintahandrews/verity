@@ -1,5 +1,5 @@
-// Generates extension icons — no dependencies, writes minimal PNGs.
-// Design: Electric Sprout checkmark on Forest Depths — neo-botanical system.
+// Generates extension icons - no dependencies, writes minimal PNGs.
+// Design: Electric Sprout checkmark on Forest Depths - neo-botanical system.
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

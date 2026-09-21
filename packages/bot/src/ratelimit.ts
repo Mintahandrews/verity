@@ -1,6 +1,6 @@
 /**
  * Sliding-window rate limiter. In-memory, per key (Telegram user/chat id).
- * Deliberately simple — a single bot process is the deployment unit; swap for
+ * Deliberately simple - a single bot process is the deployment unit; swap for
  * Redis if it ever scales past one process.
  */
 export class RateLimiter {

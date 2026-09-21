@@ -9,7 +9,7 @@ const GLYPHS: Record<BadgeState, string> = {
   error: '×',
 };
 
-// Palette from design/tokens.css — hardcoded because badges are injected into
+// Palette from design/tokens.css - hardcoded because badges are injected into
 // arbitrary pages where our CSS variables don't exist.
 const PAINT: Record<BadgeState, { bg: string; fg: string; border: string }> = {
   verified: { bg: '#68ef3f', fg: '#122314', border: '#ffffff' }, // Electric Sprout
@@ -19,9 +19,9 @@ const PAINT: Record<BadgeState, { bg: string; fg: string; border: string }> = {
 };
 
 const TITLES: Record<BadgeState, string> = {
-  verified: 'Verity: verified provenance — click for details',
-  unverified: 'Verity: unverified — click for details',
-  suspicious: 'Verity: suspicious — click for details',
+  verified: 'Verity: verified provenance - click for details',
+  unverified: 'Verity: unverified - click for details',
+  suspicious: 'Verity: suspicious - click for details',
   error: 'Verity: check failed',
 };
 

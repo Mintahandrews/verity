@@ -15,7 +15,7 @@ function hamming(a: bigint, b: bigint): number {
 
 /**
  * BK-tree: metric-space index over 64-bit perceptual hashes using hamming
- * distance. Query cost is ~O(log n) instead of linear scan — keeps
+ * distance. Query cost is ~O(log n) instead of linear scan - keeps
  * /api/similar fast once the registry holds thousands of records.
  */
 export class BKTree {

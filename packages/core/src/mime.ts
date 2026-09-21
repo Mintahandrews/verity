@@ -5,7 +5,7 @@
  */
 export function sniffMime(buf: Uint8Array): string | null {
   if (buf.length < 12) return null;
-  // >>> 0 coerces to unsigned — 0x89<<24 overflows int32 sign bit otherwise.
+  // >>> 0 coerces to unsigned - 0x89<<24 overflows int32 sign bit otherwise.
   const b32 = ((buf[0]! << 24) | (buf[1]! << 16) | (buf[2]! << 8) | buf[3]!) >>> 0;
   const ascii = (off: number, len: number): string =>
     String.fromCharCode(...buf.subarray(off, off + len));

@@ -20,7 +20,7 @@ interface SubmitBody {
   verdict?: Verdict;
 }
 
-// Per-IP sliding-window limiter on writes (reads stay open — it's a lookup API).
+// Per-IP sliding-window limiter on writes (reads stay open - it's a lookup API).
 const postHits = new Map<string, number[]>();
 function postAllowed(ip: string, now = Date.now()): boolean {
   const times = (postHits.get(ip) ?? []).filter((t) => now - t < POST_WINDOW_MS);
@@ -35,7 +35,7 @@ function postAllowed(ip: string, now = Date.now()): boolean {
 
 const VALID_STATES: VerdictState[] = ['verified', 'unverified', 'suspicious'];
 
-/** Minimal shape check — the registry stores untrusted client verdicts verbatim. */
+/** Minimal shape check - the registry stores untrusted client verdicts verbatim. */
 function isVerdict(v: unknown): v is Verdict {
   const o = v as Verdict;
   return (
@@ -104,7 +104,7 @@ createServer(async (req, res) => {
   if (path === '/api/verdicts' && req.method === 'POST') {
     const ip = req.socket.remoteAddress ?? 'unknown';
     if (!postAllowed(ip)) {
-      send(res, 429, { error: 'rate limited — too many submissions' });
+      send(res, 429, { error: 'rate limited - too many submissions' });
       return;
     }
     const body = await readBody(req).catch(() => null);

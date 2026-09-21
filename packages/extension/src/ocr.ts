@@ -1,10 +1,10 @@
 /**
- * Text-in-image extraction for the fact-check signal — same idea as the bot's
+ * Text-in-image extraction for the fact-check signal - same idea as the bot's
  * OCR: memes and screenshots carry claims in pixels, not captions.
  *
  * MV3 constraints: blob/CDN workers are blocked by extension CSP, so the
  * worker script and wasm core ship as extension assets (public/ocr/). Only
- * the SIMD-LSTM core is vendored — browsers without SIMD wasm (pre-2021) get
+ * the SIMD-LSTM core is vendored - browsers without SIMD wasm (pre-2021) get
  * '' and OCR is skipped. Traineddata fetches from jsdelivr (connect-src is
  * open) and caches in the extension origin.
  */

@@ -48,7 +48,7 @@ function formatReply(v: Verdict): string {
   return lines.join('\n');
 }
 
-const HELP = `Verity checks what can be *proven* about media — not vibes.
+const HELP = `Verity checks what can be *proven* about media - not vibes.
 
 Send or forward me a photo or video and I'll report:
 • Cryptographic provenance (C2PA Content Credentials)
@@ -57,19 +57,19 @@ Send or forward me a photo or video and I'll report:
 • Whether the media was seen before (near-duplicate matching)
 
 Verdicts: ✅ verified · ❓ unverified · ⚠️ suspicious
-Unverified means provenance couldn't be confirmed — it does NOT mean the content is false.`;
+Unverified means provenance couldn't be confirmed - it does NOT mean the content is false.`;
 
 bot.command('start', (ctx) =>
   ctx.reply(`${HELP}\n\nForward me something to check. 📎`),
 );
 bot.command('help', (ctx) => ctx.reply(HELP));
 
-// Forwarded or fresh photos/videos/documents — the misinfo vector.
+// Forwarded or fresh photos/videos/documents - the misinfo vector.
 bot.on(['message:photo', 'message:video', 'message:document', 'message:animation'], async (ctx) => {
   const userId = ctx.from?.id ?? ctx.chat.id;
   if (!limiter.allow(userId)) {
     await ctx.reply(
-      `You're checking faster than I can keep up — try again in ~${limiter.retryAfterSeconds(userId)}s.`,
+      `You're checking faster than I can keep up - try again in ~${limiter.retryAfterSeconds(userId)}s.`,
     );
     return;
   }
@@ -96,7 +96,7 @@ bot.on(['message:photo', 'message:video', 'message:document', 'message:animation
 });
 
 bot.on('message', (ctx) =>
-  ctx.reply('Send or forward me a photo or video — I’ll tell you what can be verified.'),
+  ctx.reply('Send or forward me a photo or video - I’ll tell you what can be verified.'),
 );
 
 const shutdown = async (): Promise<void> => {

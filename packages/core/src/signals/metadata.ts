@@ -3,7 +3,7 @@ import type { Evidence, Signal, SignalResult } from '../types.ts';
 
 /**
  * Metadata forensics. Deliberately conservative: stripped EXIF is the norm after
- * social-media re-uploads, so absence is neutral — never negative.
+ * social-media re-uploads, so absence is neutral - never negative.
  */
 export const metadataSignal: Signal = {
   id: 'metadata',
@@ -24,7 +24,7 @@ export const metadataSignal: Signal = {
         ...base,
         outcome: 'neutral',
         confidence: 0,
-        summary: 'No embedded metadata — normal after a social-media re-upload.',
+        summary: 'No embedded metadata - normal after a social-media re-upload.',
         evidence: [],
       };
     }
@@ -37,7 +37,7 @@ export const metadataSignal: Signal = {
     if (camera) {
       evidence.push({ label: `Camera: ${camera}` });
       outcome = 'positive';
-      confidence = 0.3; // weak positive — metadata is trivially editable
+      confidence = 0.3; // weak positive - metadata is trivially editable
     }
     if (data.Software || data.ProcessingSoftware) {
       evidence.push({ label: `Processed by ${data.Software ?? data.ProcessingSoftware}` });
@@ -64,7 +64,7 @@ export const metadataSignal: Signal = {
       confidence,
       summary:
         outcome === 'positive'
-          ? 'Camera metadata present (weak signal — metadata is editable).'
+          ? 'Camera metadata present (weak signal - metadata is editable).'
           : outcome === 'negative'
             ? 'Metadata contains inconsistencies.'
             : 'Metadata present but inconclusive.',

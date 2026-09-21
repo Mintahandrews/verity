@@ -30,13 +30,13 @@ rs.addEventListener('change', () => {
 });
 
 const ocr = document.getElementById('ocr') as HTMLInputElement;
-ocr.checked = ocrEnabled ?? true; // default on — claims live in pixels
+ocr.checked = ocrEnabled ?? true; // default on - claims live in pixels
 ocr.addEventListener('change', () => {
   void chrome.storage.local.set({ ocrEnabled: ocr.checked });
 });
 
 const ai = document.getElementById('ai') as HTMLInputElement;
-ai.checked = aiModelEnabled ?? false; // default off — big download, weak signal
+ai.checked = aiModelEnabled ?? false; // default off - big download, weak signal
 ai.addEventListener('change', () => {
   void chrome.storage.local.set({ aiModelEnabled: ai.checked });
 });

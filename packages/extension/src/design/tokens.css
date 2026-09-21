@@ -1,4 +1,4 @@
-/* Verity design tokens — neo-botanical system (see design/design-language.md).
+/* Verity design tokens - neo-botanical system (see design/design-language.md).
    Valid CSS only; prose values from the spec are resolved to concrete numbers. */
 :root {
   /* Brand colors */
@@ -19,7 +19,7 @@
   --color-bone-white: #f2f5eb;
   --color-pure-white: #ffffff;
 
-  /* Type families (spec fallbacks — Ozik/Aeonik are commercial) */
+  /* Type families (spec fallbacks - Ozik/Aeonik are commercial) */
   --font-display: 'Ozik', 'Boldonse', 'Migra', 'PP Editorial New', ui-sans-serif, system-ui, sans-serif;
   --font-ui: 'Aeonik', 'Inter', 'Söhne', 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-accent: 'Instrument Serif', 'Source Serif 4', 'GT Sectra', 'Newsreader', ui-serif, Georgia, serif;

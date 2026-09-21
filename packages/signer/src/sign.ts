@@ -9,11 +9,11 @@ import {
 } from 'c2pa-node';
 import { sniffMime } from '@verity/core';
 
-const USAGE = `verity sign — embed cryptographically signed provenance (C2PA)
+const USAGE = `verity sign - embed cryptographically signed provenance (C2PA)
 
   node src/sign.ts <input> <output> [options]
 
-  --test                    Sign with an ephemeral test certificate (dev only —
+  --test                    Sign with an ephemeral test certificate (dev only -
                             test certs are NOT on the C2PA trust list)
   --cert <cert.pem>         Your certificate chain (PEM)
   --key <key.pem>           Your private key (PEM)
@@ -23,7 +23,7 @@ const USAGE = `verity sign — embed cryptographically signed provenance (C2PA)
   --source-type <uri>       C2PA digitalSourceType (default digitalCapture)
 
   Real signing needs a cert on the C2PA trust list (or accepted by verifiers
-  you care about). A self-signed cert still proves "who signed" — trust is a
+  you care about). A self-signed cert still proves "who signed" - trust is a
   separate layer, same as HTTPS.
 `;
 
@@ -44,14 +44,14 @@ async function main(): Promise<void> {
   const buffer = readFileSync(input);
   const mimeType = sniffMime(new Uint8Array(buffer));
   if (!mimeType) {
-    console.error(`Cannot determine media type of ${input} — supported: png/jpeg/gif/webp/mp4/webm/pdf`);
+    console.error(`Cannot determine media type of ${input} - supported: png/jpeg/gif/webp/mp4/webm/pdf`);
     process.exit(1);
   }
 
   let signer: LocalSigner;
   if (flags.has('--test')) {
     signer = await createTestSigner();
-    console.warn('Using an ephemeral TEST certificate — not on the C2PA trust list.');
+    console.warn('Using an ephemeral TEST certificate - not on the C2PA trust list.');
   } else {
     const certPath = arg('cert');
     const keyPath = arg('key');

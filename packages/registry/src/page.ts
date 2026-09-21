@@ -3,8 +3,8 @@ import type { Verdict } from '@verity/core';
 const GLYPH: Record<string, string> = {
   positive: '✓',
   negative: '✗',
-  neutral: '–',
-  unsupported: '–',
+  neutral: '-',
+  unsupported: '-',
   error: '×',
 };
 
@@ -12,7 +12,7 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/** Server-rendered shareable verdict page — same palette as the extension card. */
+/** Server-rendered shareable verdict page - same palette as the extension card. */
 export function verdictPage(verdict: Verdict, sha256: string): string {
   const chipClass = verdict.error ? 'failed' : verdict.state;
   const chipLabel = verdict.error ? 'CHECK FAILED' : verdict.state.toUpperCase();
@@ -21,10 +21,10 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
     .map(
       (s) => `
       <div class="signal">
-        <h2><span class="outcome ${s.outcome}">${GLYPH[s.outcome] ?? '–'}</span>${esc(s.signalName)}</h2>
+        <h2><span class="outcome ${s.outcome}">${GLYPH[s.outcome] ?? '-'}</span>${esc(s.signalName)}</h2>
         <p class="summary">${esc(s.summary)}</p>
         <ul>
-          ${s.evidence.map((e) => `<li>${esc(e.label)}${e.detail ? ` — <span>${esc(e.detail)}</span>` : ''}</li>`).join('')}
+          ${s.evidence.map((e) => `<li>${esc(e.label)}${e.detail ? ` - <span>${esc(e.detail)}</span>` : ''}</li>`).join('')}
         </ul>
       </div>`,
     )
@@ -35,7 +35,7 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Verity — ${esc(verdict.state)} verdict</title>
+<title>Verity - ${esc(verdict.state)} verdict</title>
 <meta property="og:title" content="Verity verdict: ${esc(verdict.state)}">
 <meta property="og:description" content="${esc(verdict.headline)}">
 <style>
@@ -85,7 +85,7 @@ export function verdictPage(verdict: Verdict, sha256: string): string {
     <p class="hash">sha256 ${esc(sha256)}</p>
   </div>
 </main>
-<footer>Verity never labels media “fake”. Unverified means provenance couldn’t be confirmed — not that the content is false.</footer>
+<footer>Verity never labels media “fake”. Unverified means provenance couldn’t be confirmed - not that the content is false.</footer>
 </body>
 </html>`;
 }

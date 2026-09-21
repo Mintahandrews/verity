@@ -10,7 +10,7 @@ const STATE_ICON: Record<string, string> = {
   suspicious: '!',
 };
 
-/** Server-rendered index — the newsroom/journalist face of the registry. */
+/** Server-rendered index - the newsroom/journalist face of the registry. */
 export function dashboardPage(stats: Record<string, number>, recent: RegistryRecord[]): string {
   const rows = recent
     .map(
@@ -79,7 +79,7 @@ export function dashboardPage(stats: Record<string, number>, recent: RegistryRec
 <header>
   <div class="wordmark">Verity</div>
   <h1>The public verdict <span class="g">registry</span></h1>
-  <p class="sub">Every check makes the network smarter. Verdicts are keyed by content hash — no media is ever stored here.</p>
+  <p class="sub">Every check makes the network smarter. Verdicts are keyed by content hash - no media is ever stored here.</p>
   <div class="stats">
     <span class="stat"><b>${stats['total'] ?? 0}</b> verdicts</span>
     <span class="stat"><b>${stats['verified'] ?? 0}</b> verified</span>
@@ -95,10 +95,10 @@ export function dashboardPage(stats: Record<string, number>, recent: RegistryRec
       <button type="submit">Look up</button>
     </form>
     <h2>Recent checks</h2>
-    ${rows || '<p class="empty">Nothing checked yet — verdicts appear here as media is verified.</p>'}
+    ${rows || '<p class="empty">Nothing checked yet - verdicts appear here as media is verified.</p>'}
   </div>
 </main>
-<footer>Verity never labels media “fake”. Unverified means provenance couldn’t be confirmed — not that the content is false.</footer>
+<footer>Verity never labels media “fake”. Unverified means provenance couldn’t be confirmed - not that the content is false.</footer>
 </body>
 </html>`;
 }

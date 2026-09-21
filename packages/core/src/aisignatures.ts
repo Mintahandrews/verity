@@ -2,7 +2,7 @@
  * Deterministic AI-generator signature detection. Generators routinely leave
  * fingerprints in files: PNG tEXt chunks (A1111 "parameters", ComfyUI
  * "workflow"/"prompt"), EXIF Software strings, XMP packets. High precision,
- * zero model required — the honest first layer of an AI-detection ensemble.
+ * zero model required - the honest first layer of an AI-detection ensemble.
  */
 
 export interface AiSignatureHit {
@@ -38,7 +38,7 @@ const GENERATORS = [
 /** PNG/text keys that generative tools use to store generation params. */
 const PARAM_KEYS = ['parameters', 'workflow', 'prompt', 'comment', 'description', 'software', 'usercomment', 'xmptoolkit'];
 
-/** Only scan this much — signatures always live in headers, never pixel data. */
+/** Only scan this much - signatures always live in headers, never pixel data. */
 const SCAN_BYTES = 512 * 1024;
 
 function toAscii(bytes: Uint8Array, start: number, end: number): string {

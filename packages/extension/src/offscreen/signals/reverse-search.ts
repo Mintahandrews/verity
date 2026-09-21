@@ -1,21 +1,21 @@
 import type { Evidence, Signal, SignalResult } from '@verity/core';
 
 /**
- * Reverse image search — the "real photo, wrong context" detector.
- * Default adapter: Google Lens uploadbyurl (free, unofficial, brittle —
+ * Reverse image search - the "real photo, wrong context" detector.
+ * Default adapter: Google Lens uploadbyurl (free, unofficial, brittle -
  * parses result HTML and degrades gracefully when Google changes markup or
  * rate-limits). For a production deployment, swap in TinEye/Bing Visual
  * Search behind the same signal shape.
  *
  * Privacy: sends the media URL (not bytes) to Google. Only runs on public
- * http(s) URLs and only when the user enables it — popup toggle writes
+ * http(s) URLs and only when the user enables it - popup toggle writes
  * chrome.storage.local.reverseSearch.
  */
 
 const DATE_RE = /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+\d{4}\b/g;
 
 function extractLens(html: string): { count: number; earliest?: string } {
-  // Count external result links — Lens results live in <a> tags off-domain.
+  // Count external result links - Lens results live in <a> tags off-domain.
   const links = html.match(/<a [^>]*href="https?:\/\/(?!lens\.google|www\.google|accounts\.google)[^"]*"/g) ?? [];
   const dates = html.match(DATE_RE) ?? [];
   const parsed = dates
@@ -42,7 +42,7 @@ export const reverseSearchSignal: Signal = {
         ...base,
         outcome: 'unsupported',
         confidence: 0,
-        summary: 'Reverse search is off — enable it in the extension popup.',
+        summary: 'Reverse search is off - enable it in the extension popup.',
         evidence: [],
       };
     }
@@ -69,7 +69,7 @@ export const reverseSearchSignal: Signal = {
       ...(earliest ? [{ label: 'Earliest indexed sighting', detail: earliest }] : []),
     ];
     // A much older first-sighting relative to a "breaking news" context is the
-    // classic miscontextualization tell — surfaced as evidence for the reader.
+    // classic miscontextualization tell - surfaced as evidence for the reader.
     return {
       ...base,
       outcome: 'neutral',

@@ -11,7 +11,7 @@ const MIME_BY_KIND: Record<MediaKind, string> = {
   audio: 'audio/mpeg',
 };
 
-// Same plain-language mapping as the extension signal — keep in sync.
+// Same plain-language mapping as the extension signal - keep in sync.
 const SOURCE_TYPES: Record<string, string> = {
   digitalCapture: 'Captured by a digital device',
   digitizedNegativeFilm: 'Digitized from film',
@@ -50,7 +50,7 @@ export const c2paSignal: Signal = {
       store = await c2pa.read({ buffer, mimeType });
     } catch {
       // Unparseable container (e.g. a format c2pa doesn't support) means no
-      // readable provenance — neutral, not an error.
+      // readable provenance - neutral, not an error.
       store = null;
     }
 
@@ -74,7 +74,7 @@ export const c2paSignal: Signal = {
       });
     }
     // c2pa-node validates the signature cryptographically but doesn't check the
-    // public C2PA trust list — anyone can mint a cert. Surface that honestly:
+    // public C2PA trust list - anyone can mint a cert. Surface that honestly:
     // the signature proves provenance is unbroken, not that the signer is accredited.
     if (!sig?.cert_chain) {
       evidence.push({

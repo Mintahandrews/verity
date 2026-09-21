@@ -6,10 +6,10 @@ import type { Evidence, MediaInput, Signal, SignalResult } from '../types.ts';
  * false-rated match → negative (suspicious): a claim debunked by independent
  * reviewers contradicts the content's implication.
  *
- * Providers (all fail-soft — an unreachable source just contributes nothing):
- *  - Google Fact Check Tools API — needs a key: extension reads
+ * Providers (all fail-soft - an unreachable source just contributes nothing):
+ *  - Google Fact Check Tools API - needs a key: extension reads
  *    chrome.storage.local.factCheckKey, bot reads env FACT_CHECK_API_KEY.
- *  - ClaimReview JSON-LD — keyless: fetches URLs found in the context (or
+ *  - ClaimReview JSON-LD - keyless: fetches URLs found in the context (or
  *    media.pageUrl) and parses schema.org ClaimReview markup. Covers the
  *    common case where the page hosting the media IS a fact-check article.
  */
@@ -79,7 +79,7 @@ const googleProvider: Provider = async (media) => {
   );
 };
 
-// ——— ClaimReview JSON-LD provider ———
+// --- ClaimReview JSON-LD provider ---
 
 interface ClaimReviewNode {
   '@type'?: string | string[];
@@ -118,7 +118,7 @@ export function claimReviewMatches(html: string): FactCheckMatch[] {
         });
       }
     } catch {
-      /* malformed JSON-LD — skip */
+      /* malformed JSON-LD - skip */
     }
   }
   return out;
@@ -159,7 +159,7 @@ const claimReviewProvider: Provider = async (media) => {
       matches.push(...claimReviewMatches(new TextDecoder().decode(html)));
       if (matches.length >= 6) break;
     } catch {
-      /* unreachable page — skip */
+      /* unreachable page - skip */
     }
   }
   return matches;
@@ -174,7 +174,7 @@ export const factCheckSignal: Signal = {
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
     const text = media.contextText?.trim();
-    // Non-global regex for the test — URL_RE is /g and .test mutates lastIndex.
+    // Non-global regex for the test - URL_RE is /g and .test mutates lastIndex.
     const hasUrl =
       (media.pageUrl && /^https?:/.test(media.pageUrl)) ||
       /https?:\/\/[^\s"'<>)\]]+/.test(text ?? '');
@@ -194,7 +194,7 @@ export const factCheckSignal: Signal = {
       try {
         matches.push(...(await provider(media)));
       } catch {
-        /* provider failed — others may still contribute */
+        /* provider failed - others may still contribute */
       }
     }
 
@@ -206,7 +206,7 @@ export const factCheckSignal: Signal = {
         confidence: 0,
         summary: keyConfigured
           ? 'No matching fact-checks found for the surrounding text.'
-          : 'No matching fact-checks found. (No fact-check API key configured — only ClaimReview markup was checked.)',
+          : 'No matching fact-checks found. (No fact-check API key configured - only ClaimReview markup was checked.)',
         evidence: keyConfigured
           ? []
           : [{ label: 'Set factCheckKey / FACT_CHECK_API_KEY for claim search' }],
@@ -220,7 +220,7 @@ export const factCheckSignal: Signal = {
       if (outcome === 'negative') worst = 'negative';
       else if (outcome === 'positive' && worst !== 'negative') worst = 'positive';
       evidence.push({
-        label: `${m.publisher}: “${m.claim.slice(0, 120)}” — ${m.rating}`,
+        label: `${m.publisher}: “${m.claim.slice(0, 120)}” - ${m.rating}`,
         ...(m.url ? { detail: m.url } : {}),
       });
     }
@@ -234,7 +234,7 @@ export const factCheckSignal: Signal = {
           ? 'Independent fact-checks rate a matching claim as false or misleading.'
           : worst === 'positive'
             ? 'Fact-checks corroborate a matching claim.'
-            : `${matches.length} related fact-check(s) found — ratings inconclusive.`,
+            : `${matches.length} related fact-check(s) found - ratings inconclusive.`,
       evidence: evidence.slice(0, 5),
     };
   },

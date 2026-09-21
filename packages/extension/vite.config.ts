@@ -17,8 +17,8 @@ const C2PA_ASSETS = [
   join(c2paDist, 'c2pa_worker.js'),
 ];
 
-// onnxruntime-web WASM — only loaded at runtime if an aiModelUrl is configured.
-// (no package.json export — resolve the entrypoint, dist is its dirname)
+// onnxruntime-web WASM - only loaded at runtime if an aiModelUrl is configured.
+// (no package.json export - resolve the entrypoint, dist is its dirname)
 const ortDist = dirname(require.resolve('onnxruntime-web'));
 
 function copyWasmAssets(): Plugin {

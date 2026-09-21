@@ -1,9 +1,9 @@
 import type { SignalResult, Verdict, VerdictState } from './types.ts';
 
 const HEADLINES: Record<VerdictState, string> = {
-  verified: 'Verified — cryptographic provenance confirmed',
-  unverified: 'Unverified — not enough evidence to confirm or refute',
-  suspicious: 'Suspicious — evidence contradicts this media',
+  verified: 'Verified - cryptographic provenance confirmed',
+  unverified: 'Unverified - not enough evidence to confirm or refute',
+  suspicious: 'Suspicious - evidence contradicts this media',
 };
 
 /**
@@ -36,7 +36,7 @@ export function fuse(results: SignalResult[], now = new Date()): Verdict {
   return { state, confidence, headline: HEADLINES[state], signals: results, checkedAt: now.toISOString() };
 }
 
-/** A verdict-shaped record for when analysis itself failed — keeps the card clickable. */
+/** A verdict-shaped record for when analysis itself failed - keeps the card clickable. */
 export function errorVerdict(message: string, now = new Date()): Verdict {
   return {
     state: 'unverified',

@@ -11,7 +11,7 @@ import { shutdownOcr } from './ocr.ts';
  *   node src/scan.ts <dir-or-file> [--out report]
  *
  * Writes <out>.json (full verdicts) and <out>.csv (one row per file).
- * Concurrency is 2 — OCR + video frame extraction are CPU-heavy.
+ * Concurrency is 2 - OCR + video frame extraction are CPU-heavy.
  */
 
 const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
@@ -23,7 +23,7 @@ function kindOf(file: string, buf: Buffer): MediaKind | null {
   if (IMAGE_EXT.has(ext)) return 'image';
   if (VIDEO_EXT.has(ext)) return 'video';
   if (AUDIO_EXT.has(ext)) return 'audio';
-  // Unknown extension — trust the bytes.
+  // Unknown extension - trust the bytes.
   const mime = sniffMime(new Uint8Array(buf));
   if (mime?.startsWith('image/')) return 'image';
   if (mime?.startsWith('video/')) return 'video';

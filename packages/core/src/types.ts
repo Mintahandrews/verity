@@ -15,7 +15,7 @@ export interface SignalResult {
   signalId: string;
   signalName: string;
   outcome: SignalOutcome;
-  /** 0..1 — how sure the signal is of its own outcome. */
+  /** 0..1 - how sure the signal is of its own outcome. */
   confidence: number;
   /** True when the outcome is cryptographically conclusive (e.g. valid C2PA signature). */
   conclusive?: boolean;
@@ -27,9 +27,9 @@ export interface SignalResult {
 export interface MediaDescriptor {
   url: string;
   kind: MediaKind;
-  /** Caption/alt/nearby text — feeds the fact-check signal. */
+  /** Caption/alt/nearby text - feeds the fact-check signal. */
   contextText?: string;
-  /** URL of the page/message hosting the media — the fact-check signal fetches
+  /** URL of the page/message hosting the media - the fact-check signal fetches
    *  it for ClaimReview markup (the page itself may be a fact-check). */
   pageUrl?: string;
 }

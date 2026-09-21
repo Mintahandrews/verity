@@ -126,7 +126,7 @@ export async function analyzeBuffer(
     return hit.verdict;
   }
 
-  // Claims live in captions AND in pixels (memes, screenshots) — OCR feeds
+  // Claims live in captions AND in pixels (memes, screenshots) - OCR feeds
   // both into the fact-check signal's context text.
   let contextText = caption ?? '';
   if (kind === 'image' && process.env.OCR !== '0') {

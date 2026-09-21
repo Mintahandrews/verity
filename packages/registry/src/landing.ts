@@ -4,17 +4,17 @@ function esc(s: string): string {
 
 const TELEGRAM_BOT = 'https://t.me/CheckVerityBot';
 
-/** Public landing page — what Verity is, how to use it, live registry stats. */
+/** Public landing page - what Verity is, how to use it, live registry stats. */
 export function landingPage(stats: Record<string, number>, publicUrl: string): string {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Verity — what can we verify</title>
-<meta name="description" content="Verity checks media authenticity with cryptographic provenance, metadata forensics, reverse-image evidence and fact-checks — and tells you exactly what it found. It never calls anything &quot;fake&quot;.">
-<meta property="og:title" content="Verity — check before you share">
-<meta property="og:description" content="Forward a photo or video, get a transparent verdict with evidence. Verified, unverified, or suspicious — never &quot;fake&quot;.">
+<title>Verity - what can we verify</title>
+<meta name="description" content="Verity checks media authenticity with cryptographic provenance, metadata forensics, reverse-image evidence and fact-checks - and tells you exactly what it found. It never calls anything &quot;fake&quot;.">
+<meta property="og:title" content="Verity - check before you share">
+<meta property="og:description" content="Forward a photo or video, get a transparent verdict with evidence. Verified, unverified, or suspicious - never &quot;fake&quot;.">
 <meta property="og:type" content="website">
 <style>
   :root {
@@ -95,7 +95,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
 
 <header class="wrap">
   <h1>Is it real? <em>Better question:</em><br>what can we verify?</h1>
-  <p class="lede">Most misinformation isn't a deepfake — it's a <b>real photo with a false caption</b>.
+  <p class="lede">Most misinformation isn't a deepfake - it's a <b>real photo with a false caption</b>.
      Verity checks what evidence actually exists about a piece of media, and shows you its work.
      Three verdicts, never the word "fake".</p>
   <div class="cta">
@@ -118,7 +118,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
       <p>A valid cryptographic signature (C2PA) proves who produced this file. Nothing else earns a check.</p></div>
     <div class="card v-unverified"><span class="mark">?</span>
       <h3>Unverified</h3>
-      <p>No provenance found. That's the normal state of most media — it means we don't know, not that it's false.</p></div>
+      <p>No provenance found. That's the normal state of most media - it means we don't know, not that it's false.</p></div>
     <div class="card v-suspicious"><span class="mark">!</span>
       <h3>Suspicious</h3>
       <p>Evidence contradicts the media: a failed signature, prior sightings under different claims, fact-checked falsehoods.</p></div>
@@ -129,12 +129,12 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
   <p class="kicker">The evidence</p>
   <h2>Every verdict shows its work</h2>
   <div class="signals">
-    <div class="sig"><b>Cryptographic provenance</b><span>C2PA Content Credentials — the only signal that can verify.</span></div>
-    <div class="sig"><b>Prior sightings</b><span>Content hashes match against the public registry — real media reused with a new story gets caught.</span></div>
+    <div class="sig"><b>Cryptographic provenance</b><span>C2PA Content Credentials - the only signal that can verify.</span></div>
+    <div class="sig"><b>Prior sightings</b><span>Content hashes match against the public registry - real media reused with a new story gets caught.</span></div>
     <div class="sig"><b>Metadata forensics</b><span>Camera data, editing software traces, AI generator signatures.</span></div>
     <div class="sig"><b>Fact-checks</b><span>Captions and text-in-image checked against professional fact-check databases.</span></div>
     <div class="sig"><b>Near-duplicate matching</b><span>Perceptual hashing finds reposts, re-compressions, and trimmed clips.</span></div>
-    <div class="sig"><b>Optional AI classifier</b><span>An experimental model can flag synthetic images — it can never verify anything.</span></div>
+    <div class="sig"><b>Optional AI classifier</b><span>An experimental model can flag synthetic images - it can never verify anything.</span></div>
   </div>
 </section></div>
 
@@ -143,23 +143,23 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
   <h2>Check media where it spreads</h2>
   <div class="howto">
     <h3>Telegram</h3>
-    <p>Forward any photo or video to <a href="${esc(TELEGRAM_BOT)}">@CheckVerityBot</a> — get a verdict and a shareable link in seconds. Free, no install.</p>
+    <p>Forward any photo or video to <a href="${esc(TELEGRAM_BOT)}">@CheckVerityBot</a> - get a verdict and a shareable link in seconds. Free, no install.</p>
     <h3>Browser extension</h3>
     <p>Right-click any image → "Verify with Verity". Build from source: <code>npm install &&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>. Chrome Web Store listing coming soon.</p>
     <h3>Prove your own work is real</h3>
     <p>The signer CLI embeds a C2PA credential into your originals: <code>npm run sign -- photo.jpg signed.jpg --cert cert.pem --key key.pem</code></p>
     <h3>API</h3>
-    <p><code>GET ${esc(publicUrl)}/api/verdicts/&lt;sha256&gt;</code> · <code>/api/similar?phash=&hellip;</code> · <code>/api/stats</code> — self-hostable, hashes only, no media ever stored.</p>
+    <p><code>GET ${esc(publicUrl)}/api/verdicts/&lt;sha256&gt;</code> · <code>/api/similar?phash=&hellip;</code> · <code>/api/stats</code> - self-hostable, hashes only, no media ever stored.</p>
   </div>
 </section></div>
 
 <div class="wrap"><section>
   <p class="pledge">&ldquo;Absence of evidence is not evidence of absence. Unverified means
-     we couldn't confirm provenance — not that the content is false.&rdquo;</p>
+     we couldn't confirm provenance - not that the content is false.&rdquo;</p>
 </section></div>
 
 <div class="wrap"><footer>
-  <span>Verity — open-source media verification. Only hashes leave your device.</span>
+  <span>Verity - open-source media verification. Only hashes leave your device.</span>
   <span><a href="/dashboard">Registry dashboard</a> · <a href="${esc(TELEGRAM_BOT)}">@CheckVerityBot</a></span>
 </footer></div>
 </body>

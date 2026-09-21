@@ -39,7 +39,7 @@ const send: Send = (m) => chrome.runtime.sendMessage(m) as Promise<AnalyzeRespon
 
 async function analyze(media: MediaDescriptor): Promise<AnalyzeResponse> {
   try {
-    // blob:/data: URLs are bound to the page context — extract bytes here and
+    // blob:/data: URLs are bound to the page context - extract bytes here and
     // transfer them; the extension origin cannot fetch them.
     if (/^(blob|data):/.test(media.url)) return await sendBytes(media);
     return await send({ type: 'verity:analyze', media });

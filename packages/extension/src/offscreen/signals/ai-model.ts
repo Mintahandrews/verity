@@ -6,11 +6,11 @@ import type { Evidence, Signal, SignalResult } from '@verity/core';
  * only download when the user opts in.
  *
  * Default model: onnx-community/ai-image-detection-ONNX (ViT-Base, int8, ~85MB),
- * a CIFAKE-trained ai-vs-real classifier — honest about its limits: trained on
+ * a CIFAKE-trained ai-vs-real classifier - honest about its limits: trained on
  * Stable-Diffusion-era data, so modern generators may evade it.
  * chrome.storage.local.aiModelUrl overrides the default; aiLabelIndex
  * (default 1) picks which output class means "AI". Honest cap: confidence
- * never exceeds 0.7 — these models decay.
+ * never exceeds 0.7 - these models decay.
  */
 
 const MODEL_INPUT = 224;
@@ -42,7 +42,7 @@ function softmax(logits: Float32Array): number[] {
   return exps.map((x) => x / sum);
 }
 
-// Sessions are expensive (model download + graph build) — cache per URL.
+// Sessions are expensive (model download + graph build) - cache per URL.
 const sessions = new Map<string, Promise<import('onnxruntime-web').InferenceSession>>();
 async function getSession(modelUrl: string) {
   let p = sessions.get(modelUrl);
@@ -77,7 +77,7 @@ export const aiModelSignal: Signal = {
         outcome: 'unsupported',
         confidence: 0,
         summary: 'AI classifier is off.',
-        evidence: [{ label: 'Enable it in the popup — downloads an ~85MB model on first use' }],
+        evidence: [{ label: 'Enable it in the popup - downloads an ~85MB model on first use' }],
       };
     }
 
@@ -96,7 +96,7 @@ export const aiModelSignal: Signal = {
       const evidence: Evidence[] = [
         { label: `Classifier score: ${(pAi * 100).toFixed(0)}% synthetic` },
         { label: 'Model', detail: modelUrl },
-        { label: 'Classifiers decay as generators improve — treat as one weak signal' },
+        { label: 'Classifiers decay as generators improve - treat as one weak signal' },
       ];
       if (pAi > 0.7) {
         return {

@@ -2,11 +2,11 @@ import { createWorker, type Worker } from 'tesseract.js';
 
 /**
  * Text-in-image extraction for the fact-check signal. Memes and screenshots
- * carry their claims in the pixels, not the caption — without OCR the
+ * carry their claims in the pixels, not the caption - without OCR the
  * fact-check signal has nothing to match on for most forwarded misinfo.
  *
  * One lazy worker per process; English only for now (tesseract.js supports
- * traineddata for ~100 languages — extend via OCR_LANGS env if needed).
+ * traineddata for ~100 languages - extend via OCR_LANGS env if needed).
  */
 let workerPromise: Promise<Worker> | null = null;
 
@@ -15,7 +15,7 @@ function getWorker(): Promise<Worker> {
   return workerPromise;
 }
 
-/** Extract visible text from an image buffer. Returns '' on failure — OCR is best-effort. */
+/** Extract visible text from an image buffer. Returns '' on failure - OCR is best-effort. */
 export async function extractText(buf: Buffer): Promise<string> {
   try {
     const worker = await getWorker();

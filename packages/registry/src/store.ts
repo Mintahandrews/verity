@@ -6,7 +6,7 @@ import { BKTree } from './bktree.ts';
 export interface RegistryRecord {
   sha256: string;
   phash?: string;
-  /** Multi-frame fingerprints (video) — phash stays as the first for compat. */
+  /** Multi-frame fingerprints (video) - phash stays as the first for compat. */
   phashes?: string[];
   url?: string;
   verdict: Verdict;
@@ -20,7 +20,7 @@ export interface SimilarHit {
 }
 
 /**
- * JSON-file store — zero dependencies, self-hostable anywhere. Similarity
+ * JSON-file store - zero dependencies, self-hostable anywhere. Similarity
  * search runs on an in-memory BK-tree over pHashes, rebuilt on load.
  */
 export class RegistryStore {

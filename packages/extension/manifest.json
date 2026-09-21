@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Verity — Media Authenticity Checker",
+  "name": "Verity - Media Authenticity Checker",
   "version": "0.1.0",
   "description": "Multi-signal authenticity verdicts for web media: C2PA provenance, metadata forensics, and more.",
   "icons": {

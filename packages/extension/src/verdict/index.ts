@@ -8,8 +8,8 @@ import { verdictKey } from '../messages';
 const OUTCOME_GLYPH: Record<string, string> = {
   positive: '✓',
   negative: '✗',
-  neutral: '–',
-  unsupported: '–',
+  neutral: '-',
+  unsupported: '-',
   error: '×',
 };
 
@@ -29,13 +29,13 @@ function renderVerdict(verdict: Verdict): void {
     .map(
       (s) => `
       <div class="signal">
-        <h2><span class="outcome ${s.outcome}">${OUTCOME_GLYPH[s.outcome] ?? '–'}</span>${escapeHtml(s.signalName)}</h2>
+        <h2><span class="outcome ${s.outcome}">${OUTCOME_GLYPH[s.outcome] ?? '-'}</span>${escapeHtml(s.signalName)}</h2>
         <p class="summary">${escapeHtml(s.summary)}</p>
         <ul>
           ${s.evidence
             .map(
               (e) =>
-                `<li>${escapeHtml(e.label)}${e.detail ? ` — <span>${escapeHtml(e.detail)}</span>` : ''}</li>`,
+                `<li>${escapeHtml(e.label)}${e.detail ? ` - <span>${escapeHtml(e.detail)}</span>` : ''}</li>`,
             )
             .join('')}
         </ul>
@@ -57,7 +57,7 @@ async function render(): Promise<void> {
   const card = document.getElementById('card')!;
   const params = new URLSearchParams(location.search);
 
-  // Analyze mode: ?u=<media-url>&k=<kind> — used on Firefox (no offscreen API)
+  // Analyze mode: ?u=<media-url>&k=<kind> - used on Firefox (no offscreen API)
   // and as a standalone "check this URL" page.
   const analyzeUrl = params.get('u');
   if (analyzeUrl) {
@@ -83,7 +83,7 @@ async function render(): Promise<void> {
   const verdict = key ? stored[key] : undefined;
 
   if (!verdict) {
-    card.innerHTML = '<p>Verdict not found — it may have expired (session storage).</p>';
+    card.innerHTML = '<p>Verdict not found - it may have expired (session storage).</p>';
     return;
   }
   renderVerdict(verdict);

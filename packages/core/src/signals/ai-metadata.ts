@@ -4,7 +4,7 @@ import type { Signal, SignalResult } from '../types.ts';
 /**
  * Deterministic layer of the AI-detection ensemble: scans file bytes for
  * generator fingerprints (PNG tEXt "parameters"/"workflow" chunks, EXIF/XMP
- * software markers). High precision, no model. Absence is neutral — most
+ * software markers). High precision, no model. Absence is neutral - most
  * AI images ship stripped metadata.
  */
 export const aiMetadataSignal: Signal = {

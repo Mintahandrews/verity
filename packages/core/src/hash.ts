@@ -1,4 +1,4 @@
-/** SHA-256 of raw bytes — the canonical content identity key. */
+/** SHA-256 of raw bytes - the canonical content identity key. */
 export async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', buf);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -10,7 +10,7 @@ const SAMPLE = 8;
 /**
  * Classic pHash: 32×32 luminance grid → 2D DCT → keep top-left 8×8 (minus DC),
  * bit set where coefficient exceeds the median. Survives re-encoding, scaling,
- * and mild crops — which is what makes "first seen elsewhere" detection work.
+ * and mild crops - which is what makes "first seen elsewhere" detection work.
  */
 export function pHash64(luma: ArrayLike<number>, size = GRID): bigint {
   const coeffs: number[] = [];

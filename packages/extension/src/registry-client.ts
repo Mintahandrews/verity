@@ -21,7 +21,7 @@ async function base(): Promise<string> {
 }
 
 /**
- * The registry is optional infrastructure — every failure path returns null and
+ * The registry is optional infrastructure - every failure path returns null and
  * analysis proceeds locally. Only hashes + verdicts ever leave the device.
  */
 export async function lookupVerdict(
@@ -36,7 +36,7 @@ export async function lookupVerdict(
       return { match: 'exact', verdict: (await res.json()) as Verdict };
     }
   } catch {
-    /* registry unreachable — fine */
+    /* registry unreachable - fine */
   }
   if (!phash) return null;
   try {

@@ -38,7 +38,7 @@ export function base64ToBlob(b64: string, type: string): Blob {
   return new Blob([bytes], { type });
 }
 
-/** 32×32 luminance grid for pHash — canvas exists in offscreen docs and pages. */
+/** 32×32 luminance grid for pHash - canvas exists in offscreen docs and pages. */
 async function imagePhash(blob: Blob): Promise<string | null> {
   try {
     const bmp = await createImageBitmap(blob);
@@ -87,7 +87,7 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
   const hit = await lookupVerdict(sha256, phash);
   if (hit?.match === 'exact') return hit.verdict;
 
-  // Claims live in pixels too (memes, screenshots) — OCR enriches the
+  // Claims live in pixels too (memes, screenshots) - OCR enriches the
   // fact-check signal's context text. Lazy-loaded; off via popup toggle.
   let enriched = media;
   if (media.kind === 'image') {

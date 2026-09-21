@@ -59,11 +59,11 @@ export async function videoPhashes(buf: Buffer): Promise<string[]> {
     for (const seek of SEEK_SECS) {
       const frame = await extractFrame(file, seek).catch(() => null);
       if (frame) hashes.add(await framePhash(frame));
-      // One success is enough for short clips — stop after first failure once
+      // One success is enough for short clips - stop after first failure once
       // we already have a hash (likely ran past EOF).
       if (!frame && hashes.size > 0) break;
     }
-    // Very short clips: every offset may be past EOF — grab the first frame.
+    // Very short clips: every offset may be past EOF - grab the first frame.
     if (hashes.size === 0) {
       const first = await extractFrame(file, 0).catch(() => null);
       if (first) hashes.add(await framePhash(first));

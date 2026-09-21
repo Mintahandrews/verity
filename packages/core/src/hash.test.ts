@@ -3,7 +3,7 @@ import { hamming64, hammingHex, pHash64, pHashHex, sha256Hex } from './hash.ts';
 
 const luma = (fn: (i: number) => number) => Array.from({ length: 32 * 32 }, (_, i) => fn(i));
 
-// Smooth low-frequency field — closer to real photos than a raw ramp, whose
+// Smooth low-frequency field - closer to real photos than a raw ramp, whose
 // periodic coefficients sit right at the median and flip bits chaotically.
 const field = (fx: number, fy: number) =>
   luma((i) => 128 + 60 * Math.sin((i % 32) / fx) * Math.cos(Math.floor(i / 32) / fy));

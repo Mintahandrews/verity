@@ -14,7 +14,7 @@ function getC2pa(): ReturnType<typeof createC2pa> {
 }
 
 // C2PA digitalSourceType → plain-language meaning. A signed AI manifest is still
-// "verified" — the signature authenticates the claim, including an AI origin.
+// "verified" - the signature authenticates the claim, including an AI origin.
 const SOURCE_TYPES: Record<string, string> = {
   digitalCapture: 'Captured by a digital device',
   digitizedNegativeFilm: 'Digitized from film',
