@@ -2,16 +2,22 @@ import type { Evidence, Signal, SignalResult } from '@verity/core';
 
 /**
  * Probabilistic layer of the AI-detection ensemble: an ONNX image classifier
- * (e.g. a ViT ai-vs-real detector) run via onnxruntime-web, lazy-loaded so the
- * ~8MB WASM runtime only ships when a model is actually configured.
+ * run via onnxruntime-web, lazy-loaded so the WASM runtime and model weights
+ * only download when the user opts in.
  *
- * Disabled unless chrome.storage.local.aiModelUrl is set to an ONNX model URL.
- * Optional aiLabelIndex (default 1) picks which output class means "AI".
- * Honest cap: confidence never exceeds 0.7 — these models decay.
+ * Default model: onnx-community/ai-image-detection-ONNX (ViT-Base, int8, ~85MB),
+ * a CIFAKE-trained ai-vs-real classifier — honest about its limits: trained on
+ * Stable-Diffusion-era data, so modern generators may evade it.
+ * chrome.storage.local.aiModelUrl overrides the default; aiLabelIndex
+ * (default 1) picks which output class means "AI". Honest cap: confidence
+ * never exceeds 0.7 — these models decay.
  */
 
 const MODEL_INPUT = 224;
+const DEFAULT_MODEL_URL =
+  'https://huggingface.co/onnx-community/ai-image-detection-ONNX/resolve/main/onnx/model_quantized.onnx';
 
+// ViT normalization (mean=std=0.5): rescale pixels to [-1, 1].
 async function toInput(blob: Blob): Promise<Float32Array> {
   const bmp = await createImageBitmap(blob);
   const canvas = new OffscreenCanvas(MODEL_INPUT, MODEL_INPUT);
@@ -21,9 +27,9 @@ async function toInput(blob: Blob): Promise<Float32Array> {
   const chw = new Float32Array(3 * MODEL_INPUT * MODEL_INPUT);
   const plane = MODEL_INPUT * MODEL_INPUT;
   for (let i = 0; i < plane; i++) {
-    chw[i] = data[i * 4]! / 255;
-    chw[plane + i] = data[i * 4 + 1]! / 255;
-    chw[2 * plane + i] = data[i * 4 + 2]! / 255;
+    chw[i] = data[i * 4]! / 127.5 - 1;
+    chw[plane + i] = data[i * 4 + 1]! / 127.5 - 1;
+    chw[2 * plane + i] = data[i * 4 + 2]! / 127.5 - 1;
   }
   bmp.close();
   return chw;
@@ -36,33 +42,47 @@ function softmax(logits: Float32Array): number[] {
   return exps.map((x) => x / sum);
 }
 
+// Sessions are expensive (model download + graph build) — cache per URL.
+const sessions = new Map<string, Promise<import('onnxruntime-web').InferenceSession>>();
+async function getSession(modelUrl: string) {
+  let p = sessions.get(modelUrl);
+  if (!p) {
+    p = (async () => {
+      const ort = await import('onnxruntime-web');
+      ort.env.wasm.wasmPaths = chrome.runtime.getURL('assets/ort/');
+      return ort.InferenceSession.create(modelUrl, { executionProviders: ['wasm'] });
+    })();
+    sessions.set(modelUrl, p);
+    p.catch(() => sessions.delete(modelUrl)); // retry next time on failure
+  }
+  return p;
+}
+
 export const aiModelSignal: Signal = {
   id: 'ai-model',
   name: 'AI classifier (experimental)',
   supports: (m) => m.kind === 'image',
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
-    const { aiModelUrl, aiLabelIndex } = (await chrome.storage.local.get([
+    const { aiModelEnabled, aiModelUrl, aiLabelIndex } = (await chrome.storage.local.get([
+      'aiModelEnabled',
       'aiModelUrl',
       'aiLabelIndex',
-    ])) as { aiModelUrl?: string; aiLabelIndex?: number };
+    ])) as { aiModelEnabled?: boolean; aiModelUrl?: string; aiLabelIndex?: number };
 
-    if (!aiModelUrl) {
+    const modelUrl = aiModelUrl ?? DEFAULT_MODEL_URL;
+    if (!aiModelEnabled && !aiModelUrl) {
       return {
         ...base,
         outcome: 'unsupported',
         confidence: 0,
-        summary: 'No classifier configured.',
-        evidence: [{ label: 'Set aiModelUrl in extension storage to enable' }],
+        summary: 'AI classifier is off.',
+        evidence: [{ label: 'Enable it in the popup — downloads an ~85MB model on first use' }],
       };
     }
 
     try {
-      const ort = await import('onnxruntime-web');
-      ort.env.wasm.wasmPaths = chrome.runtime.getURL('assets/ort/');
-      const session = await ort.InferenceSession.create(aiModelUrl, {
-        executionProviders: ['wasm'],
-      });
+      const session = await getSession(modelUrl);
       const input = new ort.Tensor(
         'float32',
         await toInput(media.blob),
@@ -75,7 +95,8 @@ export const aiModelSignal: Signal = {
 
       const evidence: Evidence[] = [
         { label: `Classifier score: ${(pAi * 100).toFixed(0)}% synthetic` },
-        { label: 'Model', detail: aiModelUrl },
+        { label: 'Model', detail: modelUrl },
+        { label: 'Classifiers decay as generators improve — treat as one weak signal' },
       ];
       if (pAi > 0.7) {
         return {

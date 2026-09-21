@@ -3,6 +3,7 @@ import type { Verdict, VerdictState } from '@verity/core';
 import { RegistryStore } from './store.ts';
 import { verdictPage } from './page.ts';
 import { dashboardPage } from './dashboard.ts';
+import { landingPage } from './landing.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/$/, '');
@@ -89,6 +90,11 @@ createServer(async (req, res) => {
     return;
   }
   if (path === '/' && req.method === 'GET') {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(landingPage(store.stats(), PUBLIC_URL));
+    return;
+  }
+  if (path === '/dashboard' && req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(dashboardPage(store.stats(), store.recent(20)));
     return;

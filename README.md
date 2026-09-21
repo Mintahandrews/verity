@@ -67,15 +67,16 @@ npm run sign -- input.jpg signed.jpg --test   # ephemeral test cert, dev only
 Test certs aren't on the C2PA trust list — production signing needs a real
 certificate. Signing is fully local; nothing leaves the machine.
 
-## Registry dashboard
+## Landing page & dashboard
 
-`npm run registry` also serves a dashboard at `/` — verdict stats, recent
-checks, and hash lookup. `GET /api/stats` returns the same numbers as JSON.
+`npm run registry` serves a public landing page at `/` (what Verity is, install
+links, live stats) and a newsroom dashboard at `/dashboard` — verdict stats,
+recent checks, hash lookup. `GET /api/stats` returns the same numbers as JSON.
 
 ## Deployment (Railway)
 
 A public registry runs at `https://registry-production-73c0.up.railway.app`
-(dashboard at `/`) and the Telegram bot is live at
+(landing at `/`, dashboard at `/dashboard`) and the Telegram bot is live at
 [`@CheckVerityBot`](https://t.me/CheckVerityBot). The Railway project deploys
 from the repo root; each service runs `npm start` which dispatches on env vars:
 
