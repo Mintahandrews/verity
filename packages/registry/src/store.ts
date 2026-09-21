@@ -6,6 +6,8 @@ import { BKTree } from './bktree.ts';
 export interface RegistryRecord {
   sha256: string;
   phash?: string;
+  /** Multi-frame fingerprints (video) — phash stays as the first for compat. */
+  phashes?: string[];
   url?: string;
   verdict: Verdict;
   createdAt: string;
@@ -62,11 +64,12 @@ export class RegistryStore {
   }
 
   private indexPhash(rec: RegistryRecord): void {
-    if (!rec.phash) return;
-    this.tree.add(BigInt(`0x${rec.phash}`));
-    const list = this.phashIndex.get(rec.phash) ?? [];
-    list.push(rec);
-    this.phashIndex.set(rec.phash, list);
+    for (const phash of rec.phashes ?? (rec.phash ? [rec.phash] : [])) {
+      this.tree.add(BigInt(`0x${phash}`));
+      const list = this.phashIndex.get(phash) ?? [];
+      list.push(rec);
+      this.phashIndex.set(phash, list);
+    }
   }
 
   similar(phash: string, maxDist: number): SimilarHit[] {

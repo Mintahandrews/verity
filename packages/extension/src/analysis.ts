@@ -13,6 +13,9 @@ import { c2paSignal } from './offscreen/signals/c2pa';
 import { aiModelSignal } from './offscreen/signals/ai-model';
 import { reverseSearchSignal } from './offscreen/signals/reverse-search';
 import { lookupVerdict, submitVerdict, type RegistryHit } from './registry-client';
+import { extractText } from './ocr';
+
+const MAX_OCR_CHARS = 1000;
 
 const registry = new SignalRegistry()
   .register(c2paSignal)
@@ -84,7 +87,25 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
   const hit = await lookupVerdict(sha256, phash);
   if (hit?.match === 'exact') return hit.verdict;
 
-  const signals = await registry.run({ ...media, blob });
+  // Claims live in pixels too (memes, screenshots) — OCR enriches the
+  // fact-check signal's context text. Lazy-loaded; off via popup toggle.
+  let enriched = media;
+  if (media.kind === 'image') {
+    const { ocrEnabled } = (await chrome.storage.local.get('ocrEnabled')) as {
+      ocrEnabled?: boolean;
+    };
+    if (ocrEnabled !== false) {
+      const ocrText = await extractText(blob);
+      if (ocrText) {
+        const contextText = [media.contextText, ocrText.slice(0, MAX_OCR_CHARS)]
+          .filter(Boolean)
+          .join('\n');
+        enriched = { ...media, contextText };
+      }
+    }
+  }
+
+  const signals = await registry.run({ ...enriched, blob });
   if (hit?.match === 'similar') signals.unshift(priorSighting(hit));
   const verdict = fuse(signals);
 

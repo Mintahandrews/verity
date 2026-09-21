@@ -10,9 +10,14 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   window.close();
 });
 
-const { stats, reverseSearch } = (await chrome.storage.local.get(['stats', 'reverseSearch'])) as {
+const { stats, reverseSearch, ocrEnabled } = (await chrome.storage.local.get([
+  'stats',
+  'reverseSearch',
+  'ocrEnabled',
+])) as {
   stats?: { scanned?: number };
   reverseSearch?: boolean;
+  ocrEnabled?: boolean;
 };
 document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
 
@@ -20,4 +25,10 @@ const rs = document.getElementById('rs') as HTMLInputElement;
 rs.checked = reverseSearch ?? false;
 rs.addEventListener('change', () => {
   void chrome.storage.local.set({ reverseSearch: rs.checked });
+});
+
+const ocr = document.getElementById('ocr') as HTMLInputElement;
+ocr.checked = ocrEnabled ?? true; // default on — claims live in pixels
+ocr.addEventListener('change', () => {
+  void chrome.storage.local.set({ ocrEnabled: ocr.checked });
 });

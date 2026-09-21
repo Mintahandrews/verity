@@ -1,17 +1,25 @@
 # AGENTS.md — Verity
 
-Multi-signal media authenticity engine. Monorepo: `packages/core` (pure verdict logic)
-and `packages/extension` (Manifest V3 browser extension). See `docs/DESIGN.md` for the
-full vision and roadmap.
+Multi-signal media authenticity engine. Monorepo: `packages/core` (pure verdict
+logic + platform-neutral signals: metadata, AI signatures, fact-check — relative
+imports use explicit `.ts` so Node strip-types mode can run it), `packages/extension`
+(Manifest V3 browser extension), `packages/registry` (verdict API + dashboard),
+`packages/bot` (Telegram bot + bulk scanner), `packages/signer` (C2PA signing CLI).
+See `docs/DESIGN.md` for the full vision and roadmap.
 
 ## Commands
 
 - `npm install` — install workspace deps
 - `npm run dev` — vite dev build with HMR (load `packages/extension/dist` in `chrome://extensions`)
 - `npm run build` — production build of the extension
-- `npm run registry` — start the verdict registry API on :8787 (`PORT`, `PUBLIC_URL`, `VERITY_DB` envs)
+- `npm run registry` — verdict API + dashboard at `/` (`PORT`, `PUBLIC_URL`, `VERITY_DB`, `RATE_LIMIT_POSTS` envs)
+- `npm run bot` — Telegram bot (`TELEGRAM_BOT_TOKEN` required; `REGISTRY_URL`,
+  `FACT_CHECK_API_KEY`, `OCR=0`, `OCR_LANGS`, `RATE_LIMIT_*` optional)
+- `npm run sign -- <in> <out> --test` — C2PA-sign media (ephemeral dev cert;
+  `--cert/--key` for real)
+- `node packages/bot/src/scan.ts <dir> [--out report]` — newsroom bulk intake → CSV/JSON
 - `npm run typecheck` — `tsc --noEmit` across workspaces
-- `npm test` — vitest (core: fusion + hashing)
+- `npm test` — vitest (all workspaces)
 
 ## Non-negotiable rules
 
@@ -40,9 +48,28 @@ full vision and roadmap.
   `chrome.storage.local.reverseSearch`, public URLs only) → ai-model (ONNX
   classifier via onnxruntime-web, only when `aiModelUrl` is configured — lazy
   chunk, honest 0.7 confidence cap).
-- Registry similarity search uses an in-memory BK-tree (`store.ts`/`bktree.ts`).
-- Current phase: **2** complete (registry + hashing + reverse-search adapter +
-  AI ensemble). Next: Phase 3 (Telegram bot, claim checking). See `docs/DESIGN.md`.
+- Registry similarity search uses an in-memory BK-tree (`store.ts`/`bktree.ts`);
+  records can carry `phashes[]` (multi-frame video fingerprints — the bot
+  samples 3 offsets so trimmed re-uploads still match).
+- Bot pipeline (`packages/bot/src/pipeline.ts`) mirrors the extension's:
+  c2pa-node (native bindings, magic-byte MIME sniffing — mismatches throw) →
+  ai-metadata → metadata → fact-check. OCR (tesseract.js) enriches
+  contextText for images so claims in pixels reach fact-check.
+- Fact-check signal has pluggable providers: Google Fact Check Tools API
+  (keyed) + ClaimReview JSON-LD fetched from URLs in context/`pageUrl`
+  (keyless — covers the "page itself is a fact-check" case).
+- Extension OCR lives in `src/ocr.ts`: tesseract.js worker + wasm core are
+  vendored in `public/ocr/` (CSP blocks blob/CDN workers); traineddata comes
+  from jsdelivr at runtime. Popup toggle: `ocrEnabled` (default on).
+- Registry hardening: per-IP write limit (120/h), 256KB body cap, verdict
+  shape + phash validation.
+- Signer (`packages/signer`): `sign.ts` embeds manifests via c2pa-node;
+  `--test` uses ephemeral certs (not trust-listed).
+- c2pa-node validates signatures cryptographically but NOT trust-list
+  membership — the signal surfaces a "signer not accredited" evidence line
+  when no cert chain is present.
+- Current phase: **4** in progress (signer + hardened registry + dashboard +
+  bulk intake done). Remaining: deployment, WhatsApp bridge, trust-list UX.
 
 ## Design language
 

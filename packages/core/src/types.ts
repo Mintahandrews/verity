@@ -29,6 +29,9 @@ export interface MediaDescriptor {
   kind: MediaKind;
   /** Caption/alt/nearby text — feeds the fact-check signal. */
   contextText?: string;
+  /** URL of the page/message hosting the media — the fact-check signal fetches
+   *  it for ClaimReview markup (the page itself may be a fact-check). */
+  pageUrl?: string;
 }
 
 export interface MediaInput extends MediaDescriptor {

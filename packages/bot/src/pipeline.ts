@@ -12,7 +12,7 @@ import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@verity/
 import sharp from 'sharp';
 import { c2paSignal } from './c2pa.ts';
 import { extractText } from './ocr.ts';
-import { videoPhash } from './videohash.ts';
+import { videoPhashes } from './videohash.ts';
 
 const REGISTRY = (process.env.REGISTRY_URL ?? 'http://localhost:8787').replace(/\/$/, '');
 const TIMEOUT_MS = 4000;
@@ -34,7 +34,7 @@ interface RegistryHit {
   distance?: number;
 }
 
-async function lookup(sha256: string, phash: string | null): Promise<RegistryHit | null> {
+async function lookup(sha256: string, phashes: string[]): Promise<RegistryHit | null> {
   try {
     const res = await fetch(`${REGISTRY}/api/verdicts/${sha256}`, {
       signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -43,18 +43,24 @@ async function lookup(sha256: string, phash: string | null): Promise<RegistryHit
   } catch {
     /* optional */
   }
-  if (!phash) return null;
-  try {
-    const res = await fetch(`${REGISTRY}/api/similar?phash=${phash}&maxdist=8`, {
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
-    if (!res.ok) return null;
-    const { results } = (await res.json()) as { results?: Array<Omit<RegistryHit, 'match'>> };
-    const hit = results?.[0];
-    return hit ? { match: 'similar', ...hit } : null;
-  } catch {
-    return null;
+  // Multi-frame fingerprints: query each, keep the closest hit overall.
+  let best: RegistryHit | null = null;
+  for (const phash of phashes) {
+    try {
+      const res = await fetch(`${REGISTRY}/api/similar?phash=${phash}&maxdist=8`, {
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+      if (!res.ok) continue;
+      const { results } = (await res.json()) as { results?: Array<Omit<RegistryHit, 'match'>> };
+      const hit = results?.[0];
+      if (hit && (!best || (hit.distance ?? 64) < (best.distance ?? 64))) {
+        best = { match: 'similar', ...hit };
+      }
+    } catch {
+      /* optional */
+    }
   }
+  return best;
 }
 
 async function submit(body: Record<string, unknown>): Promise<string | null> {
@@ -110,10 +116,11 @@ export async function analyzeBuffer(
 ): Promise<Verdict> {
   const blob = new Blob([new Uint8Array(buf)]);
   const sha256 = await sha256Hex(await blob.arrayBuffer());
-  const phash =
-    kind === 'image' ? await imagePhash(buf) : kind === 'video' ? await videoPhash(buf) : null;
+  const single = kind === 'image' ? await imagePhash(buf) : null;
+  const phashes =
+    kind === 'image' ? (single ? [single] : []) : kind === 'video' ? await videoPhashes(buf) : [];
 
-  const hit = await lookup(sha256, phash);
+  const hit = await lookup(sha256, phashes);
   if (hit?.match === 'exact') {
     hit.verdict.shareUrl ??= `${REGISTRY}/v/${sha256}`;
     return hit.verdict;
@@ -138,7 +145,7 @@ export async function analyzeBuffer(
 
   // Never submit the source URL: Telegram file URLs embed the bot token
   // and expire anyway. Hashes + verdict only.
-  const shareUrl = await submit({ sha256, phash, verdict });
+  const shareUrl = await submit({ sha256, phashes, verdict });
   if (shareUrl) verdict.shareUrl = shareUrl;
   return verdict;
 }

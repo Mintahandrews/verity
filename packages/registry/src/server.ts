@@ -14,6 +14,7 @@ const POST_WINDOW_MS = 3_600_000;
 interface SubmitBody {
   sha256?: string;
   phash?: string;
+  phashes?: string[];
   url?: string;
   verdict?: Verdict;
 }
@@ -110,14 +111,16 @@ createServer(async (req, res) => {
       send(res, 400, { error: 'sha256 (hex, 64 chars) and a valid verdict are required' });
       return;
     }
-    if (body.phash && !/^[0-9a-f]{16}$/i.test(body.phash)) {
-      send(res, 400, { error: 'phash must be 16 hex chars' });
+    const phashes = (body.phashes ?? (body.phash ? [body.phash] : [])).slice(0, 8);
+    if (phashes.some((p) => !/^[0-9a-f]{16}$/i.test(p))) {
+      send(res, 400, { error: 'phash/phashes must be 16 hex chars each (max 8)' });
       return;
     }
     if (!store.peek(body.sha256)) {
       store.put({
         sha256: body.sha256,
-        ...(body.phash ? { phash: body.phash } : {}),
+        ...(phashes[0] ? { phash: phashes[0] } : {}),
+        ...(phashes.length ? { phashes } : {}),
         ...(body.url && /^https?:/.test(body.url) ? { url: body.url } : {}),
         verdict: body.verdict,
         createdAt: new Date().toISOString(),

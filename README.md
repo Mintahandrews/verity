@@ -72,6 +72,15 @@ certificate. Signing is fully local; nothing leaves the machine.
 `npm run registry` also serves a dashboard at `/` — verdict stats, recent
 checks, and hash lookup. `GET /api/stats` returns the same numbers as JSON.
 
+## Newsroom bulk intake
+
+```bash
+node packages/bot/src/scan.ts <folder> --out report   # → report.csv + report.json
+```
+
+Recursively analyzes a directory of images/videos through the same pipeline
+as the bot — one row per file, shareable links included when a registry is up.
+
 ## Repo layout
 
 ```

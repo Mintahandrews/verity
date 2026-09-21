@@ -17,4 +17,4 @@ export { sniffMime } from './mime.ts';
 export type { AiSignatureHit } from './aisignatures.ts';
 export { aiMetadataSignal } from './signals/ai-metadata.ts';
 export { metadataSignal } from './signals/metadata.ts';
-export { factCheckSignal, classifyRating } from './signals/fact-check.ts';
+export { factCheckSignal, classifyRating, claimReviewMatches } from './signals/fact-check.ts';

@@ -22,7 +22,11 @@ function contextFor(el: HTMLElement | null): string | undefined {
 
 async function verify(media: MediaDescriptor): Promise<void> {
   const contextText = contextFor(findMediaElement(media.url));
-  const desc: MediaDescriptor = contextText ? { ...media, contextText } : media;
+  const desc: MediaDescriptor = {
+    ...media,
+    pageUrl: location.href,
+    ...(contextText ? { contextText } : {}),
+  };
   const res = await analyze(desc);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
   if (!res.ok) return;

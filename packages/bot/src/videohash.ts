@@ -7,6 +7,9 @@ import sharp from 'sharp';
 import ffmpegPath from 'ffmpeg-static';
 
 const FRAME_TIMEOUT_MS = 15_000;
+// Sampled offsets: early/mid/late. Catches trimmed re-uploads that a single
+// mid-frame would miss (intro cut → mid hash unchanged; tail cut → still matched).
+const SEEK_SECS = [0.5, 2.5, 6];
 
 /** Extract one frame (at `seekSec`) as a PNG buffer via the bundled ffmpeg. */
 function extractFrame(videoPath: string, seekSec: number): Promise<Buffer> {
@@ -34,26 +37,40 @@ function extractFrame(videoPath: string, seekSec: number): Promise<Buffer> {
   });
 }
 
+async function framePhash(png: Buffer): Promise<string> {
+  const raw = await sharp(png).resize(32, 32, { fit: 'fill' }).removeAlpha().raw().toBuffer();
+  const luma = new Float64Array(1024);
+  for (let i = 0; i < 1024; i++) {
+    luma[i] = 0.299 * raw[i * 3]! + 0.587 * raw[i * 3 + 1]! + 0.114 * raw[i * 3 + 2]!;
+  }
+  return pHashHex(pHash64(luma));
+}
+
 /**
- * Perceptual hash for video: decode one mid-frame, hash its luma plane.
- * Single-frame pHash is a coarse v1 — good enough to catch re-uploads of the
- * same clip; multi-frame/audio fingerprints are a later improvement.
+ * Multi-frame fingerprint: pHash frames at several offsets so trimmed/short
+ * clips still match. Returns deduplicated hex hashes, [] if undecodable.
  */
-export async function videoPhash(buf: Buffer): Promise<string | null> {
+export async function videoPhashes(buf: Buffer): Promise<string[]> {
   const dir = await mkdtemp(join(tmpdir(), 'verity-vid-'));
   const file = join(dir, 'in.bin');
   try {
     await writeFile(file, buf);
-    // Try ~1.5s in to skip intros/slates; fall back to the first frame.
-    const frame = await extractFrame(file, 1.5).catch(() => extractFrame(file, 0));
-    const raw = await sharp(frame).resize(32, 32, { fit: 'fill' }).removeAlpha().raw().toBuffer();
-    const luma = new Float64Array(1024);
-    for (let i = 0; i < 1024; i++) {
-      luma[i] = 0.299 * raw[i * 3]! + 0.587 * raw[i * 3 + 1]! + 0.114 * raw[i * 3 + 2]!;
+    const hashes = new Set<string>();
+    for (const seek of SEEK_SECS) {
+      const frame = await extractFrame(file, seek).catch(() => null);
+      if (frame) hashes.add(await framePhash(frame));
+      // One success is enough for short clips — stop after first failure once
+      // we already have a hash (likely ran past EOF).
+      if (!frame && hashes.size > 0) break;
     }
-    return pHashHex(pHash64(luma));
+    // Very short clips: every offset may be past EOF — grab the first frame.
+    if (hashes.size === 0) {
+      const first = await extractFrame(file, 0).catch(() => null);
+      if (first) hashes.add(await framePhash(first));
+    }
+    return [...hashes];
   } catch {
-    return null;
+    return [];
   } finally {
     await rm(dir, { recursive: true, force: true }).catch(() => {});
   }

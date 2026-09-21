@@ -73,6 +73,15 @@ export const c2paSignal: Signal = {
         ...(sig?.time ? { detail: String(sig.time) } : {}),
       });
     }
+    // c2pa-node validates the signature cryptographically but doesn't check the
+    // public C2PA trust list — anyone can mint a cert. Surface that honestly:
+    // the signature proves provenance is unbroken, not that the signer is accredited.
+    if (!sig?.cert_chain) {
+      evidence.push({
+        label: 'Signer identity not accredited',
+        detail: 'Valid signature, but the signing certificate is not on a public trust list.',
+      });
+    }
     if (manifest.claim_generator) {
       evidence.push({ label: `Produced by ${manifest.claim_generator}` });
     }
