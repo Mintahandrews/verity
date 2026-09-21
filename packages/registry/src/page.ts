@@ -97,11 +97,10 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): s
       chipClass === 'failed'
         ? ''
         : `<script src="/anim/lottie.min.js"></script>
-<script>lottie.loadAnimation({container:document.getElementById('anim'),renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json'})</script>`,
+<script>(function(){if(!window.lottie)return;var box=document.createElement('div');box.className='animbox';box.style.display='none';box.setAttribute('aria-hidden','true');var card=document.querySelector('.card');card.insertBefore(box,card.firstChild);var a=lottie.loadAnimation({container:box,renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json'});a.addEventListener('data_ready',function(){box.style.display=''})})()</script>`,
     body: `
 <div class="wrap cardwrap">
   <article class="card">
-    ${chipClass === 'failed' ? '' : '<div class="animbox" id="anim" aria-hidden="true"></div>'}
     <span class="chip ${chipClass}">${chipLabel}</span>
     <h1>${esc(verdict.headline)}</h1>
     <p class="when">Checked <time datetime="${esc(verdict.checkedAt)}">${esc(new Date(verdict.checkedAt).toLocaleString())}</time></p>
