@@ -14,7 +14,8 @@
     "sign": "npm run sign -w @verity/signer --",
     "typecheck": "npm run typecheck -ws --if-present",
     "test": "npm test -ws --if-present",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "start": "node packages/$VERITY_PKG/src/$VERITY_ENTRY"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
@@ -25,5 +26,8 @@
     "ffmpeg-static@5.3.0": true,
     "tesseract.js@7.0.0": true,
     "sharp@0.34.3": true
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

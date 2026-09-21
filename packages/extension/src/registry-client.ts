@@ -8,7 +8,9 @@ export interface RegistryHit {
   distance?: number;
 }
 
-const DEFAULT_REGISTRY = 'http://localhost:8787';
+// Public Verity registry (Railway). Self-hosters override via
+// chrome.storage.local.registryUrl.
+const DEFAULT_REGISTRY = 'https://registry-production-73c0.up.railway.app';
 const TIMEOUT_MS = 3000;
 
 async function base(): Promise<string> {
