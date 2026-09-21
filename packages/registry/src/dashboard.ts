@@ -28,9 +28,17 @@ const CSS = `
   form { display: flex; gap: 8px; margin-bottom: 20px; }
   input[type=text] { flex: 1; border: 1px solid var(--fern); border-radius: 24px;
                      padding: 8px 16px; font: inherit; font-size: 14px; background: var(--bone);
-                     color: var(--onyx); }
+                     color: var(--onyx); transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+  input[type=text]:focus, input[type=text]:focus-visible {
+    outline: none;
+    border-color: var(--verdant);
+    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.35);
+  }
   button { background: var(--sprout); color: var(--carbon); border: 0; border-radius: 28px;
-           padding: 8px 20px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+           padding: 8px 20px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+           transition: background-color 0.15s ease, transform 0.1s ease; }
+  button:hover { background: var(--wash); }
+  button:focus-visible { outline: 2px solid var(--sprout); outline-offset: 2px; }
   .row { display: grid; grid-template-columns: 32px 1fr auto auto; gap: 12px; align-items: center;
          padding: 12px 8px; border-top: 1px solid var(--mist); text-decoration: none; color: inherit; }
   .row:hover { background: var(--wash); border-radius: 12px; }

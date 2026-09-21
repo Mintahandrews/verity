@@ -65,6 +65,16 @@ export const BASE_CSS = `
   }
   input[type="text"], input[type="search"], textarea {
     cursor: text;
+    accent-color: var(--sprout);
+  }
+  :focus-visible {
+    outline: 2px solid var(--sprout);
+    outline-offset: 2px;
+  }
+  input[type="text"]:focus, input[type="search"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--verdant);
+    box-shadow: 0 0 0 3px rgba(104, 239, 63, 0.35);
   }
 `;
 
