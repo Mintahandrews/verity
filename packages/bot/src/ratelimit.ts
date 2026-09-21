@@ -6,11 +6,13 @@
 export class RateLimiter {
   private hits = new Map<number, number[]>();
   private lastSweep = Date.now();
+  private readonly limit: number;
+  private readonly windowMs: number;
 
-  constructor(
-    private readonly limit: number,
-    private readonly windowMs: number,
-  ) {}
+  constructor(limit: number, windowMs: number) {
+    this.limit = limit;
+    this.windowMs = windowMs;
+  }
 
   /** True if the key may proceed; records the hit. False when over the limit. */
   allow(key: number, now = Date.now()): boolean {

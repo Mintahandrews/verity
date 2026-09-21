@@ -28,6 +28,6 @@
     "sharp@0.34.3": true
   },
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   }
 }
