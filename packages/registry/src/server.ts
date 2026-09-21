@@ -67,7 +67,7 @@ function send(res: import('node:http').ServerResponse, status: number, body: unk
   res.end(JSON.stringify(body));
 }
 
-async function readBody(req: import('node:http').IncomingMessage): Promise<SubmitBody> {
+async function readBody(req: import('node:stream').Readable): Promise<SubmitBody> {
   let size = 0;
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
