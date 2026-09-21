@@ -12,6 +12,7 @@
   "dependencies": {
     "@contentauth/c2pa-types": "^0.7.4",
     "@contentauth/c2pa-web": "^0.15.1",
+    "@fontsource/instrument-serif": "^5.3.0",
     "@verity/core": "*",
     "exifr": "^7.1.3"
   },

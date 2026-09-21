@@ -1,0 +1,49 @@
+/* Verity design tokens — neo-botanical system (see design/design-language.md).
+   Valid CSS only; prose values from the spec are resolved to concrete numbers. */
+:root {
+  /* Brand colors */
+  --color-forest-depths: #122314;
+  --color-moss-shadow: #273f2b;
+  --color-lichen-sage: #7e8371;
+  --color-pale-fern: #b7bda5;
+  --color-electric-sprout: #68ef3f;
+  --color-deep-verdant: #26a200;
+  --color-sprout-wash: #e7f9dd;
+  --color-mist-green: #d9deca;
+
+  /* Neutrals */
+  --color-carbon: #222222;
+  --color-onyx-olive: #30322a;
+  --color-cool-stone: #d6d6d6;
+  --color-soft-mist: #dcdfe3;
+  --color-bone-white: #f2f5eb;
+  --color-pure-white: #ffffff;
+
+  /* Type families (spec fallbacks — Ozik/Aeonik are commercial) */
+  --font-display: 'Ozik', 'Boldonse', 'Migra', 'PP Editorial New', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Aeonik', 'Inter', 'Söhne', 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-accent: 'Instrument Serif', 'Source Serif 4', 'GT Sectra', 'Newsreader', ui-serif, Georgia, serif;
+
+  /* Type scale */
+  --text-caption: 12px;
+  --text-body: 14px;
+  --text-body-md: 16px;
+  --text-subheading: 18px;
+  --text-heading-sm: 20px;
+  --text-heading: 24px;
+  --tracking-tight: -0.015em;
+
+  /* Radii */
+  --radius-button-pill: 28px;
+  --radius-card: 24px;
+  --radius-badge: 40px;
+  --radius-nav: 28px;
+  --radius-full: 9999px;
+
+  /* Spacing (8px rhythm) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+}

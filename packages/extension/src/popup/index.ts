@@ -1,3 +1,5 @@
+import '@fontsource/instrument-serif/400.css';
+import '../design/tokens.css';
 import type { RuntimeMessage } from '../messages';
 
 document.getElementById('scan')!.addEventListener('click', async () => {

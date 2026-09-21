@@ -1,3 +1,5 @@
+import '@fontsource/instrument-serif/400.css';
+import '../design/tokens.css';
 import type { Verdict } from '@verity/core';
 import { verdictKey } from '../messages';
 
@@ -47,6 +49,7 @@ async function render(): Promise<void> {
     .join('');
 
   card.innerHTML = `
+    <div class="wordmark">Verity</div>
     <span class="chip ${verdict.state}">${verdict.state.toUpperCase()}</span>
     <h1>${escapeHtml(verdict.headline)}</h1>
     <p class="when">Checked ${new Date(verdict.checkedAt).toLocaleString()}</p>

@@ -3,20 +3,61 @@
   <head>
     <meta charset="utf-8" />
     <style>
-      body { width: 240px; font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 16px; color: #0f172a; }
-      h1 { font-size: 18px; margin: 0 0 4px; }
-      .sub { color: #64748b; font-size: 12px; margin: 0 0 12px; }
-      button { width: 100%; padding: 8px; font: 600 13px system-ui; color: #fff; background: #312e81; border: 0; border-radius: 6px; cursor: pointer; }
-      button:hover { background: #4338ca; }
-      .stats { margin-top: 12px; font-size: 12px; color: #64748b; }
-      .hint { margin-top: 8px; font-size: 11px; color: #94a3b8; }
+      body {
+        width: 256px;
+        margin: 0;
+        padding: var(--space-3);
+        font-family: var(--font-ui);
+        font-size: var(--text-body);
+        line-height: 1.5;
+        letter-spacing: -0.003em;
+        background: var(--color-forest-depths);
+        color: var(--color-pure-white);
+        border: 1px solid var(--color-onyx-olive);
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: var(--text-heading-sm);
+        font-weight: 700;
+        letter-spacing: var(--tracking-tight);
+      }
+      h1 em {
+        font-family: var(--font-accent);
+        font-weight: 400;
+        color: var(--color-electric-sprout);
+      }
+      .sub {
+        margin: 0 0 var(--space-2);
+        font-size: var(--text-caption);
+        color: var(--color-lichen-sage);
+      }
+      button {
+        width: 100%;
+        padding: 10px var(--space-2);
+        font-family: var(--font-ui);
+        font-size: var(--text-body);
+        font-weight: 600;
+        color: var(--color-carbon);
+        background: var(--color-electric-sprout);
+        border: 0;
+        border-radius: var(--radius-button-pill);
+        cursor: pointer;
+      }
+      button:hover { background: var(--color-sprout-wash); }
+      .stats, .hint {
+        margin: var(--space-2) 0 0;
+        font-size: var(--text-caption);
+        color: var(--color-lichen-sage);
+      }
+      .hint { color: var(--color-moss-shadow); }
+      .stats b { color: var(--color-electric-sprout); font-weight: 600; }
     </style>
   </head>
   <body>
-    <h1>Verity</h1>
-    <p class="sub">What can we verify? Not just "is it fake".</p>
+    <h1>Verity <em>checks</em></h1>
+    <p class="sub">What can we verify — not just “is it fake”.</p>
     <button id="scan">Scan this page</button>
-    <p class="stats">Media checked: <span id="count">0</span></p>
+    <p class="stats">Media checked: <b id="count">0</b></p>
     <p class="hint">Or right-click any image → “Verify with Verity”.</p>
     <script type="module" src="./index.ts"></script>
   </body>

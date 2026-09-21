@@ -9,11 +9,13 @@ const GLYPHS: Record<BadgeState, string> = {
   error: '×',
 };
 
-const COLORS: Record<BadgeState, string> = {
-  verified: '#16a34a',
-  unverified: '#64748b',
-  suspicious: '#ea580c',
-  error: '#dc2626',
+// Palette from design/tokens.css — hardcoded because badges are injected into
+// arbitrary pages where our CSS variables don't exist.
+const PAINT: Record<BadgeState, { bg: string; fg: string; border: string }> = {
+  verified: { bg: '#68ef3f', fg: '#122314', border: '#ffffff' }, // Electric Sprout
+  unverified: { bg: '#f2f5eb', fg: '#30322a', border: '#b7bda5' }, // Bone White / Pale Fern
+  suspicious: { bg: '#30322a', fg: '#ffffff', border: '#ffffff' }, // Onyx Olive
+  error: { bg: '#d6d6d6', fg: '#222222', border: '#ffffff' }, // Cool Stone
 };
 
 const TITLES: Record<BadgeState, string> = {
@@ -45,6 +47,7 @@ export function attachBadge(mediaUrl: string, verdictId: string | null, state: B
   if (!target || target.dataset.verityBadged) return;
   target.dataset.verityBadged = '1';
 
+  const paint = PAINT[state];
   const badge = document.createElement('button');
   badge.textContent = GLYPHS[state];
   badge.title = TITLES[state];
@@ -52,9 +55,11 @@ export function attachBadge(mediaUrl: string, verdictId: string | null, state: B
     'style',
     [
       'position:absolute', 'top:6px', 'left:6px', 'z-index:2147483647',
-      'width:22px', 'height:22px', 'border-radius:50%', 'border:2px solid #fff',
-      `background:${COLORS[state]}`, 'color:#fff', 'font:700 13px/18px system-ui',
-      'cursor:pointer', 'padding:0', 'box-shadow:0 1px 4px rgba(0,0,0,.4)',
+      'width:24px', 'height:24px', 'border-radius:9999px',
+      `border:2px solid ${paint.border}`,
+      `background:${paint.bg}`, `color:${paint.fg}`,
+      'font:700 13px/20px Aeonik, Inter, system-ui, sans-serif',
+      'cursor:pointer', 'padding:0',
     ].join(';'),
   );
   if (verdictId) {

@@ -4,25 +4,66 @@
     <meta charset="utf-8" />
     <title>Verity — Verdict</title>
     <style>
-      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
-      main { max-width: 640px; margin: 40px auto; padding: 0 16px; }
-      .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
-      .chip { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; color: #fff; }
-      .chip.verified { background: #16a34a; }
-      .chip.unverified { background: #64748b; }
-      .chip.suspicious { background: #ea580c; }
-      h1 { font-size: 20px; margin: 12px 0 4px; }
-      .when { color: #94a3b8; font-size: 12px; }
-      .signal { border-top: 1px solid #e2e8f0; padding: 14px 0; }
-      .signal h2 { font-size: 14px; margin: 0 0 2px; }
-      .signal .summary { margin: 0 0 6px; color: #334155; }
-      .signal ul { margin: 0; padding-left: 18px; color: #64748b; font-size: 13px; }
+      body {
+        font-family: var(--font-ui);
+        font-size: var(--text-body-md);
+        line-height: 1.5;
+        letter-spacing: -0.031em;
+        margin: 0;
+        background: var(--color-pure-white);
+        color: var(--color-onyx-olive);
+      }
+      main { max-width: 640px; margin: var(--space-5) auto; padding: 0 var(--space-2); }
+      .card {
+        background: var(--color-bone-white);
+        border: 1px solid var(--color-pale-fern);
+        border-radius: var(--radius-card);
+        padding: var(--space-4);
+      }
+      .wordmark {
+        font-size: var(--text-caption);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--color-lichen-sage);
+        margin-bottom: var(--space-2);
+      }
+      .chip {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: var(--radius-badge);
+        font-weight: 600;
+        font-size: var(--text-caption);
+        letter-spacing: 0.03em;
+      }
+      .chip.verified { background: var(--color-electric-sprout); color: var(--color-carbon); }
+      .chip.unverified { background: var(--color-cool-stone); color: var(--color-onyx-olive); }
+      .chip.suspicious { background: var(--color-onyx-olive); color: var(--color-pure-white); }
+      h1 {
+        font-size: var(--text-heading);
+        font-weight: 700;
+        line-height: 1.33;
+        letter-spacing: var(--tracking-tight);
+        margin: var(--space-2) 0 4px;
+      }
+      .when { color: var(--color-lichen-sage); font-size: var(--text-caption); }
+      .signal { border-top: 1px solid var(--color-mist-green); padding: var(--space-2) 0; }
+      .signal h2 { font-size: var(--text-body); font-weight: 600; margin: 0 0 2px; }
+      .signal .summary { margin: 0 0 6px; color: var(--color-moss-shadow); }
+      .signal ul { margin: 0; padding-left: 18px; color: var(--color-lichen-sage); font-size: 13px; }
       .outcome { font-weight: 700; margin-right: 6px; }
-      .outcome.positive { color: #16a34a; }
-      .outcome.negative { color: #ea580c; }
-      .outcome.neutral, .outcome.unsupported { color: #94a3b8; }
-      .outcome.error { color: #dc2626; }
-      footer { max-width: 640px; margin: 16px auto; padding: 0 16px; font-size: 12px; color: #94a3b8; }
+      .outcome.positive { color: var(--color-deep-verdant); }
+      .outcome.negative { color: var(--color-carbon); }
+      .outcome.neutral, .outcome.unsupported { color: var(--color-lichen-sage); }
+      .outcome.error { color: var(--color-carbon); }
+      footer {
+        max-width: 640px;
+        margin: var(--space-2) auto;
+        padding: 0 var(--space-2);
+        font-family: var(--font-accent);
+        font-size: var(--text-body-md);
+        color: var(--color-lichen-sage);
+      }
     </style>
   </head>
   <body>
