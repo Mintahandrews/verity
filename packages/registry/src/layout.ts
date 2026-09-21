@@ -51,38 +51,20 @@ export const BASE_CSS = `
   .sitefoot .pledge { font-family: var(--accent); font-style: italic; font-size: 14px;
                       margin-top: 14px; }
 
-  /* Neo-Botanical Custom Cursors */
+  /* Clean, open-source modern cursor system (Bibata / macOS styled for Verity) */
   :root {
-    --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M3 2L19 12L11 14L8 21L3 2Z' fill='%23122314' stroke='%2368ef3f' stroke-width='1.75' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='4.5' cy='3.5' r='1.25' fill='%2368ef3f'/%3E%3C/svg%3E") 3 2, auto;
-    --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='8' fill='%23122314' fill-opacity='0.45' stroke='%2368ef3f' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%2368ef3f'/%3E%3Cline x1='12' y1='1' x2='12' y2='5' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='12' y1='19' x2='12' y2='23' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='1' y1='12' x2='5' y2='12' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='19' y1='12' x2='23' y2='12' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 12 12, pointer;
-    --cur-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cline x1='8' y1='3' x2='16' y2='3' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='12' y1='3' x2='12' y2='21' stroke='%2368ef3f' stroke-width='1.75' stroke-linecap='round'/%3E%3Cline x1='8' y1='21' x2='16' y2='21' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 12 12, text;
+    --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%2368ef3f' stroke-width='0.75' stroke-linejoin='round'/%3E%3C/svg%3E") 2 2, auto;
+    --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 2v10.5l-2.2-2.2a1.8 1.8 0 0 0-2.5 2.5L7.5 18a6 6 0 0 0 4.2 1.8h3.8a4.5 4.5 0 0 0 4.5-4.5V9.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V7.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V2a1.4 1.4 0 0 0-2.8 0z' fill='%23122314' stroke='%2368ef3f' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 7 2, pointer;
   }
 
   html, body {
     cursor: var(--cur-default);
   }
-  a, button, [role="button"], input[type="submit"], input[type="button"], label, select, .opt, .btn, .cta, .card, .row {
+  a, button, [role="button"], input[type="submit"], input[type="button"], label, select, .opt, .btn, .cta, .row {
     cursor: var(--cur-pointer);
   }
   input[type="text"], input[type="search"], textarea {
-    cursor: var(--cur-text);
-  }
-
-  /* Micro-interaction ambient trailing cursor ring (desktop fine pointer only) */
-  #cur-dot {
-    position: fixed; top: 0; left: 0; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--sprout); box-shadow: 0 0 10px rgba(104, 239, 63, 0.7);
-    pointer-events: none; z-index: 99999; opacity: 0;
-    transition: width 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-                height 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-                background 0.18s ease, border 0.18s ease, opacity 0.18s ease;
-    will-change: transform;
-  }
-  #cur-dot.hovering {
-    width: 32px; height: 32px;
-    background: rgba(104, 239, 63, 0.14);
-    border: 1.5px solid var(--sprout);
-    box-shadow: 0 0 16px rgba(104, 239, 63, 0.4);
+    cursor: text;
   }
 `;
 
@@ -186,40 +168,7 @@ ${o.body}
     <span>Verity &bull; Open-source media verification engine. Zero media stored.</span>
     <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a></span>
   </div>
-  <p class="pledge">&ldquo;Unverified means we couldn't confirm provenance &mdash; not that the content is false.&rdquo;</p>
-<script>
-(() => {
-  if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    const dot = document.createElement('div');
-    dot.id = 'cur-dot';
-    document.body.appendChild(dot);
-    let x = -100, y = -100, cx = -100, cy = -100;
-    window.addEventListener('mousemove', (e) => {
-      x = e.clientX;
-      y = e.clientY;
-      dot.style.opacity = '1';
-    }, { passive: true });
-    window.addEventListener('mouseleave', () => { dot.style.opacity = '0'; });
-    const tick = () => {
-      cx += (x - cx) * 0.22;
-      cy += (y - cy) * 0.22;
-      dot.style.transform = 'translate3d(' + cx + 'px, ' + cy + 'px, 0) translate(-50%, -50%)';
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    document.addEventListener('mouseover', (e) => {
-      if (e.target && e.target.closest('a, button, [role="button"], input, label, .btn, .cta, .card, .row, .sig, .faq-item')) {
-        dot.classList.add('hovering');
-      }
-    });
-    document.addEventListener('mouseout', (e) => {
-      if (e.target && e.target.closest('a, button, [role="button"], input, label, .btn, .cta, .card, .row, .sig, .faq-item')) {
-        dot.classList.remove('hovering');
-      }
-    });
-  }
-})();
-</script>
+</footer></div>
 ${o.script ?? ''}
 </body>
 </html>`;

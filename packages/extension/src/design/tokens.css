@@ -47,10 +47,9 @@
   --space-4: 32px;
   --space-5: 40px;
 
-  /* Neo-Botanical Custom Cursors */
-  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M3 2L19 12L11 14L8 21L3 2Z' fill='%23122314' stroke='%2368ef3f' stroke-width='1.75' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='4.5' cy='3.5' r='1.25' fill='%2368ef3f'/%3E%3C/svg%3E") 3 2, auto;
-  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Ccircle cx='12' cy='12' r='8' fill='%23122314' fill-opacity='0.45' stroke='%2368ef3f' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%2368ef3f'/%3E%3Cline x1='12' y1='1' x2='12' y2='5' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='12' y1='19' x2='12' y2='23' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='1' y1='12' x2='5' y2='12' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='19' y1='12' x2='23' y2='12' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 12 12, pointer;
-  --cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cline x1='8' y1='3' x2='16' y2='3' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='12' y1='3' x2='12' y2='21' stroke='%2368ef3f' stroke-width='1.75' stroke-linecap='round'/%3E%3Cline x1='8' y1='21' x2='16' y2='21' stroke='%2368ef3f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") 12 12, text;
+  /* Clean, open-source modern cursor system (Bibata / macOS styled for Verity) */
+  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2 2L16 9.5L9.5 11L7.5 17.5L2 2Z' fill='%23122314' stroke='%2368ef3f' stroke-width='0.75' stroke-linejoin='round'/%3E%3C/svg%3E") 2 2, auto;
+  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 2v10.5l-2.2-2.2a1.8 1.8 0 0 0-2.5 2.5L7.5 18a6 6 0 0 0 4.2 1.8h3.8a4.5 4.5 0 0 0 4.5-4.5V9.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V7.5a1.4 1.4 0 0 0-2.8 0V11a1.2 1.2 0 0 0-2.4 0V2a1.4 1.4 0 0 0-2.8 0z' fill='%23122314' stroke='%2368ef3f' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E") 7 2, pointer;
 }
 
 html, body {
@@ -60,5 +59,5 @@ a, button, [role="button"], input[type="submit"], input[type="button"], label, s
   cursor: var(--cursor-pointer);
 }
 input[type="text"], input[type="search"], textarea {
-  cursor: var(--cursor-text);
+  cursor: text;
 }
