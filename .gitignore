@@ -7,3 +7,18 @@ release/
 registry.json
 *.local
 coverage/
+
+# AI/agent tooling - local assistant config, not project files
+AGENTS.md
+CLAUDE.md
+.cursorrules
+.windsurfrules
+.agents/
+.devin/
+.claude/
+.cursor/
+.windsurf/
+.codeium/
+.aider*
+.continue/
+.github/copilot-instructions.md
