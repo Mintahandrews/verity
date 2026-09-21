@@ -1,8 +1,13 @@
-import type { MediaDescriptor, MediaKind } from '@verity/core';
+import { errorVerdict } from '@verity/core';
+import type { MediaDescriptor, MediaKind, Verdict } from '@verity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
 import { OFFSCREEN_URL, VERDICT_PAGE_URL, verdictKey } from '../messages';
 
 const MENU_ID = 'verity:verify';
+
+// Firefox has no chrome.offscreen — analysis falls back to the verdict page
+// running in "analyze mode" (?u= URL to check) in an opened tab.
+const HAS_OFFSCREEN = typeof chrome.offscreen?.createDocument === 'function';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -21,30 +26,56 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendResponse) => {
-  if (msg.type === 'verity:analyze') {
-    handleAnalyze(msg.media).then(sendResponse);
+  if (msg.type === 'verity:analyze' || msg.type === 'verity:analyze-bytes') {
+    handleAnalyze(
+      msg.media,
+      msg.type === 'verity:analyze-bytes' ? msg.dataB64 : undefined,
+      msg.type === 'verity:analyze-bytes' ? msg.mime : undefined,
+    ).then(sendResponse);
     return true; // async response
+  }
+  if (msg.type === 'verity:report-error') {
+    storeError(msg.error).then(sendResponse);
+    return true;
   }
   if (msg.type === 'verity:open') {
     void chrome.tabs.create({ url: `${VERDICT_PAGE_URL}?id=${msg.verdictId}` });
   }
 });
 
-async function handleAnalyze(media: MediaDescriptor): Promise<AnalyzeResponse> {
+async function handleAnalyze(
+  media: MediaDescriptor,
+  dataB64?: string,
+  mime?: string,
+): Promise<AnalyzeResponse> {
+  if (!HAS_OFFSCREEN) {
+    await chrome.tabs.create({
+      url: `${VERDICT_PAGE_URL}?u=${encodeURIComponent(media.url)}&k=${media.kind}`,
+    });
+    return { ok: false, error: 'opened-in-tab' };
+  }
   try {
     await ensureOffscreen();
     const res = (await chrome.runtime.sendMessage({
       type: 'verity:offscreen-analyze',
       media,
+      ...(dataB64 ? { dataB64 } : {}),
+      ...(mime ? { mime } : {}),
     } satisfies RuntimeMessage)) as AnalyzeResponse;
-    if (res.ok) {
-      await chrome.storage.session.set({ [verdictKey(res.verdictId)]: res.verdict });
-      await bumpStat();
-    }
+    if (!res.ok) return storeError(res.error);
+    await chrome.storage.session.set({ [verdictKey(res.verdictId)]: res.verdict });
+    await bumpStat();
     return res;
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    return storeError(e instanceof Error ? e.message : String(e));
   }
+}
+
+async function storeError(message: string): Promise<AnalyzeResponse> {
+  const verdictId = crypto.randomUUID();
+  const verdict: Verdict = errorVerdict(message);
+  await chrome.storage.session.set({ [verdictKey(verdictId)]: verdict });
+  return { ok: true, verdictId, verdict };
 }
 
 async function ensureOffscreen(): Promise<void> {

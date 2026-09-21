@@ -1,5 +1,6 @@
 import type { MediaDescriptor } from '@verity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
+import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge } from './badge';
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
@@ -8,16 +9,56 @@ chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
 });
 
 async function verify(media: MediaDescriptor): Promise<void> {
+  const res = await analyze(media);
+  // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
+  if (!res.ok) return;
+  attachBadge(media.url, res.verdictId, res.verdict.error ? 'error' : res.verdict.state);
+}
+
+type Send = (m: RuntimeMessage) => Promise<AnalyzeResponse>;
+
+const send: Send = (m) => chrome.runtime.sendMessage(m) as Promise<AnalyzeResponse>;
+
+async function analyze(media: MediaDescriptor): Promise<AnalyzeResponse> {
   try {
-    const res = (await chrome.runtime.sendMessage({
-      type: 'verity:analyze',
+    // blob:/data: URLs are bound to the page context — extract bytes here and
+    // transfer them; the extension origin cannot fetch them.
+    if (/^(blob|data):/.test(media.url)) return await sendBytes(media);
+    return await send({ type: 'verity:analyze', media });
+  } catch (e) {
+    return send({
+      type: 'verity:report-error',
       media,
-    } satisfies RuntimeMessage)) as AnalyzeResponse;
-    if (res.ok) attachBadge(media.url, res.verdictId, res.verdict.state);
-    else attachBadge(media.url, null, 'error');
-  } catch {
-    attachBadge(media.url, null, 'error');
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
+}
+
+async function sendBytes(media: MediaDescriptor): Promise<AnalyzeResponse> {
+  const blob = await fetch(media.url).then((r) => r.blob());
+  if (blob.size > MAX_TRANSFER_BYTES) {
+    const mb = Math.round(blob.size / 1048576);
+    return send({
+      type: 'verity:report-error',
+      media,
+      error: `Media is too large for local analysis (${mb} MB > 32 MB).`,
+    });
+  }
+  return send({
+    type: 'verity:analyze-bytes',
+    media,
+    dataB64: await blobToBase64(blob),
+    mime: blob.type,
+  });
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve((r.result as string).split(',', 2)[1] ?? '');
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
 }
 
 const MIN_SIZE = 128;

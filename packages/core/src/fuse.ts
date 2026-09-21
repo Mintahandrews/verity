@@ -35,3 +35,24 @@ export function fuse(results: SignalResult[], now = new Date()): Verdict {
 
   return { state, confidence, headline: HEADLINES[state], signals: results, checkedAt: now.toISOString() };
 }
+
+/** A verdict-shaped record for when analysis itself failed — keeps the card clickable. */
+export function errorVerdict(message: string, now = new Date()): Verdict {
+  return {
+    state: 'unverified',
+    confidence: 0,
+    headline: 'This check could not run',
+    signals: [
+      {
+        signalId: 'fetch',
+        signalName: 'Media retrieval',
+        outcome: 'error',
+        confidence: 0,
+        summary: 'Verity could not obtain the media bytes to analyze.',
+        evidence: [{ label: message }],
+      },
+    ],
+    checkedAt: now.toISOString(),
+    error: message,
+  };
+}

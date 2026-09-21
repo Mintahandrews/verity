@@ -47,4 +47,6 @@ export interface Verdict {
   headline: string;
   signals: SignalResult[];
   checkedAt: string;
+  /** Set when the check itself failed (fetch error, unreadable bytes, too large). Not a verdict state. */
+  error?: string;
 }

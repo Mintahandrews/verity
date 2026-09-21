@@ -1,6 +1,8 @@
 import '@fontsource/instrument-serif/400.css';
 import '../design/tokens.css';
-import type { Verdict } from '@verity/core';
+import { errorVerdict } from '@verity/core';
+import type { MediaKind, Verdict } from '@verity/core';
+import { analyzeMedia, fetchMedia } from '../analysis';
 import { verdictKey } from '../messages';
 
 const OUTCOME_GLYPH: Record<string, string> = {
@@ -17,17 +19,10 @@ function escapeHtml(s: string): string {
   return d.innerHTML;
 }
 
-async function render(): Promise<void> {
+function renderVerdict(verdict: Verdict): void {
   const card = document.getElementById('card')!;
-  const id = new URLSearchParams(location.search).get('id');
-  const key = id ? verdictKey(id) : '';
-  const stored = (await chrome.storage.session.get(key)) as Record<string, Verdict>;
-  const verdict = key ? stored[key] : undefined;
-
-  if (!verdict) {
-    card.innerHTML = '<p>Verdict not found — it may have expired (session storage).</p>';
-    return;
-  }
+  const chipClass = verdict.error ? 'failed' : verdict.state;
+  const chipLabel = verdict.error ? 'CHECK FAILED' : verdict.state.toUpperCase();
 
   const signals = verdict.signals
     .filter((s) => s.outcome !== 'unsupported')
@@ -50,11 +45,47 @@ async function render(): Promise<void> {
 
   card.innerHTML = `
     <div class="wordmark">Verity</div>
-    <span class="chip ${verdict.state}">${verdict.state.toUpperCase()}</span>
+    <span class="chip ${chipClass}">${chipLabel}</span>
     <h1>${escapeHtml(verdict.headline)}</h1>
     <p class="when">Checked ${new Date(verdict.checkedAt).toLocaleString()}</p>
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
   `;
+}
+
+async function render(): Promise<void> {
+  const card = document.getElementById('card')!;
+  const params = new URLSearchParams(location.search);
+
+  // Analyze mode: ?u=<media-url>&k=<kind> — used on Firefox (no offscreen API)
+  // and as a standalone "check this URL" page.
+  const analyzeUrl = params.get('u');
+  if (analyzeUrl) {
+    card.innerHTML = '<p>Analyzing…</p>';
+    const kind = (params.get('k') ?? 'image') as MediaKind;
+    let verdict: Verdict;
+    try {
+      const blob = await fetchMedia(analyzeUrl);
+      verdict = await analyzeMedia({ url: analyzeUrl, kind }, blob);
+    } catch (e) {
+      verdict = errorVerdict(e instanceof Error ? e.message : String(e));
+    }
+    const id = crypto.randomUUID();
+    await chrome.storage.session.set({ [verdictKey(id)]: verdict });
+    history.replaceState(null, '', `?id=${id}`);
+    renderVerdict(verdict);
+    return;
+  }
+
+  const id = params.get('id');
+  const key = id ? verdictKey(id) : '';
+  const stored = (await chrome.storage.session.get(key)) as Record<string, Verdict>;
+  const verdict = key ? stored[key] : undefined;
+
+  if (!verdict) {
+    card.innerHTML = '<p>Verdict not found — it may have expired (session storage).</p>';
+    return;
+  }
+  renderVerdict(verdict);
 }
 
 void render();

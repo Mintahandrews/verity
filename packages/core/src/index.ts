@@ -10,4 +10,4 @@ export type {
   VerdictState,
 } from './types';
 export { SignalRegistry, errorResult } from './registry';
-export { fuse } from './fuse';
+export { fuse, errorVerdict } from './fuse';

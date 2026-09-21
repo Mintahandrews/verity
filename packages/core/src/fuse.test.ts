@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fuse } from './fuse';
+import { errorVerdict, fuse } from './fuse';
 import type { SignalResult } from './types';
 
 const r = (partial: Partial<SignalResult>): SignalResult => ({
@@ -45,5 +45,14 @@ describe('fuse', () => {
     ]);
     expect(v.state).toBe('suspicious');
     expect(v.confidence).toBe(0.8);
+  });
+});
+
+describe('errorVerdict', () => {
+  it('produces an unverified verdict carrying the failure message', () => {
+    const v = errorVerdict('fetch failed: HTTP 403');
+    expect(v.state).toBe('unverified');
+    expect(v.error).toBe('fetch failed: HTTP 403');
+    expect(v.signals[0]?.outcome).toBe('error');
   });
 });
