@@ -139,7 +139,7 @@ Verity is architected as an ultra-fast TypeScript monorepo using npm workspaces:
 
 ### Prerequisites
 
-- **Node.js**: >= 20.x (Node 22 LTS or Node 24 recommended)
+- **Node.js**: 24.x (required - the registry and bot run TypeScript via Node strip-types)
 - **npm**: >= 10.x
 
 ### 1. Installation

@@ -35,7 +35,7 @@ Verity is organized as an npm workspaces monorepo:
 
 ### Prerequisites
 
-- **Node.js**: >= 20.x (Node 22 LTS or Node 24 recommended)
+- **Node.js**: 24.x (required - the registry and bot run TypeScript via Node strip-types)
 - **npm**: >= 10.x
 - **Google Chrome** (for testing the Manifest V3 browser extension)
 
