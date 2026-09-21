@@ -26,11 +26,12 @@ const CSS = `
   .stat { background: var(--moss); border: 1px solid var(--onyx); border-radius: 40px;
           padding: 5px 16px; font-size: 13px; color: var(--fern); }
   .stat b { color: var(--sprout); font-weight: 600; }
-  section { padding: 48px 0; }
+  section { padding: 40px 0; }
+  section + section { border-top: 1px solid var(--mist); }
   h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; color: var(--onyx); }
   .kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
             color: var(--verdant); margin: 0 0 10px; }
-  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 24px; }
+  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 24px; }
   .card { background: var(--white); border: 1px solid var(--mist); border-radius: 20px; padding: 22px; }
   .card .mark { width: 30px; height: 30px; border-radius: 40px; display: inline-flex;
                 align-items: center; justify-content: center; font-weight: 700; margin-bottom: 12px; }
@@ -56,7 +57,7 @@ const CSS = `
     #sprout-anim { display: none; }
     .lede { font-size: 16px; }
     .cta .btn { flex: 1 1 auto; text-align: center; padding: 12px 18px; }
-    section { padding: 36px 0; }
+    section { padding: 32px 0; }
     h2 { font-size: 24px; }
     .card, .howto { padding: 20px; border-radius: 18px; }
     .signals { border-radius: 16px; }

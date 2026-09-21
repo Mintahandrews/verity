@@ -16,7 +16,7 @@ function esc(s: string): string {
 const CSS = `
   .cardwrap { max-width: 640px; margin: 0 auto; }
   .card { background: var(--white); border: 1px solid var(--fern); border-radius: 24px;
-          padding: 32px; margin-top: 16px; }
+          padding: 32px; margin-top: 24px; }
   .animbox { width: 96px; height: 96px; margin: 0 0 8px; }
   .chip { display: inline-block; padding: 4px 14px; border-radius: 40px; font-weight: 600;
           font-size: 12px; letter-spacing: 0.03em; }

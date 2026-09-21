@@ -22,7 +22,8 @@ const CSS = `
           padding: 4px 16px; font-size: 13px; color: var(--fern); }
   .stat b { color: var(--sprout); font-weight: 600; }
   .panel { background: var(--white); border: 1px solid var(--mist); border-radius: 24px;
-           padding: 24px; color: var(--onyx); }
+           padding: 24px; color: var(--onyx); margin-top: 24px; }
+  .panel h2 + h2, .panel form + h2 { margin-top: 24px; }
   .panel h2 { font-size: 18px; font-weight: 600; margin: 0 0 12px; }
   form { display: flex; gap: 8px; margin-bottom: 20px; }
   input[type=text] { flex: 1; border: 1px solid var(--fern); border-radius: 24px;
