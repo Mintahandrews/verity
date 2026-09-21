@@ -150,7 +150,7 @@ ${o.body}
 <div class="wrap"><footer class="sitefoot" role="contentinfo">
   <div class="row">
     <span>Verity &bull; Open-source media verification engine. Zero media stored.</span>
-    <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/verity-project/verity" target="_blank" rel="noopener noreferrer">GitHub</a></span>
+    <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a></span>
   </div>
   <p class="pledge">&ldquo;Unverified means we couldn't confirm provenance &mdash; not that the content is false.&rdquo;</p>
 </footer></div>

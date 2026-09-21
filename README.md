@@ -6,7 +6,7 @@
   <strong>Cryptographic Provenance (C2PA) &bull; Perceptual Hashing (pHash BK-Tree) &bull; Metadata Forensics &bull; Zero-Telemetry Privacy</strong>
 </p>
 
-[![CI Status](https://github.com/verity-project/verity/actions/workflows/ci.yml/badge.svg)](https://github.com/verity-project/verity/actions/workflows/ci.yml)
+[![CI Status](https://github.com/mintahandrews/verity/actions/workflows/ci.yml/badge.svg)](https://github.com/mintahandrews/verity/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![C2PA Standard](https://img.shields.io/badge/Standard-C2PA%20Content%20Credentials-00c853.svg)](https://c2pa.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](https://www.typescriptlang.org/)
@@ -147,7 +147,7 @@ Verity is architected as an ultra-fast TypeScript monorepo using npm workspaces:
 Clone the repository and install workspace dependencies:
 
 ```bash
-git clone https://github.com/verity-project/verity.git
+git clone https://github.com/mintahandrews/verity.git
 cd verity
 npm install
 ```

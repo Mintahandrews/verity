@@ -3,7 +3,7 @@ message: "If you use Verity in your academic or journalistic research, please ci
 title: "Verity: Multi-Signal Media Authenticity Engine"
 version: 0.1.0
 date-released: 2025-01-01
-url: "https://github.com/verity-project/verity"
+url: "https://github.com/mintahandrews/verity"
 license: "Apache-2.0"
 keywords:
   - "c2pa"
@@ -14,5 +14,5 @@ keywords:
   - "perceptual-hashing"
   - "disinformation-countermeasures"
 authors:
-  - name: "The Verity Project Authors"
-    website: "https://github.com/verity-project/verity"
+  - name: "Andrews Mintah"
+    website: "https://github.com/mintahandrews"

@@ -5,13 +5,14 @@
   "type": "module",
   "description": "Multi-signal media authenticity engine: C2PA cryptographic provenance, metadata forensics, perceptual hashing, and fact-checking without labeling content 'fake'.",
   "license": "Apache-2.0",
+  "author": "Andrews Mintah (https://github.com/mintahandrews)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/verity-project/verity.git"
+    "url": "https://github.com/mintahandrews/verity.git"
   },
-  "homepage": "https://github.com/verity-project/verity#readme",
+  "homepage": "https://github.com/mintahandrews/verity#readme",
   "bugs": {
-    "url": "https://github.com/verity-project/verity/issues"
+    "url": "https://github.com/mintahandrews/verity/issues"
   },
   "keywords": [
     "c2pa",
@@ -43,6 +44,7 @@
     "test": "npm test --workspaces --if-present",
     "icons": "node scripts/gen-icons.mjs",
     "anims": "node scripts/gen-anims.mjs",
+    "banner": "node scripts/generate-banner.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
     "pack": "npm run build && mkdir -p release && cd packages/extension/dist && zip -qr ../../../release/verity-extension.zip . && echo \"packed release/verity-extension.zip\"",
     "start": "node packages/$VERITY_PKG/src/$VERITY_ENTRY"

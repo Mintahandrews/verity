@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security Vulnerabilities
-    url: https://github.com/verity-project/verity/security/policy
+    url: https://github.com/mintahandrews/verity/security/policy
     about: Please report security or privacy concerns confidentially following our security policy.
   - name: Telegram Community Bot
     url: https://t.me/CheckVerityBot

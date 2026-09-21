@@ -43,7 +43,7 @@ Verity is organized as an npm workspaces monorepo:
 
 1. Fork the repository on GitHub and clone your fork:
    ```bash
-   git clone https://github.com/<your-username>/verity.git
+   git clone https://github.com/mintahandrews/verity.git
    cd verity
    ```
 

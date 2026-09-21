@@ -26,7 +26,7 @@ const CSS = `
   .stat { background: var(--moss); border: 1px solid var(--onyx); border-radius: 40px;
           padding: 5px 16px; font-size: 13px; color: var(--fern); }
   .stat b { color: var(--sprout); font-weight: 600; }
-  section { padding: 64px 0; }
+  section.wrap { padding-top: 64px; padding-bottom: 64px; }
   section + section { border-top: 1px solid var(--mist); }
   h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; color: var(--onyx); }
   .kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
@@ -63,7 +63,7 @@ const CSS = `
     #sprout-anim { display: none; }
     .lede { font-size: 16px; }
     .cta .btn { flex: 1 1 auto; text-align: center; padding: 12px 18px; }
-    section { padding: 40px 0; }
+    section.wrap { padding-top: 40px; padding-bottom: 40px; }
     .verdicts, .signals, .faq-list, .howto { margin-top: 24px; }
     h2 { font-size: 24px; }
     .card, .howto, .faq-item { padding: 20px; border-radius: 18px; }
@@ -152,7 +152,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
       <div class="cta">
         <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Check media on Telegram</a>
         <a class="btn ghost" href="#install">Get the browser extension</a>
-        <a class="btn ghost" href="https://github.com/verity-project/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
+        <a class="btn ghost" href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
       </div>
       <div class="stats">
         <span class="stat"><b>${stats['total'] ?? 0}</b> media checked</span>

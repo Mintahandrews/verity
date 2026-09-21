@@ -164,7 +164,7 @@ ${urls.join('\n')}
 - Public Landing & FAQ: ${PUBLIC_URL}/
 - Live Newsroom Registry: ${PUBLIC_URL}/dashboard
 - Telegram Bot: https://t.me/CheckVerityBot
-- Open-Source GitHub Repository: https://github.com/verity-project/verity
+- Open-Source GitHub Repository: https://github.com/mintahandrews/verity
 `);
     return;
   }
