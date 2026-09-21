@@ -27,6 +27,8 @@ export interface SignalResult {
 export interface MediaDescriptor {
   url: string;
   kind: MediaKind;
+  /** Caption/alt/nearby text — feeds the fact-check signal. */
+  contextText?: string;
 }
 
 export interface MediaInput extends MediaDescriptor {

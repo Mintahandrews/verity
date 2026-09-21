@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hamming64, hammingHex, pHash64, pHashHex, sha256Hex } from './hash';
+import { hamming64, hammingHex, pHash64, pHashHex, sha256Hex } from './hash.ts';
 
 const luma = (fn: (i: number) => number) => Array.from({ length: 32 * 32 }, (_, i) => fn(i));
 

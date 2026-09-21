@@ -1,5 +1,5 @@
 import exifr from 'exifr';
-import type { Evidence, Signal, SignalResult } from '@verity/core';
+import type { Evidence, Signal, SignalResult } from '../types.ts';
 
 /**
  * Metadata forensics. Deliberately conservative: stripped EXIF is the norm after
@@ -12,7 +12,11 @@ export const metadataSignal: Signal = {
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
     const data = (await exifr
-      .parse(media.blob, { gps: true, translateValues: true })
+      // Uint8Array works in both browser and Node (Blob support varies).
+      .parse(new Uint8Array(await media.blob.arrayBuffer()), {
+        gps: true,
+        translateValues: true,
+      })
       .catch(() => undefined)) as Record<string, unknown> | undefined;
 
     if (!data || Object.keys(data).length === 0) {

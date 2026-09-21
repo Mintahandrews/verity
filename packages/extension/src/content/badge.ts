@@ -33,7 +33,7 @@ function sameUrl(a: string, b: string): boolean {
   }
 }
 
-function findMediaElement(url: string): HTMLElement | null {
+export function findMediaElement(url: string): HTMLElement | null {
   for (const el of document.querySelectorAll('img, video, audio')) {
     const media = el as HTMLMediaElement;
     const src = media.currentSrc || el.getAttribute('src') || (el as HTMLVideoElement).poster;

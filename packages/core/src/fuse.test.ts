@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { errorVerdict, fuse } from './fuse';
-import type { SignalResult } from './types';
+import { errorVerdict, fuse } from './fuse.ts';
+import type { SignalResult } from './types.ts';
 
 const r = (partial: Partial<SignalResult>): SignalResult => ({
   signalId: 'test',

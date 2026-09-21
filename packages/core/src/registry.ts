@@ -1,4 +1,4 @@
-import type { MediaDescriptor, MediaInput, Signal, SignalResult } from './types';
+import type { MediaDescriptor, MediaInput, Signal, SignalResult } from './types.ts';
 
 export function errorResult(signal: Signal, cause: unknown): SignalResult {
   return {

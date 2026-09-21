@@ -1,4 +1,4 @@
-import type { SignalResult, Verdict, VerdictState } from './types';
+import type { SignalResult, Verdict, VerdictState } from './types.ts';
 
 const HEADLINES: Record<VerdictState, string> = {
   verified: 'Verified — cryptographic provenance confirmed',

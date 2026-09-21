@@ -1,15 +1,29 @@
 import type { MediaDescriptor } from '@verity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
 import { MAX_TRANSFER_BYTES } from '../messages';
-import { attachBadge } from './badge';
+import { attachBadge, findMediaElement } from './badge';
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
   if (msg.type === 'verity:verify-one') void verify(msg.media);
   if (msg.type === 'verity:scan-page') void scanPage();
 });
 
+/** Pull caption context for the fact-check signal: alt, figcaption, enclosing article. */
+function contextFor(el: HTMLElement | null): string | undefined {
+  if (!el) return undefined;
+  const parts = [
+    el.getAttribute('alt'),
+    el.closest('figure')?.querySelector('figcaption')?.textContent,
+    el.closest('article')?.textContent,
+  ].filter((s): s is string => Boolean(s?.trim()));
+  const text = parts.join(' ').replace(/\s+/g, ' ').trim();
+  return text.slice(0, 500) || undefined;
+}
+
 async function verify(media: MediaDescriptor): Promise<void> {
-  const res = await analyze(media);
+  const contextText = contextFor(findMediaElement(media.url));
+  const desc: MediaDescriptor = contextText ? { ...media, contextText } : media;
+  const res = await analyze(desc);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
   if (!res.ok) return;
   attachBadge(media.url, res.verdictId, res.verdict.error ? 'error' : res.verdict.state);

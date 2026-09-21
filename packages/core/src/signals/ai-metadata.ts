@@ -1,5 +1,5 @@
-import { detectAiSignatures } from '@verity/core';
-import type { Signal, SignalResult } from '@verity/core';
+import { detectAiSignatures } from '../aisignatures.ts';
+import type { Signal, SignalResult } from '../types.ts';
 
 /**
  * Deterministic layer of the AI-detection ensemble: scans file bytes for
