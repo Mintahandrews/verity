@@ -183,7 +183,7 @@ ${o.body}
 <div class="wrap"><footer class="sitefoot" role="contentinfo">
   <div class="row">
     <span>Verity &bull; Open-source media verification engine. Zero media stored.</span>
-    <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a></span>
+    <span><a href="/dashboard">Registry</a> &middot; <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &middot; <a href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a></span>
   </div>
 </footer></div>
 ${o.script ?? ''}

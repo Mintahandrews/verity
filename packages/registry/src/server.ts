@@ -10,6 +10,7 @@ import { stampDigest } from './ots.ts';
 import { NoteIndex } from './notes.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
+import { privacyPage, termsPage } from './legal.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/$/, '');
@@ -236,6 +237,8 @@ Sitemap: ${PUBLIC_URL}/sitemap.xml
     const urls = [
       `  <url><loc>${PUBLIC_URL}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
       `  <url><loc>${PUBLIC_URL}/dashboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>`,
+      `  <url><loc>${PUBLIC_URL}/terms</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>`,
+      `  <url><loc>${PUBLIC_URL}/privacy</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>`,
       ...recent.map(
         (r) =>
           `  <url><loc>${PUBLIC_URL}/v/${r.sha256}</loc><lastmod>${r.createdAt.split('T')[0]}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
@@ -364,6 +367,11 @@ ${urls.join('\n')}
   if (path === '/dashboard' && req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(dashboardPage((await store.stats()), (await store.recent(20)), PUBLIC_URL));
+    return;
+  }
+  if ((path === '/terms' || path === '/privacy') && req.method === 'GET') {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(path === '/terms' ? termsPage(PUBLIC_URL) : privacyPage(PUBLIC_URL));
     return;
   }
 
