@@ -41,8 +41,29 @@ export class PostgresStore extends IndexedStore {
         hits BIGINT NOT NULL DEFAULT 0
       )
     `);
+    await this.pool.query(
+      'CREATE TABLE IF NOT EXISTS verity_meta (key TEXT PRIMARY KEY, value TEXT)',
+    );
     const { rows } = await this.pool.query<VerdictRow>('SELECT * FROM verdicts');
     for (const r of rows) this.index(this.toRecord(r));
+  }
+
+  /**
+   * Migration marker: the JSON import must run once ever, not "whenever the
+   * table is empty" - otherwise records removed by moderation resurrect on
+   * the next redeploy.
+   */
+  async migrationDone(): Promise<boolean> {
+    const { rows } = await this.pool.query<{ value: string }>(
+      "SELECT value FROM verity_meta WHERE key = 'json_migrated'",
+    );
+    return rows.length > 0;
+  }
+
+  async markMigrated(): Promise<void> {
+    await this.pool.query(
+      "INSERT INTO verity_meta (key, value) VALUES ('json_migrated', '1') ON CONFLICT DO NOTHING",
+    );
   }
 
   private toRecord(r: VerdictRow): RegistryRecord {

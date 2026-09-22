@@ -21,11 +21,14 @@ async function createStore(): Promise<Store> {
       await store.init();
       // One-time migration: first deploy with Postgres - import any records
       // the JSON volume file accumulated so nothing checked before is lost.
+      // Gated on a meta marker, not table emptiness: an emptied table must
+      // not re-import records that were deliberately deleted.
       const file = process.env.VERITY_DB ?? 'registry.json';
-      if (store.count() === 0) {
+      if (!(await store.migrationDone())) {
         const legacy = new RegistryStore(file);
         for (const rec of legacy.all()) await store.put(rec);
         if (legacy.count() > 0) console.log(`migrated ${legacy.count()} records from JSON`);
+        await store.markMigrated();
       }
       console.log('store: postgres');
       return store;
