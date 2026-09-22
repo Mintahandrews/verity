@@ -1,12 +1,13 @@
 Icon animations in this directory:
-  verified.json, unverified.json, suspicious.json, loading.json
-  - "checkmark", "help", "alertTriangle", "loading" by useAnimations
-    (https://useanimations.com), licensed CC-BY 4.0
-    (https://creativecommons.org/licenses/by/4.0/)
-  - Recolored to the Verity palette.
 
-  sprout.json
-  - "plant-item" by svgenius via LottieFiles, Lottie Simple License
-    (https://lottiefiles.com/page/terms), free for commercial use,
-    no attribution required.
-  - Recolored to the Verity palette.
+  verified.json    - "check-circle-regular" by jennyseong
+  unverified.json  - "Question 2"
+  suspicious.json  - "alert-triangle"
+  sprout.json      - "plant-item" by svgenius
+    via LottieFiles (https://lottiefiles.com), Lottie Simple License
+    (https://lottiefiles.com/page/terms) - free for commercial use,
+    no attribution required. Recolored to the Verity palette.
+
+  loading.json     - "loading" by useAnimations (https://useanimations.com),
+    licensed CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+    Recolored to the Verity palette.

@@ -163,7 +163,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <div id="sprout-anim" aria-hidden="true"></div>
   </header>`,
     script: `<script src="/anim/lottie.min.js"></script>
-<script>var el=document.getElementById('sprout-anim');if(el)lottie.loadAnimation({container:el,renderer:'svg',loop:true,autoplay:true,path:'/anim/sprout.json?v=3'})</script>`,
+<script>var el=document.getElementById('sprout-anim');if(el)lottie.loadAnimation({container:el,renderer:'svg',loop:true,autoplay:true,path:'/anim/sprout.json?v=4'})</script>`,
     body: `
 <section class="wrap" aria-labelledby="verdicts-heading">
   <p class="kicker">The verdicts</p>
