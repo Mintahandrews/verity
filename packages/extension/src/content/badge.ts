@@ -42,12 +42,12 @@ export function findMediaElement(url: string): HTMLElement | null {
   return null;
 }
 
-export function attachBadge(mediaUrl: string, verdictId: string | null, state: BadgeState): void {
+export function attachBadge(mediaUrl: string, verdictId: string | null, state: BadgeState): boolean {
   const target = findMediaElement(mediaUrl);
-  if (!target || target.dataset.verityBadged) return;
+  if (!target || target.dataset.verityBadged) return false;
   // Skip icons/avatars/thumbnails - a 24px badge would cover them entirely.
   const rect = target.getBoundingClientRect();
-  if (rect.width < 56 || rect.height < 56) return;
+  if (rect.width < 56 || rect.height < 56) return false;
   target.dataset.verityBadged = '1';
 
   const paint = PAINT[state];
@@ -76,8 +76,8 @@ export function attachBadge(mediaUrl: string, verdictId: string | null, state: B
   }
 
   const parent = target.parentElement;
-  if (parent) {
-    if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
-    parent.appendChild(badge);
-  }
+  if (!parent) return false;
+  if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+  parent.appendChild(badge);
+  return true;
 }

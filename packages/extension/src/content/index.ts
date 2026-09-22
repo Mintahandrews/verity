@@ -4,7 +4,7 @@ import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge, findMediaElement } from './badge';
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
-  if (msg.type === 'verity:verify-one') void verify(msg.media).catch(() => {});
+  if (msg.type === 'verity:verify-one') void verifyOne(msg.media).catch(() => {});
   if (msg.type === 'verity:scan-page') scanPage();
 });
 
@@ -20,7 +20,12 @@ function contextFor(el: HTMLElement | null): string | undefined {
   return text.slice(0, 500) || undefined;
 }
 
-async function verify(media: MediaDescriptor): Promise<AnalyzeResponse | null> {
+interface VerifyOutcome {
+  res: AnalyzeResponse;
+  attached: boolean;
+}
+
+async function verify(media: MediaDescriptor): Promise<VerifyOutcome | null> {
   const contextText = contextFor(findMediaElement(media.url));
   const desc: MediaDescriptor = {
     ...media,
@@ -30,8 +35,27 @@ async function verify(media: MediaDescriptor): Promise<AnalyzeResponse | null> {
   const res = await analyze(desc);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
   if (!res.ok) return null;
-  attachBadge(media.url, res.verdictId, res.verdict.error ? 'error' : res.verdict.state);
-  return res;
+  const attached = attachBadge(
+    media.url,
+    res.verdictId,
+    res.verdict.error ? 'error' : res.verdict.state,
+  );
+  return { res, attached };
+}
+
+/**
+ * Right-click flow. Feedback is immediate (a toast while analysis runs), then
+ * the badge lands on the media. If a badge can't attach - element vanished,
+ * too small, or a non-DOM source - the verdict page opens instead of leaving
+ * the user with silent nothing.
+ */
+async function verifyOne(media: MediaDescriptor): Promise<void> {
+  const pending = toast('Verity is checking this media...');
+  const out = await verify(media);
+  pending.remove();
+  if (out?.res.ok && !out.attached && out.res.verdictId) {
+    void chrome.runtime.sendMessage({ type: 'verity:open', verdictId: out.res.verdictId });
+  }
 }
 
 type Send = (m: RuntimeMessage) => Promise<AnalyzeResponse>;
@@ -194,7 +218,8 @@ function scanPage(): void {
   };
   for (const img of imgs) {
     void verify({ url: img.currentSrc || img.src, kind: 'image' })
-      .then((res) => {
+      .then((out) => {
+        const res = out?.res;
         if (res?.ok && res.verdict) {
           panel.addResult(
             res.verdict.error ? 'error' : res.verdict.state,
