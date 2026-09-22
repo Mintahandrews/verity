@@ -32,4 +32,4 @@ export {
   createClaimBusterSignal,
   bestSauceSimilarity,
 } from './signals/external-apis.ts';
-export { hasBreakingMarkers, keywordsFrom } from './signals/claimtext.ts';
+export { hasBreakingMarkers, keywordsFrom, tweetIdsFrom } from './signals/claimtext.ts';

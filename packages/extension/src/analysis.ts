@@ -13,6 +13,7 @@ import {
   pHashHex,
   rdapSignal,
   sha256Hex,
+  tweetIdsFrom,
   waybackSignal,
   weatherSignal,
 } from '@verity/core';
@@ -20,7 +21,14 @@ import type { MediaDescriptor, SignalResult, Verdict } from '@verity/core';
 import { c2paSignal } from './offscreen/signals/c2pa';
 import { aiModelSignal } from './offscreen/signals/ai-model';
 import { reverseSearchSignal } from './offscreen/signals/reverse-search';
-import { lookupVerdict, submitVerdict, type RegistryHit } from './registry-client';
+import { clipEmbedding } from './offscreen/embeddings';
+import {
+  lookupEmbedding,
+  lookupNotes,
+  lookupVerdict,
+  submitVerdict,
+  type RegistryHit,
+} from './registry-client';
 import { storageGet } from './storage';
 import { extractText } from './ocr';
 
@@ -102,6 +110,41 @@ function priorSighting(hit: RegistryHit): SignalResult {
   };
 }
 
+/** Semantic near-dupe hit - same evidentiary class as the pHash sighting. */
+function semanticSighting(hit: RegistryHit): SignalResult {
+  const evidence: SignalResult['evidence'] = [];
+  if (hit.similarity !== undefined) {
+    evidence.push({ label: 'Embedding similarity', detail: hit.similarity.toFixed(3) });
+  }
+  if (hit.url) evidence.push({ label: 'Earlier source', detail: hit.url });
+  return {
+    signalId: 'embedding-sighting',
+    signalName: 'Semantic sightings',
+    outcome: 'neutral',
+    confidence: 0,
+    summary: 'A semantically near-identical image was previously checked.',
+    evidence,
+  };
+}
+
+/** A flagged Community Note on the source tweet is direct misleading evidence. */
+function communityNotes(notes: Array<{ id: string; summary: string }>): SignalResult {
+  return {
+    signalId: 'community-notes',
+    signalName: 'Community Notes',
+    outcome: 'negative',
+    confidence: 0.5,
+    summary:
+      notes.length === 1
+        ? 'This post carries a Community Note rated "misleading".'
+        : `${notes.length} linked posts carry Community Notes rated "misleading".`,
+    evidence: notes.slice(0, 3).map((n) => ({
+      label: `Note on tweet ${n.id}`,
+      detail: n.summary.slice(0, 280),
+    })),
+  };
+}
+
 /**
  * Full Phase-2 pipeline: hash → registry lookup → signal analysis → submit.
  * Exact hash hit returns the cached verdict; near-dupes inject a prior-sighting
@@ -117,10 +160,11 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
   // Claims live in pixels too (memes, screenshots) - OCR enriches the
   // fact-check signal's context text. Lazy-loaded; off via popup toggle.
   // locationLookup stays opt-in: coordinates are sent to a geocoder.
-  const { ocrEnabled, geoLookup } = await storageGet<{
+  const { ocrEnabled, geoLookup, clipEnabled } = await storageGet<{
     ocrEnabled?: boolean;
     geoLookup?: boolean;
-  }>(['ocrEnabled', 'geoLookup']);
+    clipEnabled?: boolean;
+  }>(['ocrEnabled', 'geoLookup', 'clipEnabled']);
   let enriched: MediaDescriptor = { ...media, locationLookup: geoLookup ?? false };
   if (media.kind === 'image' && ocrEnabled !== false) {
     const ocrText = await extractText(blob);
@@ -134,11 +178,30 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
 
   const signals = await registry.run({ ...enriched, blob });
   if (hit?.match === 'similar') signals.unshift(priorSighting(hit));
+
+  // Opt-in semantic similarity: CLIP embedding (model downloads on first
+  // use) → cosine search. Catches near-dupes pHash misses.
+  let embedding: Float32Array | null = null;
+  if (clipEnabled && media.kind === 'image') {
+    embedding = await clipEmbedding(blob);
+    if (embedding) {
+      const embHit = await lookupEmbedding(embedding);
+      if (embHit) signals.unshift(semanticSighting(embHit));
+    }
+  }
+
+  // Community Notes: any tweet URL in the media URL/page/context carrying
+  // a misleading-rated note is direct false-context evidence.
+  const tweetIds = tweetIdsFrom(media.url, media.pageUrl, enriched.contextText);
+  const flaggedNotes = await lookupNotes(tweetIds);
+  if (flaggedNotes.length) signals.unshift(communityNotes(flaggedNotes));
+
   const verdict = fuse(signals);
 
   const shareUrl = await submitVerdict({
     sha256,
     phash,
+    ...(embedding ? { embedding: [...embedding] } : {}),
     ...(/^https?:/.test(media.url) ? { url: media.url } : {}),
     verdict,
   });

@@ -11,6 +11,18 @@ export function hasBreakingMarkers(text?: string): boolean {
   return !!text && BREAKING_RE.test(text);
 }
 
+const TWEET_RE = /(?:twitter\.com|x\.com)\/[A-Za-z0-9_]+\/status(?:es)?\/(\d{5,25})/g;
+
+/** Deduped tweet status IDs found in URLs or free text. */
+export function tweetIdsFrom(...texts: Array<string | undefined>): string[] {
+  const ids = new Set<string>();
+  for (const t of texts) {
+    if (!t) continue;
+    for (const m of t.matchAll(TWEET_RE)) ids.add(m[1]!);
+  }
+  return [...ids];
+}
+
 const STOPWORDS = new Set([
   'this', 'that', 'with', 'from', 'have', 'been', 'were', 'they', 'their',
   'there', 'here', 'what', 'when', 'where', 'which', 'while', 'about',

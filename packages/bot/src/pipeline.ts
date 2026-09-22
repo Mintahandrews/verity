@@ -15,6 +15,7 @@ import {
   pHashHex,
   rdapSignal,
   sha256Hex,
+  tweetIdsFrom,
   waybackSignal,
   weatherSignal,
 } from '@verity/core';
@@ -92,6 +93,43 @@ async function lookup(sha256: string, phashes: string[]): Promise<RegistryHit | 
     }
   }
   return best;
+}
+
+interface NoteHit {
+  id: string;
+  summary: string;
+}
+
+/** Tweet IDs carrying misleading-rated Community Notes (empty when unsynced). */
+async function lookupNotes(ids: string[]): Promise<NoteHit[]> {
+  if (!ids.length) return [];
+  try {
+    const res = await fetch(`${REGISTRY}/api/notes?ids=${ids.slice(0, 50).join(',')}`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) return [];
+    const j = (await res.json()) as { flagged?: NoteHit[] };
+    return j.flagged ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function communityNotes(notes: NoteHit[]): SignalResult {
+  return {
+    signalId: 'community-notes',
+    signalName: 'Community Notes',
+    outcome: 'negative',
+    confidence: 0.5,
+    summary:
+      notes.length === 1
+        ? 'This post carries a Community Note rated "misleading".'
+        : `${notes.length} linked posts carry Community Notes rated "misleading".`,
+    evidence: notes.slice(0, 3).map((n) => ({
+      label: `Note on tweet ${n.id}`,
+      detail: n.summary.slice(0, 280),
+    })),
+  };
 }
 
 async function submit(body: Record<string, unknown>): Promise<string | null> {
@@ -182,6 +220,8 @@ export async function analyzeBuffer(
   };
   const results = await signals.run({ ...media, blob });
   if (hit?.match === 'similar') results.unshift(priorSighting(hit));
+  const flaggedNotes = await lookupNotes(tweetIdsFrom(sourceUrl, contextText));
+  if (flaggedNotes.length) results.unshift(communityNotes(flaggedNotes));
   const verdict = fuse(results);
 
   // Never submit the source URL: Telegram file URLs embed the bot token

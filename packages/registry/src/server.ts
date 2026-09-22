@@ -6,6 +6,7 @@ import type { Verdict, VerdictState } from '@verity/core';
 import { RegistryStore, type Store } from './store.ts';
 import { verdictPage } from './page.ts';
 import { stampDigest } from './ots.ts';
+import { NoteIndex } from './notes.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 
@@ -42,6 +43,14 @@ async function createStore(): Promise<Store> {
 }
 
 const store = await createStore();
+// Community Notes lookup index: syncs daily from NOTES_URL when reachable
+// (X gated the public TSV behind login - the endpoint stays live and just
+// answers "no flagged notes" until a reachable source is configured).
+const notes = new NoteIndex();
+if (process.env.NOTES_SYNC !== '0') {
+  void notes.sync();
+  setInterval(() => void notes.sync(), 24 * 3_600_000).unref();
+}
 const MAX_BODY_BYTES = 256 * 1024; // verdicts are small; media never uploads
 const POST_LIMIT = Number(process.env.RATE_LIMIT_POSTS ?? 120);
 const POST_WINDOW_MS = 3_600_000;
@@ -52,6 +61,18 @@ interface SubmitBody {
   phashes?: string[];
   url?: string;
   verdict?: Verdict;
+  embedding?: number[];
+  mincos?: number;
+}
+
+/** Array of <=1024 finite numbers = a valid embedding. */
+function isEmbedding(v: unknown): v is number[] {
+  return (
+    Array.isArray(v) &&
+    v.length > 0 &&
+    v.length <= 1024 &&
+    v.every((x) => typeof x === 'number' && Number.isFinite(x))
+  );
 }
 
 // Per-IP sliding-window limiter on writes (reads stay open - it's a lookup API).
@@ -372,6 +393,7 @@ ${urls.join('\n')}
         ...(body.url && /^https?:/.test(body.url) ? { url: body.url } : {}),
         verdict: body.verdict,
         ...(ots ? { ots } : {}),
+        ...(isEmbedding(body.embedding) ? { embedding: body.embedding } : {}),
         createdAt: new Date().toISOString(),
         hits: 0,
       });
@@ -424,6 +446,43 @@ ${urls.join('\n')}
       verdict: record.verdict,
     }));
     send(res, 200, { results: hits });
+    return;
+  }
+
+  // Semantic near-dupes: POST /api/similar-embedding { embedding, mincos? }
+  // (vectors are too large for a query string, hence POST for a read).
+  if (path === '/api/similar-embedding' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => null);
+    if (!body || !isEmbedding(body.embedding)) {
+      send(res, 400, { error: 'embedding (array of <=1024 numbers) is required' });
+      return;
+    }
+    const minCos = Math.min(Math.max(Number(body.mincos ?? 0.9), 0.5), 1);
+    const hits = (await store.similarEmbedding(body.embedding, minCos)).map(
+      ({ record, similarity }) => ({
+        sha256: record.sha256,
+        url: record.url,
+        createdAt: record.createdAt,
+        similarity,
+        verdict: record.verdict,
+      }),
+    );
+    send(res, 200, { results: hits });
+    return;
+  }
+
+  // Community Notes: /api/notes?ids=<csv of tweet status ids>
+  if (path === '/api/notes' && req.method === 'GET') {
+    const ids = (url.searchParams.get('ids') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => /^\d{5,25}$/.test(s))
+      .slice(0, 50);
+    const flagged = ids.flatMap((id) => {
+      const summary = notes.get(id);
+      return summary !== undefined ? [{ id, summary }] : [];
+    });
+    send(res, 200, { flagged, indexed: notes.size });
     return;
   }
 

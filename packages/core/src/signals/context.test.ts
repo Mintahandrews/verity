@@ -5,6 +5,7 @@ import { firstUpload } from './commons.ts';
 import { registrationDate } from './rdap.ts';
 import { elaStats } from './ela.ts';
 import { bestSauceSimilarity } from './external-apis.ts';
+import { tweetIdsFrom } from './claimtext.ts';
 import { sha1Hex } from '../hash.ts';
 
 describe('daylight helpers', () => {
@@ -120,6 +121,19 @@ describe('bestSauceSimilarity', () => {
     ).toBe(91.2);
     expect(bestSauceSimilarity([])).toBe(0);
     expect(bestSauceSimilarity(undefined)).toBe(0);
+  });
+});
+
+describe('tweetIdsFrom', () => {
+  it('extracts status ids from twitter/x urls', () => {
+    expect(
+      tweetIdsFrom(
+        'see https://twitter.com/someone/status/1840000000000000001?s=20',
+        'also https://x.com/other/status/1840000000000000002',
+      ),
+    ).toEqual(['1840000000000000001', '1840000000000000002']);
+    expect(tweetIdsFrom('no links')).toEqual([]);
+    expect(tweetIdsFrom('https://x.com/a/status/1234')).toEqual([]); // too short
   });
 });
 

@@ -12,6 +12,8 @@ export interface RegistryRecord {
   verdict: Verdict;
   /** OpenTimestamps token (hex) anchoring sha256 to a public calendar. */
   ots?: string;
+  /** CLIP image embedding (L2-normalized), for semantic near-duplicate search. */
+  embedding?: number[];
   createdAt: string;
   hits: number;
 }
@@ -19,6 +21,11 @@ export interface RegistryRecord {
 export interface SimilarHit {
   record: RegistryRecord;
   distance: number;
+}
+
+export interface EmbeddingHit {
+  record: RegistryRecord;
+  similarity: number;
 }
 
 type MaybePromise<T> = T | Promise<T>;
@@ -37,6 +44,7 @@ export interface Store {
   /** Moderation: drop a record + its index entries. Returns false if absent. */
   remove(sha256: string): MaybePromise<boolean>;
   similar(phash: string, maxDist: number): MaybePromise<SimilarHit[]>;
+  similarEmbedding(vec: ArrayLike<number>, minCos: number): MaybePromise<EmbeddingHit[]>;
   count(): MaybePromise<number>;
   recent(limit?: number): MaybePromise<RegistryRecord[]>;
   stats(): MaybePromise<Record<string, number>>;
@@ -52,6 +60,8 @@ export abstract class IndexedStore implements Store {
   protected records = new Map<string, RegistryRecord>();
   private phashIndex = new Map<string, RegistryRecord[]>();
   private tree = new BKTree();
+  /** sha256 → unit vector; brute-force cosine is fine at registry scale. */
+  private embIndex = new Map<string, Float32Array>();
 
   protected index(rec: RegistryRecord): void {
     // Idempotent: concurrent puts of the same sha256 must not double-append
@@ -64,12 +74,18 @@ export abstract class IndexedStore implements Store {
       list.push(rec);
       this.phashIndex.set(phash, list);
     }
+    if (rec.embedding?.length) {
+      const v = Float32Array.from(rec.embedding);
+      const n = Math.hypot(...v);
+      if (n > 0) this.embIndex.set(rec.sha256, v.map((x) => x / n));
+    }
   }
 
   /** Drop from memory + rebuild the pHash index (BK-trees have no remove). */
   protected deindex(sha256: string): boolean {
     if (!this.records.delete(sha256)) return false;
     this.phashIndex.clear();
+    this.embIndex.delete(sha256);
     this.tree = new BKTree();
     for (const r of this.records.values()) {
       for (const phash of r.phashes ?? (r.phash ? [r.phash] : [])) {
@@ -103,6 +119,24 @@ export abstract class IndexedStore implements Store {
       )
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 10);
+  }
+
+  /** Cosine similarity over stored embeddings, descending. */
+  similarEmbedding(vec: ArrayLike<number>, minCos: number): EmbeddingHit[] {
+    const q = Float32Array.from(vec);
+    const n = Math.hypot(...q);
+    if (n === 0) return [];
+    const qn = q.map((x) => x / n);
+    const hits: EmbeddingHit[] = [];
+    for (const [sha, v] of this.embIndex) {
+      if (v.length !== qn.length) continue;
+      let dot = 0;
+      for (let i = 0; i < v.length; i++) dot += v[i]! * qn[i]!;
+      if (dot >= minCos) {
+        hits.push({ record: this.records.get(sha)!, similarity: dot });
+      }
+    }
+    return hits.sort((a, b) => b.similarity - a.similarity).slice(0, 10);
   }
 
   count(): number {

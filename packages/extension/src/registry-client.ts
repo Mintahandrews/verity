@@ -7,6 +7,12 @@ export interface RegistryHit {
   url?: string;
   createdAt?: string;
   distance?: number;
+  similarity?: number;
+}
+
+export interface NoteHit {
+  id: string;
+  summary: string;
 }
 
 // Public Verity registry (Railway). Self-hosters override via
@@ -53,9 +59,45 @@ export async function lookupVerdict(
   }
 }
 
+/** Semantic near-dupes via CLIP embedding cosine search. */
+export async function lookupEmbedding(embedding: ArrayLike<number>): Promise<RegistryHit | null> {
+  try {
+    const res = await fetch(`${await base()}/api/similar-embedding`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ embedding: Array.from(embedding), mincos: 0.92 }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const { results } = (await res.json()) as {
+      results?: Array<{ verdict: Verdict; url?: string; createdAt?: string; similarity?: number }>;
+    };
+    const hit = results?.[0];
+    return hit ? { match: 'similar', ...hit } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Tweet IDs carrying misleading-rated Community Notes (empty when unsynced). */
+export async function lookupNotes(ids: string[]): Promise<NoteHit[]> {
+  if (!ids.length) return [];
+  try {
+    const res = await fetch(`${await base()}/api/notes?ids=${ids.slice(0, 50).join(',')}`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) return [];
+    const j = (await res.json()) as { flagged?: NoteHit[] };
+    return j.flagged ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export async function submitVerdict(input: {
   sha256: string;
   phash?: string | null;
+  embedding?: number[] | null;
   url?: string;
   verdict: Verdict;
 }): Promise<string | null> {
