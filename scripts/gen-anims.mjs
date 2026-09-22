@@ -22,6 +22,9 @@ const WHITE = [1, 1, 1, 1];
 const prop = (k) => ({ a: 0, k });
 const ease = { i: { x: [0.4], y: [1] }, o: { x: [0.6], y: [0] } };
 const kf = (frames) => ({ a: 1, k: frames.map(([t, s]) => ({ ...ease, t, s: [s] })) });
+// Vector properties (scale) need [x, y] keyframe values - a scalar leaves
+// s[1] undefined and lottie emits NaN into the transform matrix.
+const kfXY = (frames) => ({ a: 1, k: frames.map(([t, v]) => ({ ...ease, t, s: [v, v] })) });
 
 const ident = (over = {}) => ({
   o: prop(100), r: prop(0), p: prop([256, 256, 0]), a: prop([0, 0, 0]),
@@ -48,7 +51,7 @@ const doc = (name, layers) => ({
 // Circle that pops 0 -> 108 -> 100.
 const popLayer = (ind, name, color, size = 400) =>
   shapeLayer(ind, name, [group(name, [ellipse(0, 0, size, size), fill(color), tr()])],
-    ident({ s: kf([[0, 0], [24, 112], [36, 96], [46, 100]]) }));
+    ident({ s: kfXY([[0, 0], [24, 112], [36, 96], [46, 100]]) }));
 
 // Stroke-drawn path via trim (0 -> 100).
 const drawLayer = (ind, name, v, color, w, i, o) =>
@@ -94,10 +97,10 @@ const anims = {
     // leaves: ellipses rotated outward, pop after stem
     shapeLayer(3, 'leafL', [
       group('leafL', [ellipse(-40, -40, 120, 54), fill(SPROUT), tr({ r: prop(-30), p: prop([-34, -48]), a: prop([48, 0]) })]),
-    ], ident({ s: kf([[30, 0], [52, 112], [62, 100]]) })),
+    ], ident({ s: kfXY([[30, 0], [52, 112], [62, 100]]) })),
     shapeLayer(4, 'leafR', [
       group('leafR', [ellipse(40, -40, 120, 54), fill(VERDANT), tr({ r: prop(30), p: prop([34, -48]), a: prop([-48, 0]) })]),
-    ], ident({ s: kf([[36, 0], [58, 112], [68, 100]]) })),
+    ], ident({ s: kfXY([[36, 0], [58, 112], [68, 100]]) })),
   ]),
 };
 

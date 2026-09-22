@@ -29,7 +29,7 @@ function playVerdictAnim(card: HTMLElement, state: string): void {
     autoplay: true,
     // ?v= busts the extension-origin cache - anim JSON files keep fixed
     // names across builds, so a stale cached copy would crash lottie.
-    path: `${chrome.runtime.getURL(`anim/${state}.json`)}?v=2`,
+    path: `${chrome.runtime.getURL(`anim/${state}.json`)}?v=3`,
   });
 }
 

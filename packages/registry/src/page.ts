@@ -97,7 +97,7 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): s
       chipClass === 'failed'
         ? ''
         : `<script src="/anim/lottie.min.js"></script>
-<script>(function(){if(!window.lottie)return;var box=document.createElement('div');box.className='animbox';box.style.display='none';box.setAttribute('aria-hidden','true');var card=document.querySelector('.card');card.insertBefore(box,card.firstChild);var a=lottie.loadAnimation({container:box,renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json?v=2'});a.addEventListener('data_ready',function(){box.style.display=''})})()</script>`,
+<script>(function(){if(!window.lottie)return;var box=document.createElement('div');box.className='animbox';box.style.display='none';box.setAttribute('aria-hidden','true');var card=document.querySelector('.card');card.insertBefore(box,card.firstChild);var a=lottie.loadAnimation({container:box,renderer:'svg',loop:false,autoplay:true,path:'/anim/${chipClass}.json?v=3'});a.addEventListener('data_ready',function(){box.style.display=''})})()</script>`,
     body: `
 <div class="wrap cardwrap">
   <article class="card">
