@@ -82,9 +82,35 @@ function blobToBase64(blob: Blob): Promise<string> {
 const MIN_SIZE = 128;
 const SCAN_LIMIT = 25;
 
+function toast(text: string): HTMLDivElement {
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.cssText =
+    'position:fixed;bottom:20px;right:20px;z-index:2147483647;' +
+    'background:#122314;color:#f2f5eb;font:13px/1.4 system-ui,sans-serif;' +
+    'padding:10px 18px;border-radius:40px;border:1px solid #68ef3f;' +
+    'box-shadow:0 4px 24px rgba(0,0,0,.4)';
+  document.documentElement.appendChild(el);
+  return el;
+}
+
 function scanPage(): void {
   const imgs = [...document.querySelectorAll('img')]
     .filter((i) => i.naturalWidth >= MIN_SIZE && /^https?:/.test(i.currentSrc || i.src))
     .slice(0, SCAN_LIMIT);
-  for (const img of imgs) void verify({ url: img.currentSrc || img.src, kind: 'image' });
+  if (!imgs.length) {
+    const el = toast('Verity: no checkable images on this page.');
+    setTimeout(() => el.remove(), 4000);
+    return;
+  }
+  const el = toast(`Verity is checking ${imgs.length} images...`);
+  let done = 0;
+  for (const img of imgs) {
+    void verify({ url: img.currentSrc || img.src, kind: 'image' }).finally(() => {
+      done++;
+      el.textContent =
+        done < imgs.length ? `Verity is checking... ${done}/${imgs.length}` : `Verity: ${imgs.length} checked`;
+      if (done === imgs.length) setTimeout(() => el.remove(), 4000);
+    });
+  }
 }
