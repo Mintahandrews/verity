@@ -17,8 +17,8 @@ const CSS = `
   .lede { font-size: 19px; color: var(--fern); max-width: 620px; margin: 0 0 32px; }
   .lede b { color: var(--white); font-weight: 600; }
   .cta { display: flex; gap: 12px; flex-wrap: wrap; }
-  .btn { display: inline-block; border-radius: 40px; padding: 12px 26px; font-weight: 600;
-         font-size: 15px; text-decoration: none; }
+  .btn { display: inline-block; border-radius: 40px; padding: 10px 20px; font-weight: 600;
+         font-size: 14px; text-decoration: none; }
   .btn.primary { background: var(--sprout); color: var(--carbon); }
   .btn.primary:hover { background: var(--wash); }
   .btn.ghost { border: 1px solid var(--onyx); color: var(--fern); }
@@ -150,9 +150,10 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
        Verity checks what evidence actually exists about a piece of media, and shows you its work.
        Three transparent verdicts, never the word &ldquo;fake&rdquo;.</p>
     <div class="cta">
-      <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Check media on Telegram</a>
-      <a class="btn ghost" href="#install">Get the browser extension</a>
-      <a class="btn ghost" href="https://github.com/Mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
+      <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Telegram bot</a>
+      <a class="btn primary" href="${esc(DISCORD_INVITE)}" target="_blank" rel="noopener noreferrer">Discord bot</a>
+      <a class="btn ghost" href="#install">Browser extension</a>
+      <a class="btn ghost" href="https://github.com/Mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
     <div class="stats">
       <span class="stat"><b>${stats['total'] ?? 0}</b> media checked</span>
