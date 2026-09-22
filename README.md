@@ -266,7 +266,7 @@ To deploy your own instance to Railway:
 ```bash
 railway up -s registry -d
 ```
-Mount a persistent volume at `/data` and set `VERITY_DB=/data/registry.json`.
+Mount a persistent volume at `/data` and set `VERITY_DB=/data/registry.json`, or provision the Railway Postgres plugin and set `DATABASE_URL=${{Postgres.DATABASE_URL}}` — the registry auto-selects Postgres when `DATABASE_URL` is present, migrates any existing JSON records on first boot, and falls back to the JSON store if Postgres is unreachable.
 
 ---
 

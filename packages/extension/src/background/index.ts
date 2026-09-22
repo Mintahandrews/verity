@@ -64,9 +64,6 @@ chrome.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendResponse
     storeError(msg.error).then(sendResponse);
     return true;
   }
-  if (msg.type === 'verity:open') {
-    void chrome.tabs.create({ url: `${VERDICT_PAGE_URL}?id=${msg.verdictId}` });
-  }
 });
 
 async function handleAnalyze(

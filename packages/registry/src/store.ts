@@ -19,51 +19,38 @@ export interface SimilarHit {
   distance: number;
 }
 
+type MaybePromise<T> = T | Promise<T>;
+
 /**
- * JSON-file store - zero dependencies, self-hostable anywhere. Similarity
- * search runs on an in-memory BK-tree over pHashes, rebuilt on load.
+ * Storage seam: the JSON file and Postgres backends share one interface so
+ * server.ts never branches. Sync methods satisfy MaybePromise - callers
+ * simply `await` every read/write.
  */
-export class RegistryStore {
-  private records = new Map<string, RegistryRecord>();
+export interface Store {
+  /** Connect/create schema + warm any caches. No-op for the JSON backend. */
+  init?(): MaybePromise<void>;
+  get(sha256: string): MaybePromise<RegistryRecord | undefined>;
+  peek(sha256: string): MaybePromise<RegistryRecord | undefined>;
+  put(rec: RegistryRecord): MaybePromise<void>;
+  similar(phash: string, maxDist: number): MaybePromise<SimilarHit[]>;
+  count(): MaybePromise<number>;
+  recent(limit?: number): MaybePromise<RegistryRecord[]>;
+  stats(): MaybePromise<Record<string, number>>;
+  flush?(): MaybePromise<void>;
+}
+
+/**
+ * Shared in-memory index: every backend keeps the full record set + BK-tree
+ * in RAM - reads never touch the persistence layer, and pHash similarity
+ * search needs the tree regardless of where bytes live.
+ */
+export abstract class IndexedStore implements Store {
+  protected records = new Map<string, RegistryRecord>();
   private phashIndex = new Map<string, RegistryRecord[]>();
   private tree = new BKTree();
-  private dirty = false;
-  private file: string;
 
-  constructor(file: string) {
-    this.file = file;
-    if (existsSync(file)) {
-      const rows = JSON.parse(readFileSync(file, 'utf8')) as RegistryRecord[];
-      for (const r of rows) {
-        this.records.set(r.sha256, r);
-        this.indexPhash(r);
-      }
-    }
-    const timer = setInterval(() => this.flush(), 5000);
-    timer.unref();
-    process.on('exit', () => this.flush());
-  }
-
-  get(sha256: string): RegistryRecord | undefined {
-    const r = this.records.get(sha256);
-    if (r) {
-      r.hits++;
-      this.dirty = true;
-    }
-    return r;
-  }
-
-  peek(sha256: string): RegistryRecord | undefined {
-    return this.records.get(sha256);
-  }
-
-  put(rec: RegistryRecord): void {
+  protected index(rec: RegistryRecord): void {
     this.records.set(rec.sha256, rec);
-    this.indexPhash(rec);
-    this.dirty = true;
-  }
-
-  private indexPhash(rec: RegistryRecord): void {
     for (const phash of rec.phashes ?? (rec.phash ? [rec.phash] : [])) {
       this.tree.add(BigInt(`0x${phash}`));
       const list = this.phashIndex.get(phash) ?? [];
@@ -71,6 +58,14 @@ export class RegistryStore {
       this.phashIndex.set(phash, list);
     }
   }
+
+  abstract get(sha256: string): MaybePromise<RegistryRecord | undefined>;
+
+  peek(sha256: string): RegistryRecord | undefined {
+    return this.records.get(sha256);
+  }
+
+  abstract put(rec: RegistryRecord): MaybePromise<void>;
 
   similar(phash: string, maxDist: number): SimilarHit[] {
     return this.tree
@@ -89,6 +84,11 @@ export class RegistryStore {
     return this.records.size;
   }
 
+  /** Every record - used by the one-time JSON→Postgres migration. */
+  all(): RegistryRecord[] {
+    return [...this.records.values()];
+  }
+
   /** Newest records first, for the dashboard. */
   recent(limit = 20): RegistryRecord[] {
     return [...this.records.values()]
@@ -102,6 +102,41 @@ export class RegistryStore {
       by[r.verdict.state] = (by[r.verdict.state] ?? 0) + 1;
     }
     return by;
+  }
+}
+
+/**
+ * JSON-file store - zero dependencies, self-hostable anywhere. Writes are
+ * batched and flushed to disk every 5s.
+ */
+export class RegistryStore extends IndexedStore {
+  private dirty = false;
+  private file: string;
+
+  constructor(file: string) {
+    super();
+    this.file = file;
+    if (existsSync(file)) {
+      const rows = JSON.parse(readFileSync(file, 'utf8')) as RegistryRecord[];
+      for (const r of rows) this.index(r);
+    }
+    const timer = setInterval(() => this.flush(), 5000);
+    timer.unref();
+    process.on('exit', () => this.flush());
+  }
+
+  get(sha256: string): RegistryRecord | undefined {
+    const r = this.records.get(sha256);
+    if (r) {
+      r.hits++;
+      this.dirty = true;
+    }
+    return r;
+  }
+
+  put(rec: RegistryRecord): void {
+    this.index(rec);
+    this.dirty = true;
   }
 
   flush(): void {

@@ -20,9 +20,7 @@ export type RuntimeMessage =
   // content -> background: a local failure that should still produce a card
   | { type: 'verity:report-error'; media: MediaDescriptor; error: string }
   // background -> offscreen: run the signal engine (dataB64 when transferred)
-  | { type: 'verity:offscreen-analyze'; media: MediaDescriptor; dataB64?: string; mime?: string }
-  // badge -> background: open the verdict page
-  | { type: 'verity:open'; verdictId: string };
+  | { type: 'verity:offscreen-analyze'; media: MediaDescriptor; dataB64?: string; mime?: string };
 
 export type AnalyzeResponse =
   | { ok: true; verdictId: string; verdict: Verdict }

@@ -1,0 +1,89 @@
+import pg from 'pg';
+import type { Verdict } from '@verity/core';
+import { IndexedStore, type RegistryRecord } from './store.ts';
+
+interface VerdictRow {
+  sha256: string;
+  phash: string | null;
+  phashes: string[] | null;
+  url: string | null;
+  verdict: Verdict;
+  created_at: Date;
+  hits: number | string;
+}
+
+/**
+ * Postgres backend - the durable store for multi-instance/public deployments.
+ * Records are still mirrored into the shared in-memory index (BK-tree), so
+ * reads/similarity stay identical to the JSON backend; Postgres owns truth
+ * for writes and crash recovery. Selected when DATABASE_URL is set.
+ */
+export class PostgresStore extends IndexedStore {
+  private pool: pg.Pool;
+
+  constructor(databaseUrl: string) {
+    super();
+    this.pool = new pg.Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : undefined,
+    });
+  }
+
+  async init(): Promise<void> {
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS verdicts (
+        sha256 TEXT PRIMARY KEY,
+        phash TEXT,
+        phashes JSONB,
+        url TEXT,
+        verdict JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL,
+        hits BIGINT NOT NULL DEFAULT 0
+      )
+    `);
+    const { rows } = await this.pool.query<VerdictRow>('SELECT * FROM verdicts');
+    for (const r of rows) this.index(this.toRecord(r));
+  }
+
+  private toRecord(r: VerdictRow): RegistryRecord {
+    return {
+      sha256: r.sha256,
+      ...(r.phash ? { phash: r.phash } : {}),
+      ...(r.phashes?.length ? { phashes: r.phashes } : {}),
+      ...(r.url ? { url: r.url } : {}),
+      verdict: r.verdict,
+      createdAt: new Date(r.created_at).toISOString(),
+      hits: Number(r.hits),
+    };
+  }
+
+  async get(sha256: string): Promise<RegistryRecord | undefined> {
+    const r = this.records.get(sha256);
+    if (r) {
+      r.hits++;
+      // Read counters are non-critical - fire and forget.
+      this.pool
+        .query('UPDATE verdicts SET hits = hits + 1 WHERE sha256 = $1', [sha256])
+        .catch((e: unknown) => console.error('pg hit increment failed:', e));
+    }
+    return r;
+  }
+
+  async put(rec: RegistryRecord): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO verdicts (sha256, phash, phashes, url, verdict, created_at, hits)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (sha256) DO NOTHING`,
+      [
+        rec.sha256,
+        rec.phash ?? null,
+        rec.phashes?.length ? JSON.stringify(rec.phashes) : null,
+        rec.url ?? null,
+        JSON.stringify(rec.verdict),
+        rec.createdAt,
+        rec.hits,
+      ],
+    );
+    this.index(rec);
+  }
+}

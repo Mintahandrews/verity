@@ -2,6 +2,7 @@ import type { MediaDescriptor } from '@verity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
 import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge, findMediaElement } from './badge';
+import { openVerdictOverlay } from './overlay';
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
   if (msg.type === 'verity:verify-one') void verifyOne(msg.media).catch(() => {});
@@ -54,7 +55,7 @@ async function verifyOne(media: MediaDescriptor): Promise<void> {
   const out = await verify(media);
   pending.remove();
   if (out?.res.ok && !out.attached && out.res.verdictId) {
-    void chrome.runtime.sendMessage({ type: 'verity:open', verdictId: out.res.verdictId });
+    openVerdictOverlay(out.res.verdictId);
   }
 }
 
@@ -175,9 +176,7 @@ function scanPanel(total: number): ScanPanel {
       item.addEventListener('mouseenter', () => { item.style.background = '#273f2b'; });
       item.addEventListener('mouseleave', () => { item.style.background = 'none'; });
       if (verdictId) {
-        item.addEventListener('click', () => {
-          void chrome.runtime.sendMessage({ type: 'verity:open', verdictId });
-        });
+        item.addEventListener('click', () => openVerdictOverlay(verdictId));
       } else {
         item.style.cursor = 'default';
       }

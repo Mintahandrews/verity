@@ -9,10 +9,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@verity/core": "*"
+    "@verity/core": "*",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
+    "@types/pg": "^8.15.6",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

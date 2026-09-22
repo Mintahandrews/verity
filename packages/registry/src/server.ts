@@ -3,14 +3,41 @@ import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Verdict, VerdictState } from '@verity/core';
-import { RegistryStore } from './store.ts';
+import { RegistryStore, type Store } from './store.ts';
 import { verdictPage } from './page.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/$/, '');
-const store = new RegistryStore(process.env.VERITY_DB ?? 'registry.json');
+// DATABASE_URL (Railway Postgres plugin) selects the durable backend;
+// self-hosters without it keep the zero-dependency JSON file store.
+async function createStore(): Promise<Store> {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl) {
+    try {
+      const { PostgresStore } = await import('./store-pg.ts');
+      const store = new PostgresStore(databaseUrl);
+      await store.init();
+      // One-time migration: first deploy with Postgres - import any records
+      // the JSON volume file accumulated so nothing checked before is lost.
+      const file = process.env.VERITY_DB ?? 'registry.json';
+      if (store.count() === 0) {
+        const legacy = new RegistryStore(file);
+        for (const rec of legacy.all()) await store.put(rec);
+        if (legacy.count() > 0) console.log(`migrated ${legacy.count()} records from JSON`);
+      }
+      console.log('store: postgres');
+      return store;
+    } catch (e) {
+      console.error('postgres unavailable - falling back to JSON store:', e);
+    }
+  }
+  console.log('store: json file');
+  return new RegistryStore(process.env.VERITY_DB ?? 'registry.json');
+}
+
+const store = await createStore();
 const MAX_BODY_BYTES = 256 * 1024; // verdicts are small; media never uploads
 const POST_LIMIT = Number(process.env.RATE_LIMIT_POSTS ?? 120);
 const POST_WINDOW_MS = 3_600_000;
@@ -98,7 +125,7 @@ const handle = async (req: import('node:http').IncomingMessage, res: import('nod
   res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
 
   if (path === '/healthz') {
-    send(res, 200, { ok: true, records: store.count() });
+    send(res, 200, { ok: true, records: (await store.count()) });
     return;
   }
 
@@ -119,7 +146,7 @@ Sitemap: ${PUBLIC_URL}/sitemap.xml
 
   // SEO: sitemap.xml
   if (path === '/sitemap.xml' && req.method === 'GET') {
-    const recent = store.recent(50);
+    const recent = (await store.recent(50));
     const urls = [
       `  <url><loc>${PUBLIC_URL}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
       `  <url><loc>${PUBLIC_URL}/dashboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>`,
@@ -240,17 +267,17 @@ ${urls.join('\n')}
 
   // Public stats + the newsroom dashboard.
   if (path === '/api/stats' && req.method === 'GET') {
-    send(res, 200, store.stats());
+    send(res, 200, (await store.stats()));
     return;
   }
   if (path === '/' && req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(landingPage(store.stats(), PUBLIC_URL));
+    res.end(landingPage((await store.stats()), PUBLIC_URL));
     return;
   }
   if (path === '/dashboard' && req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(dashboardPage(store.stats(), store.recent(20), PUBLIC_URL));
+    res.end(dashboardPage((await store.stats()), (await store.recent(20)), PUBLIC_URL));
     return;
   }
 
@@ -276,8 +303,8 @@ ${urls.join('\n')}
       send(res, 400, { error: 'phash/phashes must be 16 hex chars each (max 8)' });
       return;
     }
-    if (!store.peek(body.sha256)) {
-      store.put({
+    if (!(await store.peek(body.sha256))) {
+      await store.put({
         sha256: body.sha256,
         ...(phashes[0] ? { phash: phashes[0] } : {}),
         ...(phashes.length ? { phashes } : {}),
@@ -294,7 +321,7 @@ ${urls.join('\n')}
   // Exact-hash lookup
   const verdictMatch = path.match(/^\/api\/verdicts\/([0-9a-f]{64})$/);
   if (verdictMatch && req.method === 'GET') {
-    const rec = store.get(verdictMatch[1]!);
+    const rec = (await store.get(verdictMatch[1]!));
     if (!rec) {
       send(res, 404, { error: 'not found' });
       return;
@@ -311,7 +338,7 @@ ${urls.join('\n')}
       send(res, 400, { error: 'phash (16 hex chars) is required' });
       return;
     }
-    const hits = store.similar(phash.toLowerCase(), maxDist).map(({ record, distance }) => ({
+    const hits = (await store.similar(phash.toLowerCase(), maxDist)).map(({ record, distance }) => ({
       sha256: record.sha256,
       url: record.url,
       createdAt: record.createdAt,
@@ -325,7 +352,7 @@ ${urls.join('\n')}
   // Shareable human page
   const pageMatch = path.match(/^\/v\/([0-9a-f]{64})$/);
   if (pageMatch && req.method === 'GET') {
-    const rec = store.peek(pageMatch[1]!);
+    const rec = (await store.peek(pageMatch[1]!));
     if (!rec) {
       res.writeHead(404, { 'content-type': 'text/plain' });
       res.end('verdict not found');

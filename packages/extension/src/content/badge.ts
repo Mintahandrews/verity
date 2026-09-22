@@ -1,4 +1,5 @@
 import type { VerdictState } from '@verity/core';
+import { openVerdictOverlay } from './overlay';
 
 type BadgeState = VerdictState | 'error';
 
@@ -69,7 +70,7 @@ export function attachBadge(mediaUrl: string, verdictId: string | null, state: B
     badge.addEventListener('click', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      void chrome.runtime.sendMessage({ type: 'verity:open', verdictId });
+      openVerdictOverlay(verdictId);
     });
   } else {
     badge.style.cursor = 'default';
