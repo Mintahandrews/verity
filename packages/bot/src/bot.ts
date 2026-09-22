@@ -1,6 +1,6 @@
 import { Bot, InputFile } from 'grammy';
 import { fileURLToPath } from 'node:url';
-import type { MediaKind, Verdict } from '@verity/core';
+import type { MediaKind, Verdict } from '@checkverity/core';
 import { analyzeBuffer } from './pipeline.ts';
 import { shutdownOcr } from './ocr.ts';
 import { RateLimiter } from './ratelimit.ts';

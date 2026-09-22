@@ -1,4 +1,4 @@
-import type { Verdict } from '@verity/core';
+import type { Verdict } from '@checkverity/core';
 import { shell } from './layout.ts';
 
 const GLYPH: Record<string, string> = {

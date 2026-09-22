@@ -1,11 +1,11 @@
-# @verity/core
+# @checkverity/core
 
 > Pure TypeScript multi-signal media authenticity engine, C2PA manifest evaluator, perceptual hash BK-tree index, and forensic fusion core.
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../../LICENSE)
 [![Standard: C2PA](https://img.shields.io/badge/Standard-C2PA%20Content%20Credentials-00c853.svg)](https://c2pa.org/)
 
-`@verity/core` is the platform-agnostic analytical engine behind Verity. It contains zero DOM or Node-specific dependencies, running identically in browsers, Chrome Extension offscreen WASM workers, Node.js services, Cloudflare Workers, and serverless environments.
+`@checkverity/core` is the platform-agnostic analytical engine behind Verity. It contains zero DOM or Node-specific dependencies, running identically in browsers, Chrome Extension offscreen WASM workers, Node.js services, Cloudflare Workers, and serverless environments.
 
 ---
 
@@ -13,7 +13,7 @@
 
 Traditional AI detectors attempt to answer *"is this fake?"* with fragile statistical models that frequently misclassify authentic smartphone photos as synthetic.
 
-`@verity/core` reframes verification into **evidence fusion**:
+`@checkverity/core` reframes verification into **evidence fusion**:
 - ✅ **`verified`**: Cryptographically signed provenance confirmed (valid C2PA x509 certificate chain).
 - ❓ **`unverified`**: Insufficient provenance found. This is the natural baseline for most internet media — it does **not** imply the content is false.
 - ⚠️ **`suspicious`**: Direct counter-evidence identified (tampered C2PA manifest, prior sightings under contradictory context, or debunked fact-checks).
@@ -38,7 +38,7 @@ Traditional AI detectors attempt to answer *"is this fake?"* with fragile statis
 ## Installation
 
 ```bash
-npm install @verity/core
+npm install @checkverity/core
 ```
 
 ---
@@ -46,8 +46,8 @@ npm install @verity/core
 ## Usage Example
 
 ```typescript
-import { fuseSignals, computeHammingDistance, BKTree } from '@verity/core';
-import type { SignalResult, Verdict } from '@verity/core';
+import { fuseSignals, computeHammingDistance, BKTree } from '@checkverity/core';
+import type { SignalResult, Verdict } from '@checkverity/core';
 
 // 1. Collect signals from available analyzers
 const signals: SignalResult[] = [
@@ -77,7 +77,7 @@ console.log(verdict.headline); // 'No cryptographic provenance found. Baseline s
 Fast near-duplicate retrieval with metric distance bounds:
 
 ```typescript
-import { BKTree } from '@verity/core';
+import { BKTree } from '@checkverity/core';
 
 const tree = new BKTree();
 

@@ -1,10 +1,10 @@
-# @verity/registry
+# @checkverity/registry
 
 > Zero-media public verdict registry, BK-tree perceptual hash index, and newsroom dashboard for Verity.
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../../LICENSE)
 
-`@verity/registry` is the public discovery and caching service for Verity. It stores **zero media bytes** — only cryptographic content digests (SHA-256), 64-bit perceptual hashes (pHash), and transparent verdict records.
+`@checkverity/registry` is the public discovery and caching service for Verity. It stores **zero media bytes** — only cryptographic content digests (SHA-256), 64-bit perceptual hashes (pHash), and transparent verdict records.
 
 ---
 
@@ -37,10 +37,10 @@
 
 ```bash
 # Start the registry server (default port 8787)
-npm start -w @verity/registry
+npm start -w @checkverity/registry
 
 # Or with custom port and database file:
-PORT=3000 VERITY_DB=data/registry.json npm start -w @verity/registry
+PORT=3000 VERITY_DB=data/registry.json npm start -w @checkverity/registry
 ```
 
 ---

@@ -1,5 +1,5 @@
 import pg from 'pg';
-import type { Verdict } from '@verity/core';
+import type { Verdict } from '@checkverity/core';
 import { IndexedStore, type RegistryRecord } from './store.ts';
 
 interface VerdictRow {

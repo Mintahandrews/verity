@@ -1,7 +1,7 @@
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
-import { sniffMime } from '@verity/core';
-import type { MediaKind, Verdict } from '@verity/core';
+import { sniffMime } from '@checkverity/core';
+import type { MediaKind, Verdict } from '@checkverity/core';
 import { analyzeBuffer } from './pipeline.ts';
 import { shutdownOcr } from './ocr.ts';
 

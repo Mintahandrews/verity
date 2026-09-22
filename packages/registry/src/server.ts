@@ -3,7 +3,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Verdict, VerdictState } from '@verity/core';
+import type { Verdict, VerdictState } from '@checkverity/core';
 import { RegistryStore, type Store } from './store.ts';
 import { verdictPage } from './page.ts';
 import { stampDigest } from './ots.ts';

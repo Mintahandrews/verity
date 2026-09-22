@@ -18,8 +18,8 @@ import {
   tweetIdsFrom,
   waybackSignal,
   weatherSignal,
-} from '@verity/core';
-import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@verity/core';
+} from '@checkverity/core';
+import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@checkverity/core';
 import sharp from 'sharp';
 import { c2paSignal } from './c2pa.ts';
 import { extractText } from './ocr.ts';

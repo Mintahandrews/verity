@@ -1,5 +1,5 @@
 {
-  "name": "@verity/signer",
+  "name": "@checkverity/signer",
   "version": "0.1.0",
   "description": "Local C2PA signing CLI for journalists, creators, and photographers to stamp original media",
   "author": "Andrews Mintah (https://github.com/mintahandrews)",
@@ -33,7 +33,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@verity/core": "*",
+    "@checkverity/core": "*",
     "c2pa-node": "^0.5.26"
   },
   "devDependencies": {

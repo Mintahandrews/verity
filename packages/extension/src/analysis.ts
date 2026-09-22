@@ -16,8 +16,8 @@ import {
   tweetIdsFrom,
   waybackSignal,
   weatherSignal,
-} from '@verity/core';
-import type { MediaDescriptor, SignalResult, Verdict } from '@verity/core';
+} from '@checkverity/core';
+import type { MediaDescriptor, SignalResult, Verdict } from '@checkverity/core';
 import { c2paSignal } from './offscreen/signals/c2pa';
 import { aiModelSignal } from './offscreen/signals/ai-model';
 import { reverseSearchSignal } from './offscreen/signals/reverse-search';

@@ -1,4 +1,4 @@
-# @verity/extension
+# @checkverity/extension
 
 > Verity Chrome & Firefox Browser Extension (Manifest V3) — Client-side media authenticity inspector with C2PA and WASM sandbox.
 
@@ -40,10 +40,10 @@ Manifest V3 service workers do not have access to the DOM or WebAssembly threads
 npm install
 
 # Build extension for production
-npm run build -w @verity/extension
+npm run build -w @checkverity/extension
 
 # Watch mode during development
-npm run watch -w @verity/extension
+npm run watch -w @checkverity/extension
 
 # Create packed upload zip for Chrome Web Store
 npm run pack

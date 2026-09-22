@@ -131,11 +131,11 @@ Verity is architected as an ultra-fast TypeScript monorepo using npm workspaces:
 
 | Package | Path | Description |
 | :--- | :--- | :--- |
-| **`@verity/core`** | [`packages/core`](packages/core) | Pure TypeScript engine: signal registry, fusion logic, forensic rules, fact-check connectors. Zero DOM dependencies. |
-| **`@verity/extension`** | [`packages/extension`](packages/extension) | Chrome & Firefox Manifest V3 extension: offscreen WASM analysis, context menu, popup, in-page badge overlays. |
-| **`@verity/registry`** | [`packages/registry`](packages/registry) | Zero-dependency verdict API server (`node:http`): BK-tree pHash index, `/v/:sha256` share pages, newsroom dashboard, SEO/GEO metadata. |
-| **`@verity/bot`** | [`packages/bot`](packages/bot) | Production Telegram bot (`grammY` + `sharp`) verifying media on mobile with zero user setup. |
-| **`@verity/signer`** | [`packages/signer`](packages/signer) | Local C2PA signing tool for creators to cryptographically sign their originals. |
+| **`@checkverity/core`** | [`packages/core`](packages/core) | Pure TypeScript engine: signal registry, fusion logic, forensic rules, fact-check connectors. Zero DOM dependencies. |
+| **`@checkverity/extension`** | [`packages/extension`](packages/extension) | Chrome & Firefox Manifest V3 extension: offscreen WASM analysis, context menu, popup, in-page badge overlays. |
+| **`@checkverity/registry`** | [`packages/registry`](packages/registry) | Zero-dependency verdict API server (`node:http`): BK-tree pHash index, `/v/:sha256` share pages, newsroom dashboard, SEO/GEO metadata. |
+| **`@checkverity/bot`** | [`packages/bot`](packages/bot) | Production Telegram bot (`grammY` + `sharp`) verifying media on mobile with zero user setup. |
+| **`@checkverity/signer`** | [`packages/signer`](packages/signer) | Local C2PA signing tool for creators to cryptographically sign their originals. |
 
 ---
 

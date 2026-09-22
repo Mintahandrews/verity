@@ -1,4 +1,4 @@
-import type { MediaDescriptor } from '@verity/core';
+import type { MediaDescriptor } from '@checkverity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
 import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge, findMediaElement } from './badge';

@@ -1,4 +1,4 @@
-import type { VerdictState } from '@verity/core';
+import type { VerdictState } from '@checkverity/core';
 
 /** shields.io-style verdict badge - pure SVG, no font dependency at render. */
 export function badgeSvg(state: VerdictState | 'failed', label?: string): string {

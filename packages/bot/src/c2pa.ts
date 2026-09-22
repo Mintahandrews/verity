@@ -1,6 +1,6 @@
 import { createC2pa } from 'c2pa-node';
-import { sniffMime } from '@verity/core';
-import type { Evidence, MediaKind, Signal, SignalResult } from '@verity/core';
+import { sniffMime } from '@checkverity/core';
+import type { Evidence, MediaKind, Signal, SignalResult } from '@checkverity/core';
 
 // c2pa-node ships precompiled neon bindings; one instance per process.
 const c2pa = createC2pa();

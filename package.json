@@ -8,7 +8,7 @@
   "author": "Andrews Mintah (https://github.com/mintahandrews)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mintahandrews/verity.git"
+    "url": "git+https://github.com/mintahandrews/verity.git"
   },
   "homepage": "https://github.com/mintahandrews/verity#readme",
   "bugs": {
@@ -35,11 +35,11 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @verity/extension",
-    "build": "npm run build -w @verity/extension",
-    "registry": "npm run start -w @verity/registry",
-    "bot": "npm run start -w @verity/bot",
-    "sign": "npm run sign -w @verity/signer --",
+    "dev": "npm run dev -w @checkverity/extension",
+    "build": "npm run build -w @checkverity/extension",
+    "registry": "npm run start -w @checkverity/registry",
+    "bot": "npm run start -w @checkverity/bot",
+    "sign": "npm run sign -w @checkverity/signer --",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
     "icons": "node scripts/gen-icons.mjs",

@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pHash64, pHashHex } from '@verity/core';
+import { pHash64, pHashHex } from '@checkverity/core';
 import sharp from 'sharp';
 import ffmpegPath from 'ffmpeg-static';
 

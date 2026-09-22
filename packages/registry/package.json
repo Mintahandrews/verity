@@ -1,5 +1,5 @@
 {
-  "name": "@verity/registry",
+  "name": "@checkverity/registry",
   "version": "0.1.0",
   "description": "Zero-media public verdict registry, BK-tree perceptual hash index, and newsroom dashboard",
   "author": "Andrews Mintah (https://github.com/mintahandrews)",
@@ -37,7 +37,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@verity/core": "*",
+    "@checkverity/core": "*",
     "pg": "^8.16.3"
   },
   "devDependencies": {

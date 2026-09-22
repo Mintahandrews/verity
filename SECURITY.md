@@ -34,7 +34,7 @@ If you discover a security issue or vulnerability (such as a bypass of cryptogra
 1. **Do not disclose publicly** via GitHub issues, PRs, or public channels.
 2. Email full reproduction details to **security@verity.dev** or submit a confidential report via GitHub Private Vulnerability Reporting on the repository.
 3. Include:
-   - Affected component (`@verity/core`, `@verity/extension`, `@verity/registry`, `@verity/bot`, `@verity/signer`)
+   - Affected component (`@checkverity/core`, `@checkverity/extension`, `@checkverity/registry`, `@checkverity/bot`, `@checkverity/signer`)
    - Step-by-step reproduction instructions or proof-of-concept media file
    - Impact assessment
 4. **Response Timeline**:

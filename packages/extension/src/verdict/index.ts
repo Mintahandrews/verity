@@ -1,7 +1,7 @@
 import '@fontsource/instrument-serif/400.css';
 import '../design/tokens.css';
-import { errorVerdict } from '@verity/core';
-import type { MediaKind, Verdict } from '@verity/core';
+import { errorVerdict } from '@checkverity/core';
+import type { MediaKind, Verdict } from '@checkverity/core';
 import { fetchMedia, runPipeline } from '../analysis';
 import { verdictKey } from '../messages';
 

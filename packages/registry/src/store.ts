@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { Verdict } from '@verity/core';
+import type { Verdict } from '@checkverity/core';
 import { BKTree } from './bktree.ts';
 
 export interface RegistryRecord {

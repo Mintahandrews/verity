@@ -23,11 +23,11 @@ Verity is organized as an npm workspaces monorepo:
 
 | Package | Path | Description |
 | :--- | :--- | :--- |
-| **`@verity/core`** | `packages/core` | Pure TypeScript types, signal registry, multi-signal fusion engine, and shared analysis rules. Zero DOM dependencies. |
-| **`@verity/extension`** | `packages/extension` | Manifest V3 Chrome/Firefox extension. Offscreen WASM analyzer for C2PA, OCR, and ONNX models. |
-| **`@verity/registry`** | `packages/registry` | Zero-dependency verdict caching server, BK-tree perceptual hash index, and shareable verdict pages. |
-| **`@verity/bot`** | `packages/bot` | High-throughput Telegram verification bot powered by grammY and sharp. |
-| **`@verity/signer`** | `packages/signer` | Local C2PA signing CLI for digital creators and journalists to cryptographically stamp their original media. |
+| **`@checkverity/core`** | `packages/core` | Pure TypeScript types, signal registry, multi-signal fusion engine, and shared analysis rules. Zero DOM dependencies. |
+| **`@checkverity/extension`** | `packages/extension` | Manifest V3 Chrome/Firefox extension. Offscreen WASM analyzer for C2PA, OCR, and ONNX models. |
+| **`@checkverity/registry`** | `packages/registry` | Zero-dependency verdict caching server, BK-tree perceptual hash index, and shareable verdict pages. |
+| **`@checkverity/bot`** | `packages/bot` | High-throughput Telegram verification bot powered by grammY and sharp. |
+| **`@checkverity/signer`** | `packages/signer` | Local C2PA signing CLI for digital creators and journalists to cryptographically stamp their original media. |
 
 ---
 
@@ -64,7 +64,7 @@ Verity is organized as an npm workspaces monorepo:
 
 ### 1. Developing the Chrome Extension
 ```bash
-npm run dev -w @verity/extension
+npm run dev -w @checkverity/extension
 ```
 - Open Chrome and navigate to `chrome://extensions/`.
 - Toggle **Developer mode** on in the top-right corner.
@@ -89,7 +89,7 @@ TELEGRAM_BOT_TOKEN="<your-token-from-BotFather>" npm run bot
 
 New signals should be implemented in `packages/core/src/signals/` or `packages/extension/src/signals/`:
 
-1. Implement the `Signal` interface from `@verity/core`:
+1. Implement the `Signal` interface from `@checkverity/core`:
    ```typescript
    export interface Signal {
      name: string;

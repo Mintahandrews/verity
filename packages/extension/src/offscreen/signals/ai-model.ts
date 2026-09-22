@@ -1,4 +1,4 @@
-import type { Evidence, Signal, SignalResult } from '@verity/core';
+import type { Evidence, Signal, SignalResult } from '@checkverity/core';
 import { storageGet } from '../../storage';
 
 /**

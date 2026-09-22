@@ -1,5 +1,5 @@
 {
-  "name": "@verity/extension",
+  "name": "@checkverity/extension",
   "version": "0.1.0",
   "description": "Verity browser extension (Manifest V3) - client-side media authenticity inspector with C2PA and WASM sandbox",
   "author": "Andrews Mintah (https://github.com/mintahandrews)",
@@ -41,7 +41,7 @@
     "@contentauth/c2pa-types": "^0.7.4",
     "@contentauth/c2pa-web": "^0.15.1",
     "@fontsource/instrument-serif": "^5.3.0",
-    "@verity/core": "*",
+    "@checkverity/core": "*",
     "lottie-web": "^5.13.0",
     "onnxruntime-web": "^1.30.0",
     "tesseract.js": "^7.0.0"

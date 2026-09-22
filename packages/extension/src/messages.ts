@@ -1,4 +1,4 @@
-import type { MediaDescriptor, Verdict } from '@verity/core';
+import type { MediaDescriptor, Verdict } from '@checkverity/core';
 
 export const OFFSCREEN_URL = 'src/offscreen/index.html';
 export const VERDICT_PAGE_URL = 'src/verdict/index.html';

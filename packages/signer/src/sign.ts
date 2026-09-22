@@ -7,7 +7,7 @@ import {
   SigningAlgorithm,
   type LocalSigner,
 } from 'c2pa-node';
-import { sniffMime } from '@verity/core';
+import { sniffMime } from '@checkverity/core';
 
 const USAGE = `verity sign - embed cryptographically signed provenance (C2PA)
 

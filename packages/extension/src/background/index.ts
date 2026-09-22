@@ -1,5 +1,5 @@
-import { errorVerdict } from '@verity/core';
-import type { MediaDescriptor, MediaKind, Verdict } from '@verity/core';
+import { errorVerdict } from '@checkverity/core';
+import type { MediaDescriptor, MediaKind, Verdict } from '@checkverity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
 import { OFFSCREEN_URL, VERDICT_PAGE_URL, verdictKey } from '../messages';
 

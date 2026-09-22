@@ -140,9 +140,9 @@ Newsroom dashboard + public API + "prove real" signing tool.
 
 | Package | Role | Technology |
 | :--- | :--- | :--- |
-| **`@verity/core`** | Core Fusion Engine | Pure TypeScript, `exifr`, `suncalc`, zero-DOM |
-| **`@verity/extension`** | Browser Inspector | Manifest V3, Vite, `@crxjs/vite-plugin`, `@contentauth/c2pa-web`, `tesseract.js`, `onnxruntime-web` |
-| **`@verity/registry`** | Verdict & Hash Index | Node.js native HTTP, Burkhard-Keller metric tree (BK-Tree), OpenTimestamps |
-| **`@verity/bot`** | Chat Verifier | `grammY` Telegram bot, `discord.js`, `sharp`, `c2pa-node` |
-| **`@verity/signer`** | Creator Signing CLI | Node.js CLI, `c2pa-node`, standard x509 manifests |
+| **`@checkverity/core`** | Core Fusion Engine | Pure TypeScript, `exifr`, `suncalc`, zero-DOM |
+| **`@checkverity/extension`** | Browser Inspector | Manifest V3, Vite, `@crxjs/vite-plugin`, `@contentauth/c2pa-web`, `tesseract.js`, `onnxruntime-web` |
+| **`@checkverity/registry`** | Verdict & Hash Index | Node.js native HTTP, Burkhard-Keller metric tree (BK-Tree), OpenTimestamps |
+| **`@checkverity/bot`** | Chat Verifier | `grammY` Telegram bot, `discord.js`, `sharp`, `c2pa-node` |
+| **`@checkverity/signer`** | Creator Signing CLI | Node.js CLI, `c2pa-node`, standard x509 manifests |
 

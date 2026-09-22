@@ -1,6 +1,6 @@
 import { Reader, createC2pa } from '@contentauth/c2pa-web';
 import type { Manifest, ManifestStore, ValidationStatus } from '@contentauth/c2pa-types';
-import type { Evidence, MediaKind, Signal, SignalResult } from '@verity/core';
+import type { Evidence, MediaKind, Signal, SignalResult } from '@checkverity/core';
 
 let c2paPromise: ReturnType<typeof createC2pa> | undefined;
 

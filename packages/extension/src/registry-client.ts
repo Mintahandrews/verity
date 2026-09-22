@@ -1,4 +1,4 @@
-import type { Verdict } from '@verity/core';
+import type { Verdict } from '@checkverity/core';
 import { storageGet } from './storage';
 
 export interface RegistryHit {

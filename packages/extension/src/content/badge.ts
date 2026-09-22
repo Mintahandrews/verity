@@ -1,4 +1,4 @@
-import type { VerdictState } from '@verity/core';
+import type { VerdictState } from '@checkverity/core';
 import { openVerdictOverlay } from './overlay';
 
 type BadgeState = VerdictState | 'error';
