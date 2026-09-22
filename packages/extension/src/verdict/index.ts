@@ -27,7 +27,9 @@ function playVerdictAnim(card: HTMLElement, state: string): void {
     renderer: 'svg',
     loop: false,
     autoplay: true,
-    path: chrome.runtime.getURL(`anim/${state}.json`),
+    // ?v= busts the extension-origin cache - anim JSON files keep fixed
+    // names across builds, so a stale cached copy would crash lottie.
+    path: `${chrome.runtime.getURL(`anim/${state}.json`)}?v=2`,
   });
 }
 
