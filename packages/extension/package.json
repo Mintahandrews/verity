@@ -24,6 +24,13 @@
     "privacy-first"
   ],
   "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

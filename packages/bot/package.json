@@ -24,6 +24,13 @@
     "sharp"
   ],
   "type": "module",
+  "files": [
+    "src",
+    "assets"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "node src/bot.ts",
     "start:discord": "node src/discord.ts",

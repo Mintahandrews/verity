@@ -22,6 +22,12 @@
     "creator-tools"
   ],
   "type": "module",
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "sign": "node src/sign.ts",
     "typecheck": "tsc --noEmit"
