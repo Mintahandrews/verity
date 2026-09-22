@@ -59,17 +59,20 @@
       }
       .opt + .opt { padding-top: var(--space-1); border-top: 1px solid var(--color-onyx-olive); }
       .opt input { accent-color: var(--color-electric-sprout); margin-top: 2px; flex-shrink: 0; }
-      .opt span { color: var(--color-moss-shadow); }
+      .opt .opt-body { display: flex; flex-direction: column; min-width: 0; color: var(--color-lichen-sage); }
+      .opt .opt-body small { color: var(--color-moss-shadow); font-size: 11px; margin-top: 1px; }
+      .status { margin: 8px 0 0; font-size: var(--text-caption); color: var(--color-signal-warn, #e5b567); display: none; }
     </style>
   </head>
   <body>
     <h1>Verity <em>checks</em></h1>
     <p class="sub">What can we verify - not just “is it fake”.</p>
     <button id="scan">Scan this page</button>
-    <label class="opt"><input type="checkbox" id="rs" /> Reverse-search public image URLs <span>(sends URL to Google Lens)</span></label>
-    <label class="opt"><input type="checkbox" id="geo" /> Location cross-check <span>(sends embedded GPS to a geocoder)</span></label>
-    <label class="opt"><input type="checkbox" id="ocr" /> Extract text from images <span>(local OCR - helps fact-check memes)</span></label>
-    <label class="opt"><input type="checkbox" id="ai" /> AI classifier <span>(experimental - downloads ~85MB model once)</span></label>
+    <p class="status" id="status"></p>
+    <label class="opt"><input type="checkbox" id="rs" /><span class="opt-body">Reverse-search public image URLs<small>(sends URL to Google Lens)</small></span></label>
+    <label class="opt"><input type="checkbox" id="geo" /><span class="opt-body">Location cross-check<small>(sends embedded GPS to a geocoder)</small></span></label>
+    <label class="opt"><input type="checkbox" id="ocr" /><span class="opt-body">Extract text from images<small>(local OCR - helps fact-check memes)</small></span></label>
+    <label class="opt"><input type="checkbox" id="ai" /><span class="opt-body">AI classifier<small>(experimental - downloads ~85MB model once)</small></span></label>
     <p class="stats">Media checked: <b id="count">0</b></p>
     <p class="hint">Or right-click any image → “Verify with Verity”.</p>
     <script type="module" src="./index.ts"></script>

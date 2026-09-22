@@ -2,10 +2,29 @@ import '@fontsource/instrument-serif/400.css';
 import '../design/tokens.css';
 import type { RuntimeMessage } from '../messages';
 
+const statusEl = document.getElementById('status')!;
+
 document.getElementById('scan')!.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab?.id) {
-    await chrome.tabs.sendMessage(tab.id, { type: 'verity:scan-page' } satisfies RuntimeMessage);
+  if (!tab?.id) return;
+  const msg = { type: 'verity:scan-page' } satisfies RuntimeMessage;
+  try {
+    await chrome.tabs.sendMessage(tab.id, msg);
+  } catch {
+    // Content script not injected (page predates install, or restricted scheme).
+    const files =
+      chrome.runtime
+        .getManifest()
+        .content_scripts?.flatMap((cs) => cs.js)
+        .filter((f): f is string => typeof f === 'string') ?? [];
+    try {
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
+      await chrome.tabs.sendMessage(tab.id, msg);
+    } catch {
+      statusEl.textContent = "Can't scan this page - try reloading it first.";
+      statusEl.style.display = 'block';
+      return;
+    }
   }
   window.close();
 });

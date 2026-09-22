@@ -16,7 +16,7 @@
     "service_worker": "src/background/index.ts",
     "type": "module"
   },
-  "permissions": ["contextMenus", "storage", "offscreen"],
+  "permissions": ["contextMenus", "storage", "offscreen", "scripting"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
