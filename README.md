@@ -12,6 +12,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](https://www.typescriptlang.org/)
 [![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-yellow.svg)](packages/extension)
 [![Telegram Bot](https://img.shields.io/badge/Telegram-@CheckVerityBot-229ED9.svg)](https://t.me/CheckVerityBot)
+[![Discord Bot](https://img.shields.io/badge/Discord-Verity%235973-5865F2.svg)](https://discord.com/oauth2/authorize?client_id=1551787274570698762&permissions=84992&integration_type=0&scope=bot)
+[![Live Registry](https://img.shields.io/badge/Registry-verity.codemintah.dev-26a200.svg)](https://verity.codemintah.dev)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <br />
@@ -209,23 +211,51 @@ curl "http://localhost:8787/api/similar?phash=a1b2c3d4e5f67890&maxdist=8"
 
 # Public verification statistics
 curl http://localhost:8787/api/stats
+
+# Semantic near-duplicates (CLIP embedding vector)
+curl -X POST http://localhost:8787/api/similar-embedding \
+  -H 'content-type: application/json' -d '{"embedding":[0.01,...],"mincos":0.9}'
+
+# Community Notes flagged-tweet lookup
+curl "http://localhost:8787/api/notes?ids=1234567890123456789"
+
+# Fact-check relay (server-side Google Fact Check Tools key)
+curl "http://localhost:8787/api/factcheck?query=some+claim+text"
+
+# Embeddable verdict badge (SVG, safe to hotlink)
+curl http://localhost:8787/badge/<sha256-hex>.svg
+```
+
+#### Embeddable Verdict Badges
+
+Every verdict page shows a copyable embed snippet. Journalists, forums, and
+researchers can hotlink a live badge that reflects the current verdict:
+
+```html
+<a href="https://verity.codemintah.dev/v/<sha256>">
+  <img src="https://verity.codemintah.dev/badge/<sha256>.svg" alt="Verity verdict">
+</a>
 ```
 
 ---
 
-### 4. Telegram Bot
+### 4. Telegram & Discord Bots
 
-Run the bot locally or on a server:
+Run the bots locally or on a server:
 
 ```bash
 TELEGRAM_BOT_TOKEN="<your-token-from-BotFather>" npm run bot
+DISCORD_BOT_TOKEN="<your-token>" node packages/bot/src/discord.ts
 ```
 
 Forward any photo or video to your bot &mdash; it analyzes the media in-process and returns the verdict with a shareable verification link.
 
 **Optional Environment Variables:**
 - `REGISTRY_URL`: URL of your registry server (defaults to `http://localhost:8787`)
-- `FACT_CHECK_API_KEY`: Google Fact Check Tools API key for ClaimReview queries
+- `VERITY_API_KEY`: trusted-submitter key - required to publish `verified` verdicts
+- `FACT_CHECK_API_KEY`: Google Fact Check Tools API key for claim search
+- `GEO_LOOKUP`: Set to `1` to enable BigDataCloud reverse-geocoding of EXIF GPS
+- `SAUCENAO_API_KEY` / `SIGHTENGINE_USER`+`SIGHTENGINE_SECRET` / `CLAIMBUSTER_API_KEY`: opt-in third-party signals
 - `OCR`: Set to `0` to disable text extraction (default: `1`)
 - `RATE_LIMIT_MAX`: Requests per user window (defaults to `30`)
 
@@ -263,6 +293,9 @@ A live public registry is hosted at:
 
 Live Telegram bot:
 👉 **[@CheckVerityBot](https://t.me/CheckVerityBot)**
+
+Live Discord bot (add to your server):
+👉 **[Verity#5973](https://discord.com/oauth2/authorize?client_id=1551787274570698762&permissions=84992&integration_type=0&scope=bot)**
 
 To deploy your own instance to Railway:
 ```bash

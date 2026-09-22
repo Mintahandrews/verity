@@ -11,6 +11,7 @@ import { NoteIndex } from './notes.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 import { privacyPage, termsPage } from './legal.ts';
+import { badgeSvg } from './badge.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/$/, '');
@@ -546,6 +547,20 @@ ${urls.join('\n')}
     } catch {
       send(res, 502, { error: 'upstream unreachable' });
     }
+    return;
+  }
+
+  // Embeddable verdict badge: /badge/<sha>.svg - shields-style, safe to
+  // hotlink anywhere. Short cache since records can be deleted.
+  const badgeMatch = path.match(/^\/badge\/([0-9a-f]{64})\.svg$/);
+  if (badgeMatch && req.method === 'GET') {
+    const rec = await store.peek(badgeMatch[1]!);
+    const state = rec ? (rec.verdict.error ? 'failed' : rec.verdict.state) : 'failed';
+    res.writeHead(200, {
+      'content-type': 'image/svg+xml',
+      'cache-control': 'public, max-age=300',
+    });
+    res.end(badgeSvg(state, rec ? undefined : 'not found'));
     return;
   }
 

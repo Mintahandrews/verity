@@ -37,6 +37,15 @@ const CSS = `
   .hash { font-size: 11px; color: var(--lichen); word-break: break-all; margin-top: 16px; }
   .checkcta { text-align: center; margin: 28px 0 0; font-size: 14px; color: var(--lichen); }
   .checkcta a { color: var(--verdant); font-weight: 600; text-decoration: none; }
+  .sharerow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+  .sharerow a { font-size: 13px; font-weight: 600; color: var(--forest); text-decoration: none;
+                border: 1px solid var(--fern); border-radius: 40px; padding: 7px 16px; }
+  .sharerow a:hover { background: var(--wash); }
+  .embedbox { margin-top: 20px; background: var(--bone); border: 1px solid var(--mist);
+              border-radius: 12px; padding: 12px 16px; font-size: 12px; }
+  .embedbox p { margin: 0 0 6px; color: var(--lichen); font-weight: 600; }
+  .embedbox code { display: block; word-break: break-all; color: var(--moss);
+                   font-size: 11px; user-select: all; }
   @media (max-width: 600px) {
     .card { padding: 20px; border-radius: 18px; margin-top: 8px; }
     h1 { font-size: 20px; }
@@ -72,6 +81,16 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = '', ot
   const hasC2pa = verdict.signals.some(
     (s) => s.signalId === 'c2pa' && s.outcome === 'positive',
   );
+
+  // Growth loop: every shared verdict is a distribution channel.
+  const pageUrl = `${publicUrl}/v/${sha256}`;
+  const shareText = encodeURIComponent(`Verity verdict: ${chipLabel} - ${verdict.headline}`);
+  const shareLink = encodeURIComponent(pageUrl);
+  const ogCard =
+    chipClass === 'verified' || chipClass === 'unverified' || chipClass === 'suspicious'
+      ? `${publicUrl}/assets/og-${chipClass}.png`
+      : `${publicUrl}/assets/og-image.jpg`;
+  const badgeSnippet = `<a href="${pageUrl}"><img src="${publicUrl}/badge/${sha256}.svg" alt="Verity verdict: ${chipLabel.toLowerCase()}"></a>`;
   const signals = verdict.signals
     .filter((s) => s.outcome !== 'unsupported')
     .map(
@@ -92,7 +111,7 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = '', ot
     canonicalUrl: canonical,
     ogTitle: `Verity Verdict: ${verdict.state.toUpperCase()} - ${verdict.headline}`,
     ogDescription: verdict.headline,
-    ogImage: publicUrl ? `${publicUrl}/assets/og-image.jpg` : undefined,
+    ogImage: publicUrl ? ogCard : undefined,
     jsonLd,
     back: { href: '/dashboard', label: 'Registry' },
     css: CSS,
@@ -111,8 +130,16 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = '', ot
     ${hasC2pa ? '<p class="checkcta" style="margin-top:12px"><a href="https://verify.contentauthenticity.org" target="_blank" rel="noopener noreferrer">Independently verify the C2PA credential</a></p>' : ''}
     <p class="hash">SHA-256: <code>${esc(sha256)}</code>${ots ? `<br>Timestamp anchored via OpenTimestamps (${ots.slice(0, 16)}&hellip;)` : ''}</p>
   </article>
-  <p class="checkcta">Check media yourself &mdash; forward it to
-    <a href="https://t.me/CheckVerityBot" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> on Telegram.</p>
+  <div class="sharerow">
+    <a href="https://x.com/intent/post?text=${shareText}%20${shareLink}" target="_blank" rel="noopener noreferrer">Post on X</a>
+    <a href="https://t.me/share/url?url=${shareLink}&amp;text=${shareText}" target="_blank" rel="noopener noreferrer">Share on Telegram</a>
+    <a href="https://wa.me/?text=${shareText}%20${shareLink}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+    <a href="https://t.me/CheckVerityBot" target="_blank" rel="noopener noreferrer">Check media via bot</a>
+  </div>
+  <div class="embedbox">
+    <p>Embed this verdict on your site:</p>
+    <code>${esc(badgeSnippet)}</code>
+  </div>
 </div>`,
   });
 }
