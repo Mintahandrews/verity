@@ -24,6 +24,8 @@ function contextFor(el: HTMLElement | null): string | undefined {
 interface VerifyOutcome {
   res: AnalyzeResponse;
   attached: boolean;
+  /** Firefox fallback opened the verdict in a tab - scans must not continue. */
+  openedInTab?: boolean;
 }
 
 async function verify(media: MediaDescriptor): Promise<VerifyOutcome | null> {
@@ -35,7 +37,7 @@ async function verify(media: MediaDescriptor): Promise<VerifyOutcome | null> {
   };
   const res = await analyze(desc);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
-  if (!res.ok) return null;
+  if (!res.ok) return res.error === 'opened-in-tab' ? { res, attached: false, openedInTab: true } : null;
   const attached = attachBadge(
     media.url,
     res.verdictId,
@@ -52,8 +54,12 @@ async function verify(media: MediaDescriptor): Promise<VerifyOutcome | null> {
  */
 async function verifyOne(media: MediaDescriptor): Promise<void> {
   const pending = toast('Verity is checking this media...');
-  const out = await verify(media);
-  pending.remove();
+  let out: VerifyOutcome | null = null;
+  try {
+    out = await verify(media);
+  } finally {
+    pending.remove();
+  }
   if (out?.res.ok && !out.attached && out.res.verdictId) {
     openVerdictOverlay(out.res.verdictId);
   }
@@ -206,18 +212,32 @@ function scanPage(): void {
   }
   scanActive = true;
   const panel = scanPanel(imgs.length);
+  const queue = [...imgs];
   let done = 0;
-  const finishOne = () => {
-    done++;
-    panel.setProgress(done);
-    if (done === imgs.length) {
+  let aborted = false;
+  const finish = () => {
+    if (scanActive) {
       panel.finish();
       scanActive = false;
     }
   };
-  for (const img of imgs) {
-    void verify({ url: img.currentSrc || img.src, kind: 'image' })
-      .then((out) => {
+  // Bounded pool: 4 concurrent checks. The pool also makes the Firefox
+  // 'opened-in-tab' fallback abortable - unchecked, a scan would spawn up to
+  // SCAN_LIMIT tabs because every analyze call opens one.
+  const workers = Array.from({ length: 4 }, async () => {
+    for (;;) {
+      if (aborted) return;
+      const img = queue.shift();
+      if (!img) return;
+      try {
+        const out = await verify({ url: img.currentSrc || img.src, kind: 'image' });
+        if (out?.openedInTab) {
+          aborted = true;
+          const el = toast('Verity opened the verdict in a new tab - scans run one at a time here.');
+          setTimeout(() => el.remove(), 4000);
+          finish();
+          return;
+        }
         const res = out?.res;
         if (res?.ok && res.verdict) {
           panel.addResult(
@@ -226,8 +246,13 @@ function scanPage(): void {
             res.verdictId,
           );
         }
-      })
-      .catch(() => panel.addResult('error', 'Check could not run on this media.', null))
-      .finally(finishOne);
-  }
+      } catch {
+        panel.addResult('error', 'Check could not run on this media.', null);
+      }
+      done++;
+      panel.setProgress(done);
+      if (done === imgs.length) finish();
+    }
+  });
+  void Promise.all(workers);
 }

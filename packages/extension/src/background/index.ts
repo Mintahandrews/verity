@@ -10,10 +10,13 @@ const MENU_ID = 'verity:verify';
 const HAS_OFFSCREEN = typeof chrome.offscreen?.createDocument === 'function';
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: MENU_ID,
-    title: 'Verify with Verity',
-    contexts: ['image', 'video', 'audio'],
+  // removeAll first: create() throws on duplicate id after an update.
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: MENU_ID,
+      title: 'Verify with Verity',
+      contexts: ['image', 'video', 'audio'],
+    });
   });
 });
 

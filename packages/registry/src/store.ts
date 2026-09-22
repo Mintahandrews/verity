@@ -50,6 +50,9 @@ export abstract class IndexedStore implements Store {
   private tree = new BKTree();
 
   protected index(rec: RegistryRecord): void {
+    // Idempotent: concurrent puts of the same sha256 must not double-append
+    // the phash index (peek→put is not atomic in the server path).
+    if (this.records.has(rec.sha256)) return;
     this.records.set(rec.sha256, rec);
     for (const phash of rec.phashes ?? (rec.phash ? [rec.phash] : [])) {
       this.tree.add(BigInt(`0x${phash}`));

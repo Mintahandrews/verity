@@ -42,7 +42,10 @@ async function collect(dir: string): Promise<string[]> {
 }
 
 function csvCell(s: string): string {
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  // Formula injection guard: a headline starting with = + - @ becomes a
+  // spreadsheet formula when the CSV is opened in Excel/Sheets.
+  const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
+  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 interface Row {

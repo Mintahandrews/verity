@@ -73,7 +73,14 @@ async function submit(body: Record<string, unknown>): Promise<string | null> {
   try {
     const res = await fetch(`${REGISTRY}/api/verdicts`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        // Trusted submitter: the registry only accepts 'verified' verdicts
+        // from key-bearing sources - anonymous posts can't mint trust.
+        ...(process.env.VERITY_API_KEY
+          ? { 'x-verity-key': process.env.VERITY_API_KEY }
+          : {}),
+      },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

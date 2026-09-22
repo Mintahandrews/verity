@@ -75,7 +75,7 @@ function renderVerdict(verdict: Verdict): void {
     <h1>${escapeHtml(verdict.headline)}</h1>
     <p class="when">Checked ${new Date(verdict.checkedAt).toLocaleString()}</p>
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
-    ${verdict.shareUrl ? `<p class="share"><a href="${escapeHtml(verdict.shareUrl)}" target="_blank" rel="noopener">Shareable verdict ↗</a></p>` : ''}
+    ${verdict.shareUrl && /^https?:/.test(verdict.shareUrl) ? `<p class="share"><a href="${escapeHtml(verdict.shareUrl)}" target="_blank" rel="noopener">Shareable verdict ↗</a></p>` : ''}
   `;
   playVerdictAnim(card, verdict.error ? 'failed' : verdict.state);
 }

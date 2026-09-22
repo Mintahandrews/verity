@@ -85,7 +85,7 @@ bot.on(['message:photo', 'message:video', 'message:document', 'message:animation
   const userId = ctx.from?.id ?? ctx.chat.id;
   if (!limiter.allow(userId)) {
     await ctx.reply(
-      `You're checking faster than I can keep up - try again in ~${limiter.retryAfterSeconds(userId)}s.`,
+      `You're checking faster than I can keep up - try again in ~${retryLabel(limiter.retryAfterSeconds(userId))}.`,
     );
     return;
   }
@@ -95,8 +95,17 @@ bot.on(['message:photo', 'message:video', 'message:document', 'message:animation
       await ctx.reply('Could not fetch that file from Telegram (over the 20MB bot limit?).');
       return;
     }
+    if (file.file_size && file.file_size > 20 * 1024 * 1024) {
+      await ctx.reply('That file is over Telegram\'s 20MB bot limit - send a smaller version.');
+      return;
+    }
     const fileUrl = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
-    const buf = Buffer.from(await (await fetch(fileUrl)).arrayBuffer());
+    const res = await fetch(fileUrl, { signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) {
+      await ctx.reply(`Telegram refused the file download (HTTP ${res.status}).`);
+      return;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
     const verdict = await analyzeBuffer(
       kindOf(ctx.message),
       fileUrl,
@@ -112,9 +121,15 @@ bot.on(['message:photo', 'message:video', 'message:document', 'message:animation
   }
 });
 
-bot.on('message', (ctx) =>
-  ctx.reply('Send or forward me a photo or video - I’ll tell you what can be verified.'),
-);
+// 'message:text' only - the generic handler must not double-reply on media.
+bot.on('message:text', (ctx) => {
+  if (ctx.message.text.startsWith('/')) return; // commands already handled
+  return ctx.reply('Send or forward me a photo or video - I’ll tell you what can be verified.');
+});
+
+function retryLabel(seconds: number): string {
+  return seconds > 90 ? `${Math.ceil(seconds / 60)} min` : `${seconds}s`;
+}
 
 const shutdown = async (): Promise<void> => {
   bot.stop();

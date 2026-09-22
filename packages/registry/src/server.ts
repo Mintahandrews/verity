@@ -52,7 +52,25 @@ interface SubmitBody {
 
 // Per-IP sliding-window limiter on writes (reads stay open - it's a lookup API).
 const postHits = new Map<string, number[]>();
+let lastSweep = Date.now();
+
+/** Real client IP behind Railway's edge proxy - remoteAddress is the proxy. */
+function clientIp(req: import('node:http').IncomingMessage): string {
+  const fwd = req.headers['x-forwarded-for'];
+  const first = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(',')[0]?.trim();
+  return first || req.socket.remoteAddress || 'unknown';
+}
+
 function postAllowed(ip: string, now = Date.now()): boolean {
+  // Sweep stale buckets so the map can't grow without bound.
+  if (now - lastSweep > POST_WINDOW_MS) {
+    lastSweep = now;
+    for (const [k, times] of postHits) {
+      const live = times.filter((t) => now - t < POST_WINDOW_MS);
+      if (live.length === 0) postHits.delete(k);
+      else postHits.set(k, live);
+    }
+  }
   const times = (postHits.get(ip) ?? []).filter((t) => now - t < POST_WINDOW_MS);
   if (times.length >= POST_LIMIT) {
     postHits.set(ip, times);
@@ -65,26 +83,58 @@ function postAllowed(ip: string, now = Date.now()): boolean {
 
 const VALID_STATES: VerdictState[] = ['verified', 'unverified', 'suspicious'];
 
-/** Minimal shape check - the registry stores untrusted client verdicts verbatim. */
+const VALID_OUTCOMES = new Set(['positive', 'negative', 'neutral', 'unsupported', 'error']);
+
+/** Full shape check - stored verdicts are untrusted input rendered into HTML. */
 function isVerdict(v: unknown): v is Verdict {
   const o = v as Verdict;
-  return (
-    typeof o === 'object' &&
-    o !== null &&
-    VALID_STATES.includes(o.state) &&
-    typeof o.headline === 'string' &&
-    Array.isArray(o.signals) &&
-    typeof o.checkedAt === 'string' &&
-    typeof o.confidence === 'number' &&
-    o.signals.every(
-      (s) =>
-        typeof s === 'object' &&
-        s !== null &&
-        typeof s.signalName === 'string' &&
-        typeof s.summary === 'string' &&
-        Array.isArray(s.evidence)
-    )
+  if (
+    typeof o !== 'object' ||
+    o === null ||
+    !VALID_STATES.includes(o.state) ||
+    typeof o.headline !== 'string' ||
+    !Array.isArray(o.signals) ||
+    typeof o.checkedAt !== 'string' ||
+    typeof o.confidence !== 'number' ||
+    !Number.isFinite(o.confidence) ||
+    (o.error !== undefined && typeof o.error !== 'string') ||
+    (o.shareUrl !== undefined && (typeof o.shareUrl !== 'string' || !/^https?:/.test(o.shareUrl)))
+  ) {
+    return false;
+  }
+  return o.signals.every(
+    (s) =>
+      typeof s === 'object' &&
+      s !== null &&
+      typeof s.signalId === 'string' &&
+      typeof s.signalName === 'string' &&
+      VALID_OUTCOMES.has(s.outcome) &&
+      typeof s.confidence === 'number' &&
+      Number.isFinite(s.confidence) &&
+      typeof s.summary === 'string' &&
+      (s.conclusive === undefined || typeof s.conclusive === 'boolean') &&
+      Array.isArray(s.evidence) &&
+      s.evidence.every(
+        (e) =>
+          typeof e === 'object' &&
+          e !== null &&
+          typeof e.label === 'string' &&
+          (e.detail === undefined || typeof e.detail === 'string'),
+      ),
   );
+}
+
+/**
+ * Submission trust tier. The POST API is anonymous - anyone could otherwise
+ * mint a "verified" verdict for any sha256 and poison shared lookups. Only
+ * trusted submitters (bot, carrying VERITY_API_KEY) may publish 'verified';
+ * unverified/suspicious stay open since they can only add caution, not trust.
+ */
+function trustedSubmit(req: import('node:http').IncomingMessage): boolean {
+  const key = process.env.VERITY_API_KEY;
+  if (!key) return false;
+  const h = req.headers['x-verity-key'];
+  return typeof h === 'string' && h === key;
 }
 
 const JSON_HEADERS = { 'content-type': 'application/json', 'access-control-allow-origin': '*' };
@@ -283,7 +333,7 @@ ${urls.join('\n')}
 
   // Submit a verdict: { sha256, phash?, url?, verdict } → { id, shareUrl }
   if (path === '/api/verdicts' && req.method === 'POST') {
-    const ip = req.socket.remoteAddress ?? 'unknown';
+    const ip = clientIp(req);
     if (!postAllowed(ip)) {
       send(res, 429, { error: 'rate limited - too many submissions' });
       return;
@@ -296,6 +346,10 @@ ${urls.join('\n')}
       !isVerdict(body.verdict)
     ) {
       send(res, 400, { error: 'sha256 (hex, 64 chars) and a valid verdict are required' });
+      return;
+    }
+    if (body.verdict.state === 'verified' && !trustedSubmit(req)) {
+      send(res, 403, { error: 'verified verdicts require a trusted submitter key' });
       return;
     }
     const phashes = (body.phashes ?? (body.phash ? [body.phash] : [])).slice(0, 8);
