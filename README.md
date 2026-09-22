@@ -290,3 +290,9 @@ We welcome contributions from open-source developers, digital forensic experts, 
 ## License
 
 Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for details.
+
+Verdict icon animations (`verified`, `unverified`, `suspicious`, `loading`) are
+"checkmark", "help", "alertTriangle", and "loading" by
+[useAnimations](https://useanimations.com), licensed
+[CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) and recolored to the
+Verity palette. The `sprout` animation is original Verity artwork.
