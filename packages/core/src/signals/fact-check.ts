@@ -50,6 +50,22 @@ async function getApiKey(): Promise<string | undefined> {
   return g.process?.env?.FACT_CHECK_API_KEY;
 }
 
+// Public default mirrors extension's DEFAULT_REGISTRY; self-hosters override
+// via chrome.storage.local.registryUrl or REGISTRY_URL (bot).
+const FALLBACK_REGISTRY = 'https://verity.codemintah.dev';
+
+async function getRegistryBase(): Promise<string | undefined> {
+  const g = globalThis as {
+    chrome?: { storage?: { local?: { get(k: string): Promise<Record<string, string>> } } };
+    process?: { env?: Record<string, string | undefined> };
+  };
+  if (g.chrome?.storage?.local) {
+    const { registryUrl } = await g.chrome.storage.local.get('registryUrl');
+    return (registryUrl || FALLBACK_REGISTRY).replace(/\/$/, '');
+  }
+  return g.process?.env?.REGISTRY_URL?.replace(/\/$/, '');
+}
+
 interface GoogleClaim {
   text?: string;
   claimReview?: Array<{
@@ -57,6 +73,17 @@ interface GoogleClaim {
     url?: string;
     textualRating?: string;
   }>;
+}
+
+function mapClaims(claims: GoogleClaim[] | undefined): FactCheckMatch[] {
+  return (claims ?? []).flatMap((c) =>
+    (c.claimReview ?? []).map((r) => ({
+      claim: c.text ?? '',
+      rating: r.textualRating ?? 'unrated',
+      publisher: r.publisher?.name ?? 'Fact-check',
+      ...(r.url ? { url: r.url } : {}),
+    })),
+  );
 }
 
 const googleProvider: Provider = async (media) => {
@@ -69,14 +96,25 @@ const googleProvider: Provider = async (media) => {
   );
   if (!res.ok) throw new Error(`fact-check API failed: HTTP ${res.status}`);
   const { claims } = (await res.json()) as { claims?: GoogleClaim[] };
-  return (claims ?? []).flatMap((c) =>
-    (c.claimReview ?? []).map((r) => ({
-      claim: c.text ?? '',
-      rating: r.textualRating ?? 'unrated',
-      publisher: r.publisher?.name ?? 'Fact-check',
-      ...(r.url ? { url: r.url } : {}),
-    })),
+  return mapClaims(claims);
+};
+
+// Registry relay: the registry holds FACT_CHECK_API_KEY server-side and
+// exposes GET /api/factcheck, so extension installs get Google claim search
+// without a key of their own. Skipped when a local key exists (same result,
+// one hop shorter).
+const registryProvider: Provider = async (media) => {
+  if (await getApiKey()) return [];
+  const base = await getRegistryBase();
+  const text = media.contextText?.trim();
+  if (!base || !text || text.length < MIN_CONTEXT) return [];
+  const res = await fetch(
+    `${base}/api/factcheck?query=${encodeURIComponent(text.slice(0, 400))}`,
+    { signal: AbortSignal.timeout(5000) },
   );
+  if (!res.ok) throw new Error(`fact-check relay failed: HTTP ${res.status}`);
+  const { claims } = (await res.json()) as { claims?: GoogleClaim[] };
+  return mapClaims(claims);
 };
 
 // --- ClaimReview JSON-LD provider ---
@@ -165,7 +203,7 @@ const claimReviewProvider: Provider = async (media) => {
   return matches;
 };
 
-const PROVIDERS: Provider[] = [googleProvider, claimReviewProvider];
+const PROVIDERS: Provider[] = [googleProvider, registryProvider, claimReviewProvider];
 
 export const factCheckSignal: Signal = {
   id: 'fact-check',
@@ -199,17 +237,17 @@ export const factCheckSignal: Signal = {
     }
 
     if (!matches.length) {
-      const keyConfigured = Boolean(await getApiKey());
+      const covered = Boolean(await getApiKey()) || Boolean(await getRegistryBase());
       return {
         ...base,
         outcome: 'neutral',
         confidence: 0,
-        summary: keyConfigured
+        summary: covered
           ? 'No matching fact-checks found for the surrounding text.'
-          : 'No matching fact-checks found. (No fact-check API key configured - only ClaimReview markup was checked.)',
-        evidence: keyConfigured
+          : 'No matching fact-checks found. (No fact-check API key or relay configured - only ClaimReview markup was checked.)',
+        evidence: covered
           ? []
-          : [{ label: 'Set factCheckKey / FACT_CHECK_API_KEY for claim search' }],
+          : [{ label: 'Set factCheckKey, or FACT_CHECK_API_KEY on the registry' }],
       };
     }
 

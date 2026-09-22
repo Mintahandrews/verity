@@ -507,6 +507,36 @@ ${urls.join('\n')}
     return;
   }
 
+  // Fact-check relay: /api/factcheck?query=<caption text>. Keeps
+  // FACT_CHECK_API_KEY server-side so extension installs don't each need a
+  // key. Caption text relays to Google - same destination as a direct call.
+  if (path === '/api/factcheck' && req.method === 'GET') {
+    if (!postAllowed(clientIp(req))) {
+      send(res, 429, { error: 'rate limited' });
+      return;
+    }
+    const key = process.env.FACT_CHECK_API_KEY;
+    if (!key) {
+      send(res, 503, { error: 'fact-check relay not configured' });
+      return;
+    }
+    const query = (url.searchParams.get('query') ?? '').trim().slice(0, 400);
+    if (query.length < 10) {
+      send(res, 400, { error: 'query (10+ chars) is required' });
+      return;
+    }
+    try {
+      const upstream = await fetch(
+        `https://factchecktools.googleapis.com/v1alpha1/claims:search?query=${encodeURIComponent(query)}&languageCode=en&key=${key}`,
+        { signal: AbortSignal.timeout(5000) },
+      );
+      send(res, upstream.ok ? 200 : 502, upstream.ok ? await upstream.json() : { error: 'upstream failed' });
+    } catch {
+      send(res, 502, { error: 'upstream unreachable' });
+    }
+    return;
+  }
+
   // Shareable human page
   const pageMatch = path.match(/^\/v\/([0-9a-f]{64})$/);
   if (pageMatch && req.method === 'GET') {
