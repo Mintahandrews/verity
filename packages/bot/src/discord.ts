@@ -45,11 +45,12 @@ client.on(Events.MessageCreate, async (msg) => {
   if (msg.author.bot) return;
   const attachment = [...msg.attachments.values()].find((a) => kindOf(a.contentType));
 
-  if (msg.content === '!verity' || msg.content === '!verity help') {
-    await msg.reply(HELP);
+  // No media -> help on command, silence otherwise. '!verity' WITH an
+  // attachment is a scan request, not a help request.
+  if (!attachment) {
+    if (/^!verity(\s+help)?$/i.test(msg.content.trim())) await msg.reply(HELP);
     return;
   }
-  if (!attachment) return;
 
   if (!limiter.allow(msg.author.id)) {
     await msg.reply(`You're checking faster than I can keep up - try again shortly.`);

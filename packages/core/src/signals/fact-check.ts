@@ -166,10 +166,34 @@ export function claimReviewMatches(html: string): FactCheckMatch[] {
 
 const URL_RE = /https?:\/\/[^\s"'<>)\]]+/g;
 
+/**
+ * Captions are attacker-controlled - a planted URL must not let the
+ * extension probe internal addresses. Allow only public http(s) hostnames:
+ * no IP literals, no localhost/local/internal names.
+ */
+function fetchableUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (!/^https?:$/.test(u.protocol)) return false;
+    const h = u.hostname;
+    return !(
+      /^[\d.]+$/.test(h) ||
+      h.includes(':') ||
+      h === 'localhost' ||
+      h.endsWith('.local') ||
+      h.endsWith('.internal')
+    );
+  } catch {
+    return false;
+  }
+}
+
 const claimReviewProvider: Provider = async (media) => {
   const urls = new Set<string>();
-  if (media.pageUrl && /^https?:/.test(media.pageUrl)) urls.add(media.pageUrl);
-  for (const m of media.contextText?.match(URL_RE) ?? []) urls.add(m);
+  if (media.pageUrl && fetchableUrl(media.pageUrl)) urls.add(media.pageUrl);
+  for (const m of media.contextText?.match(URL_RE) ?? []) {
+    if (fetchableUrl(m)) urls.add(m);
+  }
 
   const matches: FactCheckMatch[] = [];
   for (const pageUrl of [...urls].slice(0, 2)) {
