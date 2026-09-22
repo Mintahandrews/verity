@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --forest: #0d1a10;
+    --sprout: #68ef3f;
+    --blurple: #5865F2;
+    --white: #ffffff;
+    --fern: #b7bda5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 1360px;
+    height: 544px;
+    background-color: var(--forest);
+    background-image: 
+      radial-gradient(circle at 85% 30%, rgba(88, 101, 242, 0.2), transparent 45%),
+      radial-gradient(circle at 15% 70%, rgba(104, 239, 63, 0.18), transparent 50%),
+      radial-gradient(ellipse 800px 300px at 50% 0%, rgba(104, 239, 63, 0.18), transparent 70%),
+      linear-gradient(to right, rgba(104, 239, 63, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(104, 239, 63, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+    color: var(--white);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 44px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .left-side {
+    max-width: 680px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(104, 239, 63, 0.1);
+    border: 1px solid rgba(104, 239, 63, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sprout);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1 {
+    font-size: 50px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--sprout);
+  }
+
+  p {
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--fern);
+    margin-bottom: 24px;
+  }
+
+  .badges-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .badge.verified {
+    background: var(--sprout);
+    color: #0d1a10;
+  }
+  .badge.suspicious {
+    background: #ff5252;
+    color: #ffffff;
+  }
+  .badge.unverified {
+    background: #364438;
+    color: #cdd5c2;
+  }
+
+  /* Right Side Visual Graphic */
+  .right-side {
+    position: relative;
+    z-index: 2;
+  }
+
+  .card-stack {
+    width: 480px;
+    background: rgba(22, 39, 26, 0.9);
+    border: 1px solid rgba(104, 239, 63, 0.35);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(104, 239, 63, 0.15);
+  }
+
+  .bot-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .bot-icon {
+    width: 44px;
+    height: 44px;
+    background: #112214;
+    border: 1.5px solid var(--sprout);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bot-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--sprout);
+    stroke-width: 2.5;
+    fill: none;
+  }
+
+  .bot-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bot-name {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .bot-pill {
+    background: var(--blurple);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .card-cmd {
+    background: #0d1810;
+    border: 1px solid rgba(104, 239, 63, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--sprout);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .card-cmd span:last-child {
+    color: var(--fern);
+    font-size: 11px;
+  }
+
+  .status-line {
+    font-size: 14px;
+    color: #e2e8db;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-line strong {
+    color: var(--sprout);
+  }
+</style>
+</head>
+<body>
+  <div class="left-side">
+    <div class="header-tag">&bull; Official Discord Verifier &bull;</div>
+    <h1>Don't guess. <em>Verify with Verity.</em></h1>
+    <p>Multi-signal media authenticity, C2PA Content Credentials, and context forensics right inside your Discord channels and DMs.</p>
+    <div class="badges-row">
+      <span class="badge verified">&check; Verified</span>
+      <span class="badge suspicious">&excl; Suspicious</span>
+      <span class="badge unverified">&quest; Unverified</span>
+    </div>
+  </div>
+
+  <div class="right-side">
+    <div class="card-stack">
+      <div class="bot-identity">
+        <div class="bot-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="bot-name-wrap">
+          <span class="bot-name">Verity</span>
+          <span class="bot-pill">BOT</span>
+        </div>
+      </div>
+      <div class="card-cmd">
+        <span>!verity [photo/video]</span>
+        <span>Zero Media Stored</span>
+      </div>
+      <div class="status-line">
+        <span>&bull;</span>
+        <span>Cryptographic C2PA &bull; EXIF &bull; Recycled Media Check</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
