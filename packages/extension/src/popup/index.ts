@@ -19,7 +19,18 @@ document.getElementById('scan')!.addEventListener('click', async () => {
         .filter((f): f is string => typeof f === 'string') ?? [];
     try {
       await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
-      await chrome.tabs.sendMessage(tab.id, msg);
+      // The injected file is a loader shim - the real listener registers a
+      // tick later, so retry briefly instead of racing it once.
+      let sent = false;
+      for (let i = 0; i < 8 && !sent; i++) {
+        try {
+          await chrome.tabs.sendMessage(tab.id, msg);
+          sent = true;
+        } catch {
+          await new Promise((r) => setTimeout(r, 150));
+        }
+      }
+      if (!sent) throw new Error('no receiver');
     } catch {
       statusEl.textContent = "Can't scan this page - try reloading it first.";
       statusEl.style.display = 'block';

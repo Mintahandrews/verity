@@ -34,7 +34,17 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         .filter((f): f is string => typeof f === 'string') ?? [];
     try {
       await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
-      await chrome.tabs.sendMessage(tab.id, msg);
+      // The injected file is a loader shim - the real listener registers a
+      // tick later, so retry briefly instead of racing it once.
+      for (let i = 0; i < 8; i++) {
+        try {
+          await chrome.tabs.sendMessage(tab.id, msg);
+          break;
+        } catch {
+          if (i === 7) throw new Error('no receiver');
+          await new Promise((r) => setTimeout(r, 150));
+        }
+      }
     } catch {
       // Restricted page (chrome://, Web Store, PDF viewer) - nothing to do.
     }
