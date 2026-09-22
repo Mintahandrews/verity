@@ -28,16 +28,21 @@ interface VerifyOutcome {
   openedInTab?: boolean;
 }
 
-async function verify(media: MediaDescriptor): Promise<VerifyOutcome | null> {
+async function verify(media: MediaDescriptor, bulk = false): Promise<VerifyOutcome | null> {
   const contextText = contextFor(findMediaElement(media.url));
   const desc: MediaDescriptor = {
     ...media,
     pageUrl: location.href,
     ...(contextText ? { contextText } : {}),
   };
-  const res = await analyze(desc);
+  const res = await analyze(desc, bulk);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
-  if (!res.ok) return res.error === 'opened-in-tab' ? { res, attached: false, openedInTab: true } : null;
+  // 'needs-permission' → caller decides: scan renders a grant-access row.
+  if (!res.ok) {
+    if (res.error === 'opened-in-tab') return { res, attached: false, openedInTab: true };
+    if (res.error === 'needs-permission') return { res, attached: false };
+    return null;
+  }
   const attached = attachBadge(
     media.url,
     res.verdictId,
@@ -69,12 +74,12 @@ type Send = (m: RuntimeMessage) => Promise<AnalyzeResponse>;
 
 const send: Send = (m) => chrome.runtime.sendMessage(m) as Promise<AnalyzeResponse>;
 
-async function analyze(media: MediaDescriptor): Promise<AnalyzeResponse> {
+async function analyze(media: MediaDescriptor, bulk = false): Promise<AnalyzeResponse> {
   try {
     // blob:/data: URLs are bound to the page context - extract bytes here and
     // transfer them; the extension origin cannot fetch them.
     if (/^(blob|data):/.test(media.url)) return await sendBytes(media);
-    return await send({ type: 'verity:analyze', media });
+    return await send({ type: 'verity:analyze', media, bulk });
   } catch (e) {
     return send({
       type: 'verity:report-error',
@@ -135,7 +140,7 @@ const RESULT_COLOR: Record<string, string> = {
 
 interface ScanPanel {
   setProgress(done: number): void;
-  addResult(state: string, headline: string, verdictId: string | null): void;
+  addResult(state: string, headline: string, verdictId: string | null, openUrl?: string): void;
   finish(): void;
 }
 
@@ -169,7 +174,7 @@ function scanPanel(total: number): ScanPanel {
     setProgress(done) {
       title.textContent = done < total ? `Verity: checking ${done}/${total}` : `Verity: ${total} checked`;
     },
-    addResult(state, headline, verdictId) {
+    addResult(state, headline, verdictId, openUrl) {
       const item = document.createElement('button');
       item.style.cssText =
         'display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;' +
@@ -183,6 +188,8 @@ function scanPanel(total: number): ScanPanel {
       item.addEventListener('mouseleave', () => { item.style.background = 'none'; });
       if (verdictId) {
         item.addEventListener('click', () => openVerdictOverlay(verdictId));
+      } else if (openUrl) {
+        item.addEventListener('click', () => window.open(openUrl, '_blank', 'noopener'));
       } else {
         item.style.cursor = 'default';
       }
@@ -230,7 +237,8 @@ function scanPage(): void {
       const img = queue.shift();
       if (!img) return;
       try {
-        const out = await verify({ url: img.currentSrc || img.src, kind: 'image' });
+        const mediaUrl = img.currentSrc || img.src;
+        const out = await verify({ url: mediaUrl, kind: 'image' }, true);
         if (out?.openedInTab) {
           aborted = true;
           const el = toast('Verity opened the verdict in a new tab - scans run one at a time here.');
@@ -239,7 +247,10 @@ function scanPage(): void {
           return;
         }
         const res = out?.res;
-        if (res?.ok && res.verdict) {
+        if (res && !res.ok && res.error === 'needs-permission') {
+          const grant = `${chrome.runtime.getURL('src/verdict/index.html')}?u=${encodeURIComponent(mediaUrl)}&k=image`;
+          panel.addResult('error', 'Site access needed - click to grant, then re-scan.', null, grant);
+        } else if (res?.ok && res.verdict) {
           panel.addResult(
             res.verdict.error ? 'error' : res.verdict.state,
             res.verdict.headline,

@@ -16,15 +16,8 @@
     "service_worker": "src/background/index.ts",
     "type": "module"
   },
-  "permissions": ["contextMenus", "storage", "offscreen", "scripting"],
-  "host_permissions": ["<all_urls>"],
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["src/content/index.ts"],
-      "run_at": "document_idle"
-    }
-  ],
+  "permissions": ["contextMenus", "storage", "offscreen", "scripting", "activeTab"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
   "web_accessible_resources": [
     {
       "resources": ["src/verdict/index.html"],

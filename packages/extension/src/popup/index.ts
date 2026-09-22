@@ -1,6 +1,7 @@
 import '@fontsource/instrument-serif/400.css';
 import '../design/tokens.css';
 import type { RuntimeMessage } from '../messages';
+import { injectContentScript } from '../messages';
 
 const statusEl = document.getElementById('status')!;
 
@@ -11,14 +12,9 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   try {
     await chrome.tabs.sendMessage(tab.id, msg);
   } catch {
-    // Content script not injected (page predates install, or restricted scheme).
-    const files =
-      chrome.runtime
-        .getManifest()
-        .content_scripts?.flatMap((cs) => cs.js)
-        .filter((f): f is string => typeof f === 'string') ?? [];
+    // Content script not injected (restricted scheme or fresh page).
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
+      await injectContentScript(tab.id);
       // The injected file is a loader shim - the real listener registers a
       // tick later, so retry briefly instead of racing it once.
       let sent = false;
@@ -62,7 +58,14 @@ document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
 
 const rs = document.getElementById('rs') as HTMLInputElement;
 rs.checked = reverseSearch ?? false;
-rs.addEventListener('change', () => {
+rs.addEventListener('change', async () => {
+  // Reverse search queries Google Lens - needs a one-time host grant.
+  if (rs.checked && typeof chrome.permissions?.request === 'function') {
+    const granted = await chrome.permissions
+      .request({ origins: ['https://lens.google.com/*'] })
+      .catch(() => false);
+    if (!granted) rs.checked = false;
+  }
   void chrome.storage.local.set({ reverseSearch: rs.checked });
 });
 

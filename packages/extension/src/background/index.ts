@@ -1,7 +1,14 @@
 import { errorVerdict } from '@checkverity/core';
 import type { MediaDescriptor, MediaKind, Verdict } from '@checkverity/core';
 import type { AnalyzeResponse, RuntimeMessage } from '../messages';
-import { OFFSCREEN_URL, VERDICT_PAGE_URL, verdictKey } from '../messages';
+import {
+  OFFSCREEN_URL,
+  VERDICT_PAGE_URL,
+  hasMediaAccess,
+  injectContentScript,
+  mediaOriginPattern,
+  verdictKey,
+} from '../messages';
 
 const MENU_ID = 'verity:verify';
 
@@ -29,14 +36,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
     await chrome.tabs.sendMessage(tab.id, msg);
   } catch {
-    // Page predates extension install - inject the content script, then resend.
-    const files =
-      chrome.runtime
-        .getManifest()
-        .content_scripts?.flatMap((cs) => cs.js)
-        .filter((f): f is string => typeof f === 'string') ?? [];
+    // Content script not present - inject it (activeTab covers the gesture).
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
+      await injectContentScript(tab.id);
       // The injected file is a loader shim - the real listener registers a
       // tick later, so retry briefly instead of racing it once.
       for (let i = 0; i < 8; i++) {
@@ -60,6 +62,7 @@ chrome.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendResponse
       msg.media,
       msg.type === 'verity:analyze-bytes' ? msg.dataB64 : undefined,
       msg.type === 'verity:analyze-bytes' ? msg.mime : undefined,
+      msg.type === 'verity:analyze' ? msg.bulk : undefined,
     ).then(sendResponse);
     return true; // async response
   }
@@ -73,7 +76,20 @@ async function handleAnalyze(
   media: MediaDescriptor,
   dataB64?: string,
   mime?: string,
+  bulk?: boolean,
 ): Promise<AnalyzeResponse> {
+  // Fetching arbitrary media bytes needs an optional host grant for the
+  // media's origin. Missing grant: single checks open the verdict page
+  // (which can request it on a click); scans get a marker and continue.
+  if (mediaOriginPattern(media.url) && !(await hasMediaAccess(media.url))) {
+    if (!bulk) {
+      await chrome.tabs.create({
+        url: `${VERDICT_PAGE_URL}?u=${encodeURIComponent(media.url)}&k=${media.kind}`,
+      });
+      return { ok: false, error: 'opened-in-tab' };
+    }
+    return { ok: false, error: 'needs-permission' };
+  }
   if (!HAS_OFFSCREEN) {
     await chrome.tabs.create({
       url: `${VERDICT_PAGE_URL}?u=${encodeURIComponent(media.url)}&k=${media.kind}`,

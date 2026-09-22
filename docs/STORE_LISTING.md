@@ -45,11 +45,13 @@ confirmed - not that the content is false.
 ## Permission justifications (Privacy tab)
 
 - **contextMenus**: adds the "Verify with Verity" item to the image context menu - the extension's primary entry point.
+- **activeTab**: injecting the content script into the tab the user is checking media on, only in response to an explicit user gesture (context menu click or toolbar popup).
 - **storage**: persists verdict history and user toggles (reverse search, OCR, AI model) locally via `chrome.storage`.
 - **offscreen**: C2PA verification, hashing, OCR, and the optional ONNX classifier run in an offscreen document because they require WASM/DOM APIs unavailable in a service worker.
 - **scripting**: injects the content script into the active tab only when the user explicitly triggers a check (context menu or popup) - nothing runs without user action.
-- **host_permissions `<all_urls>`**: the user can verify an image on any page - the extension must fetch the selected image's bytes to analyze them. Nothing is fetched or injected on pages the user doesn't act on.
-- **Content scripts on `http(s)://*/*`**: passive listener that only activates on explicit user invocation; it never scrapes or modifies pages otherwise.
+- **Optional host permissions (`http(s)://*/*`)**: the user can verify media hosted on any site. The extension requests per-origin access only when the user checks media hosted there (or enables reverse image search, which queries Google Lens). No browsing data is read - only the specific media file's bytes are fetched, and only after the user grants access.
+- **Remote code**: this extension does not use remote code. All code - including WASM for C2PA, Tesseract OCR, and ONNX Runtime - is bundled inside the extension package.
+- **Single purpose**: Verity checks web media for verifiable provenance and contradictory evidence, and shows a transparent verdict with the supporting evidence.
 
 ## Data usage disclosures (Privacy tab)
 

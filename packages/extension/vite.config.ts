@@ -1,4 +1,4 @@
-import { cpSync, existsSync, readdirSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,13 +43,54 @@ function copyWasmAssets(): Plugin {
   };
 }
 
+// The content script is never registered statically - injection happens
+// on-demand via chrome.scripting (activeTab) when the user checks media.
+// crxjs only emits the loader shim + web-accessible wiring for declared
+// content scripts, so the declaration exists at build time but is stripped
+// from dist/manifest.json before shipping.
+const buildManifest = {
+  ...manifest,
+  content_scripts: [
+    {
+      matches: ['http://*/*', 'https://*/*'],
+      js: ['src/content/index.ts'],
+      run_at: 'document_idle',
+    },
+  ],
+};
+
+export const CONTENT_SCRIPT_FILE = 'assets/content-loader.js';
+
+function stripContentScripts(): Plugin {
+  return {
+    name: 'verity:strip-content-scripts',
+    closeBundle() {
+      const file = join(here, 'dist', 'manifest.json');
+      if (!existsSync(file)) return;
+      const json = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
+      delete json.content_scripts;
+      writeFileSync(file, JSON.stringify(json, null, 2));
+      // Give the hashed loader a fixed name - executeScript injects it by path.
+      const assets = join(here, 'dist', 'assets');
+      const loader = readdirSync(assets).find((f) => /-loader-[^/]*\.js$/.test(f));
+      if (loader) cpSync(join(assets, loader), join(assets, 'content-loader.js'));
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [crx({ manifest }), copyWasmAssets()],
+  plugins: [crx({ manifest: buildManifest }), copyWasmAssets(), stripContentScripts()],
   build: {
     rollupOptions: {
       input: {
         offscreen: 'src/offscreen/index.html',
         verdict: 'src/verdict/index.html',
+      },
+      output: {
+        // Deterministic names: the content-script loader is injected via
+        // chrome.scripting at runtime and must be addressable by fixed path.
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name].js',
       },
     },
   },

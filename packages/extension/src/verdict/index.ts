@@ -3,7 +3,7 @@ import '../design/tokens.css';
 import { errorVerdict } from '@checkverity/core';
 import type { MediaKind, Verdict } from '@checkverity/core';
 import { fetchMedia, runPipeline } from '../analysis';
-import { verdictKey } from '../messages';
+import { hasMediaAccess, mediaOriginPattern, verdictKey } from '../messages';
 
 // Vendored lottie-web (public/anim/lottie.min.js) loaded via script tag.
 declare const lottie: {
@@ -86,10 +86,32 @@ async function render(): Promise<void> {
   const card = document.getElementById('card')!;
   const params = new URLSearchParams(location.search);
 
-  // Analyze mode: ?u=<media-url>&k=<kind> - used on Firefox (no offscreen API)
-  // and as a standalone "check this URL" page.
+  // Analyze mode: ?u=<media-url>&k=<kind> - used on Firefox (no offscreen API),
+  // as a standalone "check this URL" page, and as the permission-grant flow
+  // when a media origin hasn't been granted optional host access yet.
   const analyzeUrl = params.get('u');
   if (analyzeUrl) {
+    const origin = mediaOriginPattern(analyzeUrl);
+    if (origin && !(await hasMediaAccess(analyzeUrl))) {
+      const host = new URL(analyzeUrl).host;
+      card.innerHTML = `
+        <div class="wordmark">Verity</div>
+        <h1>Site access needed</h1>
+        <p class="summary">To check this media, Verity needs one-time permission to fetch files from <b>${escapeHtml(host)}</b>. Nothing else on that site is read.</p>
+        <p><button id="grant" style="background:#68ef3f;border:0;border-radius:40px;padding:10px 22px;font:600 14px system-ui;cursor:pointer;color:#122314">Allow access to ${escapeHtml(host)}</button></p>
+      `;
+      document.getElementById('grant')!.addEventListener('click', async () => {
+        const granted = await chrome.permissions.request({ origins: [origin] });
+        if (granted) {
+          location.reload();
+        } else {
+          card.innerHTML =
+            '<div class="wordmark">Verity</div><h1>Access denied</h1>' +
+            `<p class="summary">Verity cannot fetch media from ${escapeHtml(host)} without permission.</p>`;
+        }
+      });
+      return;
+    }
     card.innerHTML = '<p>Analyzing…</p>';
     const kind = (params.get('k') ?? 'image') as MediaKind;
     let verdict: Verdict;
