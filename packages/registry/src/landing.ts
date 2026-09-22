@@ -222,11 +222,13 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <h3>Discord Bot</h3>
     <p>Add <a href="${esc(DISCORD_INVITE)}" target="_blank" rel="noopener noreferrer">Verity to your Discord server</a> &mdash; it replies to image and video attachments (or <code>!verity</code>) with the same evidence-backed verdicts.</p>
     <h3>Chrome &amp; Firefox Extension (Manifest V3)</h3>
-    <p>Right-click any web image &rarr; <em>"Verify with Verity"</em>. Build from source: <code>npm install &amp;&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>. Chrome Web Store listing release in progress.</p>
+    <p>Right-click any web image &rarr; <em>"Verify with Verity"</em>. Build from source: <code>npm install &amp;&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>. Chrome Web Store listing is under review &mdash; or get the prebuilt zip from <a href="https://github.com/Mintahandrews/verity/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.</p>
     <h3>Prove Your Own Media (Signer CLI)</h3>
     <p>Content creators, photographers, and news organizations can stamp tamper-evident C2PA credentials directly into originals: <code>npm run sign -- photo.jpg signed.jpg --cert cert.pem --key key.pem</code></p>
     <h3>Self-Hostable Registry API</h3>
     <p><code>GET ${esc(publicUrl)}/api/verdicts/&lt;sha256&gt;</code> &middot; <code>GET /api/similar?phash=&hellip;</code> &middot; <code>GET /api/stats</code> &mdash; zero dependencies, lightning fast, privacy-preserving.</p>
+    <h3>npm Packages</h3>
+    <p>The full engine ships as five public packages under <a href="https://www.npmjs.com/org/checkverity" target="_blank" rel="noopener noreferrer"><code>@checkverity</code></a> &mdash; <code>npm install @checkverity/core</code> for the signal engine, plus extension, registry, bot, and signer packages.</p>
   </div>
 </section>`,
   });
