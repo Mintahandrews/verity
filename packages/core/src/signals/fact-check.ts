@@ -54,16 +54,18 @@ async function getApiKey(): Promise<string | undefined> {
 // via chrome.storage.local.registryUrl or REGISTRY_URL (bot).
 const FALLBACK_REGISTRY = 'https://verity.codemintah.dev';
 
-async function getRegistryBase(): Promise<string | undefined> {
+async function getRegistryBase(): Promise<string> {
   const g = globalThis as {
     chrome?: { storage?: { local?: { get(k: string): Promise<Record<string, string>> } } };
     process?: { env?: Record<string, string | undefined> };
   };
   if (g.chrome?.storage?.local) {
     const { registryUrl } = await g.chrome.storage.local.get('registryUrl');
-    return (registryUrl || FALLBACK_REGISTRY).replace(/\/$/, '');
+    if (registryUrl) return registryUrl.replace(/\/$/, '');
   }
-  return g.process?.env?.REGISTRY_URL?.replace(/\/$/, '');
+  // chrome.storage is unavailable in some analysis contexts (offscreen docs,
+  // workers) - the public registry is still the right relay default there.
+  return (g.process?.env?.REGISTRY_URL ?? FALLBACK_REGISTRY).replace(/\/$/, '');
 }
 
 interface GoogleClaim {
