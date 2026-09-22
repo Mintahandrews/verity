@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -110,20 +111,26 @@ const VALID_STATES: VerdictState[] = ['verified', 'unverified', 'suspicious'];
 
 const VALID_OUTCOMES = new Set(['positive', 'negative', 'neutral', 'unsupported', 'error']);
 
-/** Full shape check - stored verdicts are untrusted input rendered into HTML. */
+/** Full shape check - stored verdicts are untrusted input rendered into HTML.
+ *  Length caps keep a max-size body from storing oversized strings that then
+ *  render on public pages. */
 function isVerdict(v: unknown): v is Verdict {
   const o = v as Verdict;
+  const str = (s: unknown, max: number): s is string =>
+    typeof s === 'string' && s.length <= max;
   if (
     typeof o !== 'object' ||
     o === null ||
     !VALID_STATES.includes(o.state) ||
-    typeof o.headline !== 'string' ||
+    !str(o.headline, 300) ||
     !Array.isArray(o.signals) ||
-    typeof o.checkedAt !== 'string' ||
+    o.signals.length > 40 ||
+    !str(o.checkedAt, 40) ||
     typeof o.confidence !== 'number' ||
     !Number.isFinite(o.confidence) ||
-    (o.error !== undefined && typeof o.error !== 'string') ||
-    (o.shareUrl !== undefined && (typeof o.shareUrl !== 'string' || !/^https?:/.test(o.shareUrl)))
+    (o.error !== undefined && !str(o.error, 300)) ||
+    (o.shareUrl !== undefined &&
+      (!str(o.shareUrl, 2048) || !/^https?:/.test(o.shareUrl)))
   ) {
     return false;
   }
@@ -131,20 +138,21 @@ function isVerdict(v: unknown): v is Verdict {
     (s) =>
       typeof s === 'object' &&
       s !== null &&
-      typeof s.signalId === 'string' &&
-      typeof s.signalName === 'string' &&
+      str(s.signalId, 80) &&
+      str(s.signalName, 80) &&
       VALID_OUTCOMES.has(s.outcome) &&
       typeof s.confidence === 'number' &&
       Number.isFinite(s.confidence) &&
-      typeof s.summary === 'string' &&
+      str(s.summary, 500) &&
       (s.conclusive === undefined || typeof s.conclusive === 'boolean') &&
       Array.isArray(s.evidence) &&
+      s.evidence.length <= 12 &&
       s.evidence.every(
         (e) =>
           typeof e === 'object' &&
           e !== null &&
-          typeof e.label === 'string' &&
-          (e.detail === undefined || typeof e.detail === 'string'),
+          str(e.label, 300) &&
+          (e.detail === undefined || str(e.detail, 500)),
       ),
   );
 }
@@ -157,9 +165,12 @@ function isVerdict(v: unknown): v is Verdict {
  */
 function trustedSubmit(req: import('node:http').IncomingMessage): boolean {
   const key = process.env.VERITY_API_KEY;
-  if (!key) return false;
   const h = req.headers['x-verity-key'];
-  return typeof h === 'string' && h === key;
+  if (!key || typeof h !== 'string') return false;
+  // Constant-time compare - this key mints 'verified' verdicts and deletions.
+  const a = Buffer.from(h);
+  const b = Buffer.from(key);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 const JSON_HEADERS = { 'content-type': 'application/json', 'access-control-allow-origin': '*' };
@@ -377,8 +388,10 @@ ${urls.join('\n')}
       send(res, 403, { error: 'verified verdicts require a trusted submitter key' });
       return;
     }
-    const phashes = (body.phashes ?? (body.phash ? [body.phash] : [])).slice(0, 8);
-    if (phashes.some((p) => !/^[0-9a-f]{16}$/i.test(p))) {
+    const phashes = (body.phashes ?? (body.phash ? [body.phash] : []))
+      .slice(0, 8)
+      .map((p) => String(p).toLowerCase());
+    if (phashes.some((p) => !/^[0-9a-f]{16}$/.test(p))) {
       send(res, 400, { error: 'phash/phashes must be 16 hex chars each (max 8)' });
       return;
     }
@@ -390,7 +403,9 @@ ${urls.join('\n')}
         sha256: body.sha256,
         ...(phashes[0] ? { phash: phashes[0] } : {}),
         ...(phashes.length ? { phashes } : {}),
-        ...(body.url && /^https?:/.test(body.url) ? { url: body.url } : {}),
+        ...(typeof body.url === 'string' && body.url.length <= 2048 && /^https?:/.test(body.url)
+          ? { url: body.url }
+          : {}),
         verdict: body.verdict,
         ...(ots ? { ots } : {}),
         ...(isEmbedding(body.embedding) ? { embedding: body.embedding } : {}),
@@ -452,6 +467,12 @@ ${urls.join('\n')}
   // Semantic near-dupes: POST /api/similar-embedding { embedding, mincos? }
   // (vectors are too large for a query string, hence POST for a read).
   if (path === '/api/similar-embedding' && req.method === 'POST') {
+    // Cosine scan is O(records * dims) - same abuse surface as a write, so it
+    // shares the per-IP post limiter.
+    if (!postAllowed(clientIp(req))) {
+      send(res, 429, { error: 'rate limited' });
+      return;
+    }
     const body = await readBody(req).catch(() => null);
     if (!body || !isEmbedding(body.embedding)) {
       send(res, 400, { error: 'embedding (array of <=1024 numbers) is required' });

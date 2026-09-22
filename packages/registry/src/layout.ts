@@ -121,7 +121,7 @@ export function shell(o: ShellOpts): string {
   const ogImg = o.ogImage ?? DEFAULT_OG_IMAGE;
   const keywords = o.keywords ?? DEFAULT_KEYWORDS;
   const jsonLdScript = o.jsonLd
-    ? `<script type="application/ld+json">${JSON.stringify(o.jsonLd)}</script>`
+    ? `<script type="application/ld+json">${JSON.stringify(o.jsonLd).replace(/<\//g, '<\\/')}</script>`
     : '';
 
   return `<!doctype html>

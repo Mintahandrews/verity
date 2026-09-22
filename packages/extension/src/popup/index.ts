@@ -40,19 +40,21 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   window.close();
 });
 
-const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup } =
+const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup, clipEnabled } =
   (await chrome.storage.local.get([
     'stats',
     'reverseSearch',
     'ocrEnabled',
     'aiModelEnabled',
     'geoLookup',
+    'clipEnabled',
   ])) as {
     stats?: { scanned?: number };
     reverseSearch?: boolean;
     ocrEnabled?: boolean;
     aiModelEnabled?: boolean;
     geoLookup?: boolean;
+    clipEnabled?: boolean;
   };
 document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
 
@@ -78,4 +80,10 @@ const geo = document.getElementById('geo') as HTMLInputElement;
 geo.checked = geoLookup ?? false; // default off - coordinates are sensitive
 geo.addEventListener('change', () => {
   void chrome.storage.local.set({ geoLookup: geo.checked });
+});
+
+const clip = document.getElementById('clip') as HTMLInputElement;
+clip.checked = clipEnabled ?? false; // default off - ~85MB model download
+clip.addEventListener('change', () => {
+  void chrome.storage.local.set({ clipEnabled: clip.checked });
 });
