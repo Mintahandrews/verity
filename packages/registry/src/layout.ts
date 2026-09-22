@@ -133,6 +133,7 @@ export function shell(o: ShellOpts): string {
 ${o.description ? `<meta name="description" content="${esc(o.description)}">` : ''}
 <meta name="keywords" content="${esc(keywords)}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="yandex-verification" content="c0af199dddb4743f" />
 <meta name="theme-color" content="#122314">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
