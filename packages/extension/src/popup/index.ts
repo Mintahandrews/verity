@@ -40,7 +40,7 @@ document.getElementById('scan')!.addEventListener('click', async () => {
   window.close();
 });
 
-const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup, clipEnabled } =
+const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup, clipEnabled, factCheckKey } =
   (await chrome.storage.local.get([
     'stats',
     'reverseSearch',
@@ -48,6 +48,7 @@ const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup, clipEnabled
     'aiModelEnabled',
     'geoLookup',
     'clipEnabled',
+    'factCheckKey',
   ])) as {
     stats?: { scanned?: number };
     reverseSearch?: boolean;
@@ -55,6 +56,7 @@ const { stats, reverseSearch, ocrEnabled, aiModelEnabled, geoLookup, clipEnabled
     aiModelEnabled?: boolean;
     geoLookup?: boolean;
     clipEnabled?: boolean;
+    factCheckKey?: string;
   };
 document.getElementById('count')!.textContent = String(stats?.scanned ?? 0);
 
@@ -86,4 +88,10 @@ const clip = document.getElementById('clip') as HTMLInputElement;
 clip.checked = clipEnabled ?? false; // default off - ~85MB model download
 clip.addEventListener('change', () => {
   void chrome.storage.local.set({ clipEnabled: clip.checked });
+});
+
+const fckey = document.getElementById('fckey') as HTMLInputElement;
+fckey.value = factCheckKey ?? '';
+fckey.addEventListener('change', () => {
+  void chrome.storage.local.set({ factCheckKey: fckey.value.trim() });
 });

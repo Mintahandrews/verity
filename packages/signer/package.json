@@ -1,7 +1,26 @@
 {
   "name": "@verity/signer",
   "version": "0.1.0",
-  "private": true,
+  "description": "Local C2PA signing CLI for journalists, creators, and photographers to stamp original media",
+  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintahandrews/verity.git",
+    "directory": "packages/signer"
+  },
+  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "bugs": {
+    "url": "https://github.com/mintahandrews/verity/issues"
+  },
+  "keywords": [
+    "c2pa-signer",
+    "content-credentials",
+    "media-provenance",
+    "cryptographic-signing",
+    "cli",
+    "creator-tools"
+  ],
   "type": "module",
   "scripts": {
     "sign": "node src/sign.ts",

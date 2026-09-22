@@ -1,7 +1,28 @@
 {
   "name": "@verity/extension",
   "version": "0.1.0",
-  "private": true,
+  "description": "Verity browser extension (Manifest V3) - client-side media authenticity inspector with C2PA and WASM sandbox",
+  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintahandrews/verity.git",
+    "directory": "packages/extension"
+  },
+  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "bugs": {
+    "url": "https://github.com/mintahandrews/verity/issues"
+  },
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "c2pa",
+    "content-credentials",
+    "media-authenticity",
+    "image-forensics",
+    "reverse-search",
+    "privacy-first"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",

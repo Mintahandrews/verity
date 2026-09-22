@@ -1,11 +1,11 @@
-# Tomorro - Style Reference
+# Verity - Design System & Neo-Botanical Style Reference
 > lush greenhouse at midnight - Electric Sprout neon pierces the deep forest canvas and bone-white beds below. The brand lives in that contrast: the dark is the soil, the light is the greenhouse bench, the green is the growth.
 
-**Theme:** mixed
+**Theme:** mixed (Forest Depths dark canvas alternating with Bone White panels)
 
 Source measurements are normalized; roles and recommendations are interpreted. Font summary lists are independent, not paired by position. HTML examples are reconstructions, not source components.
 
-Tomorro is a contract-management platform that renders in a neo-botanical dark-and-light system: deep forest-canvas sections alternate with warm bone-white panels, both fed by the same Moss-Shadow text and punctuated by an Electric Sprout green. The visual language is quiet, mature, editorial - Ozik display type at ultra-tight 0.86 line-height anchors the hero, Aeonik carries every UI surface, and Instrument Serif drops in sparingly as accent italic-adjacent voice inside badges. Components are mostly pill-shaped (28-40px radius) rather than squared, the floating nav bar looks like a pressed seed, and the green CTA is treated as botanical accent paint, not a brand wallpaper. Pages should read as 70% typography on flat surfaces, 20% product mockups floating at slight angles, 10% abstract green orb atmosphere.
+Verity is an open-source media authenticity and cryptographic provenance platform that renders in a neo-botanical dark-and-light system: deep forest-canvas sections alternate with warm bone-white panels, both fed by the same Moss-Shadow text and punctuated by an Electric Sprout green. The visual language is quiet, mature, editorial - Ozik display type at ultra-tight 0.86 line-height anchors the hero, Aeonik carries every UI surface, and Instrument Serif drops in sparingly as accent italic-adjacent voice inside badges. Components are mostly pill-shaped (28-40px radius) rather than squared, the floating nav bar looks like a pressed seed, and the green CTA is treated as botanical accent paint, not a brand wallpaper. Pages should read as 70% typography on flat surfaces, 20% product mockups floating at slight angles, 10% abstract green orb atmosphere.
 
 ## Tokens - Colors
 
@@ -113,7 +113,7 @@ Tomorro is a contract-management platform that renders in a neo-botanical dark-a
 ### Floating Pill Navigation
 **Role:** Primary site navigation
 
-Sits above the page content with 24-32px top margin, full-width up to 1200px container, Onyx Olive (#30322a) at ~90% opacity background, 28px border-radius. Contains the 'tomorro' wordmark left, a small 'Hiring' Electric Sprout (#68ef3f) tag, dropdown buttons with 8px radius in #273f2b, language switcher, and the right-side 'Sign in' outlined button plus Electric Sprout 'Schedule a demo' pill CTA.
+Sits above the page content with 24-32px top margin, full-width up to 1200px container, Onyx Olive (#30322a) at ~90% opacity background, 28px border-radius. Contains the 'VERITY.' wordmark left, dropdown buttons with 8px radius in #273f2b, links to Registry and Docs, and the right-side Electric Sprout 'Scan Media' pill CTA.
 
 ### Hiring Tag Pill
 **Role:** Status badge in nav
@@ -252,9 +252,9 @@ EXAMPLE COMPONENT PROMPTS
 ## Similar Brands
 
 - **Linear** - Same dark canvas + single neon green accent approach, same pill-shaped primary CTA, and the same restraint - typography does the work, color only punctuates action
-- **Pitch** - Shares the editorial-meets-product sensibility: mixed dark and light bands, compressed display type, and a single vivid accent (Pitch uses purple, Tomorro uses green) with generous whitespace
+- **Pitch** - Shares the editorial-meets-product sensibility: mixed dark and light bands, compressed display type, and a single vivid accent (Pitch uses purple, Verity uses green) with generous whitespace
 - **Mercury** - Comparable trust-strip under hero with desaturated customer logos, max-width centered layout, and a 'one strong color, lots of quiet type' brand posture
-- **Arc** - Same neo-botanical palette instinct (Arc leans deep green/charcoal, Tomorro commits fully to it) and the same floating pill nav anchored above a colored hero canvas
+- **Arc** - Same neo-botanical palette instinct (Arc leans deep green/charcoal, Verity commits fully to it) and the same floating pill nav anchored above a colored hero canvas
 - **Notion** - Matches the 'flat surfaces, thin borders, no decorative shadows' philosophy and the same comfort with alternating between light content and dark hero blocks
 
 ## Quick Start

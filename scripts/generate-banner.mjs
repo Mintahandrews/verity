@@ -362,6 +362,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
       <div class="tagline-pill">C2PA Standard &bull; Multi-Signal Authenticity</div>
     </div>
     <div class="meta-pills">
+      <span class="meta-badge">github.com/<strong>mintahandrews</strong>/verity</span>
       <span class="meta-badge">Chrome <strong>MV3</strong></span>
       <span class="meta-badge">Perceptual <strong>BK-Tree</strong></span>
       <span class="meta-badge">Zero <strong>Telemetry</strong></span>

@@ -1,8 +1,9 @@
 # Verity - Multi-Signal Media Authenticity Engine
 
-> Working title: **Verity** (rename freely)
-> Status: Brainstorm → Design
-> License: Apache-2.0 (matches C2PA SDK licensing)
+> Status: **Production Open-Source System**  
+> Author: **Andrews Mintah** ([@mintahandrews](https://github.com/mintahandrews))  
+> Repository: [github.com/mintahandrews/verity](https://github.com/mintahandrews/verity)  
+> License: **Apache-2.0** (matches C2PA SDK licensing)  
 
 ## The Core Insight
 
@@ -135,17 +136,13 @@ Newsroom dashboard + public API + "prove real" signing tool.
 
 ---
 
-## Stack Sketch
+## Production Monorepo Stack
 
-| Component | Tech |
-|---|---|
-| Extension | Manifest V3, TypeScript, `c2pa-js` |
-| Verdict API | Node/TypeScript or Python (FastAPI) - decide at scaffold |
-| Registry | Postgres + pHash index (e.g., `pgvector`-style or bk-tree) |
-| AI ensemble | Python workers, HF models |
-| Web app | Next.js or plain static + API |
-| Bot | `python-telegram-bot` |
+| Package | Role | Technology |
+| :--- | :--- | :--- |
+| **`@verity/core`** | Core Fusion Engine | Pure TypeScript, `exifr`, `suncalc`, zero-DOM |
+| **`@verity/extension`** | Browser Inspector | Manifest V3, Vite, `@crxjs/vite-plugin`, `@contentauth/c2pa-web`, `tesseract.js`, `onnxruntime-web` |
+| **`@verity/registry`** | Verdict & Hash Index | Node.js native HTTP, Burkhard-Keller metric tree (BK-Tree), OpenTimestamps |
+| **`@verity/bot`** | Chat Verifier | `grammY` Telegram bot, `discord.js`, `sharp`, `c2pa-node` |
+| **`@verity/signer`** | Creator Signing CLI | Node.js CLI, `c2pa-node`, standard x509 manifests |
 
-## Name candidates
-
-Verity · Provene · Attest · GroundTruth · CR-check

@@ -1,7 +1,28 @@
 {
   "name": "@verity/bot",
   "version": "0.1.0",
-  "private": true,
+  "description": "High-throughput Telegram & Discord media verification bot for Verity",
+  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintahandrews/verity.git",
+    "directory": "packages/bot"
+  },
+  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "bugs": {
+    "url": "https://github.com/mintahandrews/verity/issues"
+  },
+  "keywords": [
+    "telegram-bot",
+    "discord-bot",
+    "media-verification",
+    "fact-check",
+    "c2pa",
+    "image-forensics",
+    "grammy",
+    "sharp"
+  ],
   "type": "module",
   "scripts": {
     "start": "node src/bot.ts",

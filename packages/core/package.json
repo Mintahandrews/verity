@@ -1,7 +1,28 @@
 {
   "name": "@verity/core",
   "version": "0.1.0",
-  "private": true,
+  "description": "Pure TypeScript multi-signal media authenticity engine, C2PA parser, and forensic fusion core",
+  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintahandrews/verity.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "bugs": {
+    "url": "https://github.com/mintahandrews/verity/issues"
+  },
+  "keywords": [
+    "c2pa",
+    "content-credentials",
+    "media-authenticity",
+    "forensics",
+    "phash",
+    "bktree",
+    "image-verification",
+    "deepfake-mitigation"
+  ],
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
