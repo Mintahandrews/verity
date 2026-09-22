@@ -4,6 +4,12 @@ export async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/** SHA-1 of raw bytes - used by Wikimedia Commons' aisha1 reverse lookup. */
+export async function sha1Hex(buf: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-1', buf);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 const GRID = 32;
 const SAMPLE = 8;
 

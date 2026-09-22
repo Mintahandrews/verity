@@ -46,7 +46,7 @@ const CSS = `
 `;
 
 /** Server-rendered shareable verdict page - same palette as the extension card. */
-export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): string {
+export function verdictPage(verdict: Verdict, sha256: string, publicUrl = '', ots?: string): string {
   const chipClass = verdict.error ? 'failed' : verdict.state;
   const chipLabel = verdict.error ? 'CHECK FAILED' : verdict.state.toUpperCase();
   const canonical = publicUrl ? `${publicUrl}/v/${sha256}` : undefined;
@@ -69,6 +69,9 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): s
     },
   };
 
+  const hasC2pa = verdict.signals.some(
+    (s) => s.signalId === 'c2pa' && s.outcome === 'positive',
+  );
   const signals = verdict.signals
     .filter((s) => s.outcome !== 'unsupported')
     .map(
@@ -105,7 +108,8 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = ''): s
     <h1>${esc(verdict.headline)}</h1>
     <p class="when">Checked <time datetime="${esc(verdict.checkedAt)}">${esc(new Date(verdict.checkedAt).toLocaleString())}</time></p>
     ${signals || '<p class="summary">No checks could run on this media.</p>'}
-    <p class="hash">SHA-256: <code>${esc(sha256)}</code></p>
+    ${hasC2pa ? '<p class="checkcta" style="margin-top:12px"><a href="https://verify.contentauthenticity.org" target="_blank" rel="noopener noreferrer">Independently verify the C2PA credential</a></p>' : ''}
+    <p class="hash">SHA-256: <code>${esc(sha256)}</code>${ots ? `<br>Timestamp anchored via OpenTimestamps (${ots.slice(0, 16)}&hellip;)` : ''}</p>
   </article>
   <p class="checkcta">Check media yourself &mdash; forward it to
     <a href="https://t.me/CheckVerityBot" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> on Telegram.</p>

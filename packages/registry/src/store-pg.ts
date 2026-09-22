@@ -8,6 +8,7 @@ interface VerdictRow {
   phashes: string[] | null;
   url: string | null;
   verdict: Verdict;
+  ots: string | null;
   created_at: Date;
   hits: number | string;
 }
@@ -37,10 +38,13 @@ export class PostgresStore extends IndexedStore {
         phashes JSONB,
         url TEXT,
         verdict JSONB NOT NULL,
+        ots TEXT,
         created_at TIMESTAMPTZ NOT NULL,
         hits BIGINT NOT NULL DEFAULT 0
       )
     `);
+    // Existing tables predate the ots column - idempotent upgrade.
+    await this.pool.query('ALTER TABLE verdicts ADD COLUMN IF NOT EXISTS ots TEXT');
     await this.pool.query(
       'CREATE TABLE IF NOT EXISTS verity_meta (key TEXT PRIMARY KEY, value TEXT)',
     );
@@ -73,6 +77,7 @@ export class PostgresStore extends IndexedStore {
       ...(r.phashes?.length ? { phashes: r.phashes } : {}),
       ...(r.url ? { url: r.url } : {}),
       verdict: r.verdict,
+      ...(r.ots ? { ots: r.ots } : {}),
       createdAt: new Date(r.created_at).toISOString(),
       hits: Number(r.hits),
     };
@@ -92,8 +97,8 @@ export class PostgresStore extends IndexedStore {
 
   async put(rec: RegistryRecord): Promise<void> {
     await this.pool.query(
-      `INSERT INTO verdicts (sha256, phash, phashes, url, verdict, created_at, hits)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO verdicts (sha256, phash, phashes, url, verdict, ots, created_at, hits)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (sha256) DO NOTHING`,
       [
         rec.sha256,
@@ -101,6 +106,7 @@ export class PostgresStore extends IndexedStore {
         rec.phashes?.length ? JSON.stringify(rec.phashes) : null,
         rec.url ?? null,
         JSON.stringify(rec.verdict),
+        rec.ots ?? null,
         rec.createdAt,
         rec.hits,
       ],

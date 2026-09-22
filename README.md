@@ -48,6 +48,8 @@ Verity **never** outputs the word *"fake"*. Every verdict displays the underlyin
 - ⚡ **Perceptual Hash BK-Tree Index**: Ultra-fast Burkhard-Keller metric tree for hamming distance lookups (16-char hex pHash) catching crops, resizes, and compression variations.
 - 🔍 **Metadata Forensics**: Extracts camera EXIF, software editing footprints, AI-generator signatures (e.g. Midjourney, DALL-E, Stable Diffusion tags), and cross-checks GPS vs. claimed geolocation.
 - 📰 **Newsroom Fact-Check Matching**: Local Tesseract OCR extracts text from memes, headlines, and screenshots, cross-referencing ClaimReview databases and GDELT global news index.
+- 🌤️ **Context Cross-Checks**: Daylight plausibility (sun position from EXIF GPS + time, computed on-device), recorded weather vs. caption claims via the Open-Meteo archive, Wikimedia Commons SHA-1 prior-sighting, and source-domain age via RDAP.
+- ⏱️ **Timestamp-Anchored Verdicts**: Registry records are stamped to a public OpenTimestamps calendar — hash-only, tamper-evident, and later upgradable to a Bitcoin-anchored proof.
 - 🔒 **Zero-Telemetry Privacy**: Your photos and videos **never** leave your machine. Decoding and forensic parsing happen client-side. The registry API receives only SHA-256 and pHash fingerprints.
 - 🌐 **Chrome / Firefox Extension (Manifest V3)**: Inspect any image on the web via right-click context menu or toolbar popup.
 - 🤖 **Telegram Verification Bot**: Forward photos or videos to [`@CheckVerityBot`](https://t.me/CheckVerityBot) for immediate analysis and shareable verdict links.

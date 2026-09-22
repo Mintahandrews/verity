@@ -1,6 +1,8 @@
 import {
   SignalRegistry,
   aiMetadataSignal,
+  commonsSignal,
+  daylightSignal,
   factCheckSignal,
   fuse,
   gdeltSignal,
@@ -8,8 +10,10 @@ import {
   metadataSignal,
   pHash64,
   pHashHex,
+  rdapSignal,
   sha256Hex,
   waybackSignal,
+  weatherSignal,
 } from '@verity/core';
 import type { MediaDescriptor, SignalResult, Verdict } from '@verity/core';
 import { c2paSignal } from './offscreen/signals/c2pa';
@@ -26,9 +30,13 @@ const registry = new SignalRegistry()
   .register(aiMetadataSignal)
   .register(metadataSignal)
   .register(geolocationSignal)
+  .register(daylightSignal)
+  .register(weatherSignal)
   .register(reverseSearchSignal)
   .register(waybackSignal)
+  .register(commonsSignal)
   .register(gdeltSignal)
+  .register(rdapSignal)
   .register(factCheckSignal)
   .register(aiModelSignal);
 

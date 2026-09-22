@@ -10,6 +10,8 @@ export interface RegistryRecord {
   phashes?: string[];
   url?: string;
   verdict: Verdict;
+  /** OpenTimestamps token (hex) anchoring sha256 to a public calendar. */
+  ots?: string;
   createdAt: string;
   hits: number;
 }

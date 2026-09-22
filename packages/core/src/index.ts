@@ -11,7 +11,7 @@ export type {
 } from './types.ts';
 export { SignalRegistry, errorResult } from './registry.ts';
 export { fuse, errorVerdict } from './fuse.ts';
-export { sha256Hex, pHash64, pHashHex, hamming64, hammingHex } from './hash.ts';
+export { sha256Hex, sha1Hex, pHash64, pHashHex, hamming64, hammingHex } from './hash.ts';
 export { detectAiSignatures } from './aisignatures.ts';
 export { sniffMime } from './mime.ts';
 export type { AiSignatureHit } from './aisignatures.ts';
@@ -21,4 +21,8 @@ export { factCheckSignal, classifyRating, claimReviewMatches } from './signals/f
 export { waybackSignal } from './signals/wayback.ts';
 export { gdeltSignal } from './signals/gdelt.ts';
 export { geolocationSignal } from './signals/geolocation.ts';
+export { daylightSignal } from './signals/daylight.ts';
+export { weatherSignal } from './signals/weather.ts';
+export { commonsSignal } from './signals/commons.ts';
+export { rdapSignal } from './signals/rdap.ts';
 export { hasBreakingMarkers, keywordsFrom } from './signals/claimtext.ts';

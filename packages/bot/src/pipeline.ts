@@ -1,6 +1,8 @@
 import {
   SignalRegistry,
   aiMetadataSignal,
+  commonsSignal,
+  daylightSignal,
   factCheckSignal,
   fuse,
   gdeltSignal,
@@ -8,8 +10,10 @@ import {
   metadataSignal,
   pHash64,
   pHashHex,
+  rdapSignal,
   sha256Hex,
   waybackSignal,
+  weatherSignal,
 } from '@verity/core';
 import type { MediaDescriptor, MediaKind, SignalResult, Verdict } from '@verity/core';
 import sharp from 'sharp';
@@ -28,8 +32,12 @@ const signals = new SignalRegistry()
   .register(aiMetadataSignal)
   .register(metadataSignal)
   .register(geolocationSignal)
+  .register(daylightSignal)
+  .register(weatherSignal)
   .register(waybackSignal)
+  .register(commonsSignal)
   .register(gdeltSignal)
+  .register(rdapSignal)
   .register(factCheckSignal);
 
 interface RegistryHit {

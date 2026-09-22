@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Verdict, VerdictState } from '@verity/core';
 import { RegistryStore, type Store } from './store.ts';
 import { verdictPage } from './page.ts';
+import { stampDigest } from './ots.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 
@@ -361,12 +362,16 @@ ${urls.join('\n')}
       return;
     }
     if (!(await store.peek(body.sha256))) {
+      // Anchor the content hash to a public timestamp calendar (hash-only,
+      // ~3s worst case). Failure is non-fatal: records work without it.
+      const ots = await stampDigest(body.sha256).catch(() => null);
       await store.put({
         sha256: body.sha256,
         ...(phashes[0] ? { phash: phashes[0] } : {}),
         ...(phashes.length ? { phashes } : {}),
         ...(body.url && /^https?:/.test(body.url) ? { url: body.url } : {}),
         verdict: body.verdict,
+        ...(ots ? { ots } : {}),
         createdAt: new Date().toISOString(),
         hits: 0,
       });
@@ -395,7 +400,11 @@ ${urls.join('\n')}
       send(res, 404, { error: 'not found' });
       return;
     }
-    send(res, 200, { ...rec.verdict, shareUrl: `${PUBLIC_URL}/v/${rec.sha256}` });
+    send(res, 200, {
+      ...rec.verdict,
+      shareUrl: `${PUBLIC_URL}/v/${rec.sha256}`,
+      ...(rec.ots ? { ots: rec.ots } : {}),
+    });
     return;
   }
 
@@ -428,7 +437,7 @@ ${urls.join('\n')}
       return;
     }
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(verdictPage(rec.verdict, rec.sha256, PUBLIC_URL));
+    res.end(verdictPage(rec.verdict, rec.sha256, PUBLIC_URL, rec.ots));
     return;
   }
 
