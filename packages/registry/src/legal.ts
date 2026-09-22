@@ -23,7 +23,7 @@ export function termsPage(publicUrl: string): string {
 <p>These terms govern use of the Verity registry website, public APIs, browser
 extension, and the Telegram/Discord bots (together, "the service"), operated as
 an open-source project at
-<a href="https://github.com/mintahandrews/verity">github.com/mintahandrews/verity</a>.
+<a href="https://github.com/Mintahandrews/verity">github.com/Mintahandrews/verity</a>.
 By using the service you accept these terms.</p>
 
 <h2>What the service is</h2>
@@ -127,7 +127,7 @@ providers and are off by default.</p>
 <h2>Contact &amp; changes</h2>
 <p>This policy may be updated alongside the code; the repository history is the
 record of change. Questions:
-<a href="https://github.com/mintahandrews/verity/issues">GitHub issues</a>.</p>
+<a href="https://github.com/Mintahandrews/verity/issues">GitHub issues</a>.</p>
 </div></div>`,
   });
 }

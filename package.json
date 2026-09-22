@@ -5,14 +5,14 @@
   "type": "module",
   "description": "Multi-signal media authenticity engine: C2PA cryptographic provenance, metadata forensics, perceptual hashing, and fact-checking without labeling content 'fake'.",
   "license": "Apache-2.0",
-  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "author": "Andrews Mintah (https://github.com/Mintahandrews)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mintahandrews/verity.git"
+    "url": "git+https://github.com/Mintahandrews/verity.git"
   },
-  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "homepage": "https://github.com/Mintahandrews/verity#readme",
   "bugs": {
-    "url": "https://github.com/mintahandrews/verity/issues"
+    "url": "https://github.com/Mintahandrews/verity/issues"
   },
   "keywords": [
     "c2pa",

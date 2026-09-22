@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use Verity in your academic or journalistic research, please cite it as below."
 title: "Verity: Multi-Signal Media Authenticity Engine"
 version: 0.1.0
-date-released: 2025-01-01
-url: "https://github.com/mintahandrews/verity"
+date-released: 2026-09-22
+url: "https://github.com/Mintahandrews/verity"
 license: "Apache-2.0"
 keywords:
   - "c2pa"
@@ -15,4 +15,4 @@ keywords:
   - "disinformation-countermeasures"
 authors:
   - name: "Andrews Mintah"
-    website: "https://github.com/mintahandrews"
+    website: "https://github.com/Mintahandrews"

@@ -32,7 +32,7 @@ Security updates are actively applied to the following versions:
 If you discover a security issue or vulnerability (such as a bypass of cryptographic validation, unexpected telemetry leakage, or rate-limiter denial of service):
 
 1. **Do not disclose publicly** via GitHub issues, PRs, or public channels.
-2. Email full reproduction details to **security@verity.dev** or submit a confidential report via GitHub Private Vulnerability Reporting on the repository.
+2. Submit a confidential report via [GitHub Private Vulnerability Reporting](https://github.com/Mintahandrews/verity/security/advisories/new) on the repository.
 3. Include:
    - Affected component (`@checkverity/core`, `@checkverity/extension`, `@checkverity/registry`, `@checkverity/bot`, `@checkverity/signer`)
    - Step-by-step reproduction instructions or proof-of-concept media file

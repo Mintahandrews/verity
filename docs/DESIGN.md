@@ -1,8 +1,8 @@
 # Verity - Multi-Signal Media Authenticity Engine
 
 > Status: **Production Open-Source System**  
-> Author: **Andrews Mintah** ([@mintahandrews](https://github.com/mintahandrews))  
-> Repository: [github.com/mintahandrews/verity](https://github.com/mintahandrews/verity)  
+> Author: **Andrews Mintah** ([@mintahandrews](https://github.com/Mintahandrews))  
+> Repository: [github.com/Mintahandrews/verity](https://github.com/Mintahandrews/verity)  
 > License: **Apache-2.0** (matches C2PA SDK licensing)  
 
 ## The Core Insight
@@ -118,19 +118,19 @@ Clients: browser ext / web app / Telegram bot / mobile
 
 ## Roadmap
 
-### Phase 1 - MVP
+### Phase 1 - MVP ✅ shipped
 Browser extension: C2PA verify + metadata forensics + three-state badge + verdict page with shareable link.
 *Deliverable: extension + minimal verdict-page backend.*
 
-### Phase 2 - Signal engine v1
+### Phase 2 - Signal engine v1 ✅ shipped
 pHash registry + reverse search + AI-detector ensemble → full verdict card.
 *Deliverable: Verdict API + public registry.*
 
-### Phase 3 - Reach
-Telegram bot + claim extraction + fact-check DBs.
+### Phase 3 - Reach ✅ shipped
+Telegram bot + Discord bot + claim extraction + fact-check DBs.
 *Deliverable: bot + claim-checker plugin.*
 
-### Phase 4 - Ecosystem
+### Phase 4 - Ecosystem ✅ shipped
 Newsroom dashboard + public API + "prove real" signing tool.
 *Deliverable: dashboard + signing client.*
 

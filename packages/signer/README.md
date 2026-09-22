@@ -34,4 +34,4 @@ npm run sign -w @checkverity/signer -- --input sample.jpg
 
 ## License
 
-Apache-2.0 &copy; [Andrews Mintah](https://github.com/mintahandrews)
+Apache-2.0 &copy; [Andrews Mintah](https://github.com/Mintahandrews)

@@ -59,4 +59,4 @@ npm run pack
 
 ## License
 
-Apache-2.0 &copy; [Andrews Mintah](https://github.com/mintahandrews)
+Apache-2.0 &copy; [Andrews Mintah](https://github.com/Mintahandrews)

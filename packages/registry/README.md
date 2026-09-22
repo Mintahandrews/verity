@@ -58,4 +58,4 @@ PORT=3000 VERITY_DB=data/registry.json npm start -w @checkverity/registry
 
 ## License
 
-Apache-2.0 &copy; [Andrews Mintah](https://github.com/mintahandrews)
+Apache-2.0 &copy; [Andrews Mintah](https://github.com/Mintahandrews)

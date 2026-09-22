@@ -34,8 +34,8 @@ export TELEGRAM_BOT_TOKEN="your_telegram_bot_token_here"
 # Discord Bot Token from Discord Developer Portal -> Bot
 export DISCORD_BOT_TOKEN="your_discord_bot_token_here"
 
-# Registry API endpoint (optional, defaults to https://verity.dev)
-export VERITY_REGISTRY_URL="http://localhost:8787"
+# Registry API endpoint (optional, defaults to http://localhost:8787)
+export REGISTRY_URL="https://verity.codemintah.dev"
 ```
 
 ---
@@ -57,4 +57,4 @@ npm run start:discord -w @checkverity/bot
 
 ## License
 
-Apache-2.0 &copy; [Andrews Mintah](https://github.com/mintahandrews)
+Apache-2.0 &copy; [Andrews Mintah](https://github.com/Mintahandrews)

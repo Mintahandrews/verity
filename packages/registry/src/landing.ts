@@ -5,6 +5,8 @@ function esc(s: string): string {
 }
 
 const TELEGRAM_BOT = 'https://t.me/CheckVerityBot';
+const DISCORD_INVITE =
+  'https://discord.com/oauth2/authorize?client_id=1551787274570698762&permissions=84992&integration_type=0&scope=bot';
 
 const CSS = `
   header.hero { padding: 40px 0 56px; }
@@ -150,7 +152,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <div class="cta">
       <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Check media on Telegram</a>
       <a class="btn ghost" href="#install">Get the browser extension</a>
-      <a class="btn ghost" href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
+      <a class="btn ghost" href="https://github.com/Mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
     </div>
     <div class="stats">
       <span class="stat"><b>${stats['total'] ?? 0}</b> media checked</span>
@@ -206,7 +208,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     </article>
     <article class="faq-item">
       <h3>How does Verity protect user privacy?</h3>
-      <p><strong>Zero media bytes are ever uploaded or retained.</strong> The browser extension and Telegram bot run media decoding and forensic parsing locally. Only mathematical SHA-256 digests and perceptual hashes are queried against the registry.</p>
+      <p><strong>Zero media bytes are ever uploaded or retained.</strong> The browser extension and chat bots run media decoding and forensic parsing locally. Only mathematical SHA-256 digests and perceptual hashes are queried against the registry.</p>
     </article>
   </div>
 </section>
@@ -217,6 +219,8 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
   <div class="howto">
     <h3>Telegram Bot</h3>
     <p>Forward any photo or video to <a href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">@CheckVerityBot</a> &mdash; receive an evidence-backed verdict and a shareable verification link in seconds. Free, zero installation.</p>
+    <h3>Discord Bot</h3>
+    <p>Add <a href="${esc(DISCORD_INVITE)}" target="_blank" rel="noopener noreferrer">Verity to your Discord server</a> &mdash; it replies to image and video attachments (or <code>!verity</code>) with the same evidence-backed verdicts.</p>
     <h3>Chrome &amp; Firefox Extension (Manifest V3)</h3>
     <p>Right-click any web image &rarr; <em>"Verify with Verity"</em>. Build from source: <code>npm install &amp;&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>. Chrome Web Store listing release in progress.</p>
     <h3>Prove Your Own Media (Signer CLI)</h3>

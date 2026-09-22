@@ -2,16 +2,16 @@
   "name": "@checkverity/registry",
   "version": "0.1.0",
   "description": "Zero-media public verdict registry, BK-tree perceptual hash index, and newsroom dashboard",
-  "author": "Andrews Mintah (https://github.com/mintahandrews)",
+  "author": "Andrews Mintah (https://github.com/Mintahandrews)",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mintahandrews/verity.git",
+    "url": "https://github.com/Mintahandrews/verity.git",
     "directory": "packages/registry"
   },
-  "homepage": "https://github.com/mintahandrews/verity#readme",
+  "homepage": "https://github.com/Mintahandrews/verity#readme",
   "bugs": {
-    "url": "https://github.com/mintahandrews/verity/issues"
+    "url": "https://github.com/Mintahandrews/verity/issues"
   },
   "keywords": [
     "verity-registry",

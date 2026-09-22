@@ -36,7 +36,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "verity@verity.dev",
+      "id": "verity@codemintah.dev",
       "strict_min_version": "128.0"
     }
   }

@@ -69,7 +69,7 @@ export function verdictPage(verdict: Verdict, sha256: string, publicUrl = '', ot
     author: {
       '@type': 'Organization',
       name: 'Verity Provenance Engine',
-      url: publicUrl || 'https://github.com/mintahandrews/verity',
+      url: publicUrl || 'https://github.com/Mintahandrews/verity',
     },
     about: {
       '@type': 'MediaObject',
