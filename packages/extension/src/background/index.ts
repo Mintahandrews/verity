@@ -22,7 +22,23 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const kind: MediaKind =
     info.mediaType === 'video' ? 'video' : info.mediaType === 'audio' ? 'audio' : 'image';
   const media: MediaDescriptor = { url: info.srcUrl, kind };
-  await chrome.tabs.sendMessage(tab.id, { type: 'verity:verify-one', media } satisfies RuntimeMessage);
+  const msg = { type: 'verity:verify-one', media } satisfies RuntimeMessage;
+  try {
+    await chrome.tabs.sendMessage(tab.id, msg);
+  } catch {
+    // Page predates extension install - inject the content script, then resend.
+    const files =
+      chrome.runtime
+        .getManifest()
+        .content_scripts?.flatMap((cs) => cs.js)
+        .filter((f): f is string => typeof f === 'string') ?? [];
+    try {
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files });
+      await chrome.tabs.sendMessage(tab.id, msg);
+    } catch {
+      // Restricted page (chrome://, Web Store, PDF viewer) - nothing to do.
+    }
+  }
 });
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendResponse) => {
@@ -63,7 +79,8 @@ async function handleAnalyze(
       ...(mime ? { mime } : {}),
     } satisfies RuntimeMessage)) as AnalyzeResponse;
     if (!res.ok) return storeError(res.error);
-    await chrome.storage.session.set({ [verdictKey(res.verdictId)]: res.verdict });
+    // A quota failure only costs the "click for details" link - badge still shows.
+    await chrome.storage.session.set({ [verdictKey(res.verdictId)]: res.verdict }).catch(() => {});
     await bumpStat();
     return res;
   } catch (e) {
@@ -78,14 +95,25 @@ async function storeError(message: string): Promise<AnalyzeResponse> {
   return { ok: true, verdictId, verdict };
 }
 
+let offscreenReady: Promise<void> | null = null;
+
 async function ensureOffscreen(): Promise<void> {
-  const exists = await chrome.offscreen.hasDocument().catch(() => false);
-  if (exists) return;
-  await chrome.offscreen.createDocument({
-    url: OFFSCREEN_URL,
-    reasons: [chrome.offscreen.Reason.WORKERS],
-    justification: 'Runs C2PA WASM verification and metadata forensics.',
-  });
+  if (!offscreenReady) {
+    offscreenReady = (async () => {
+      const exists = await chrome.offscreen.hasDocument().catch(() => false);
+      if (exists) return;
+      await chrome.offscreen.createDocument({
+        url: OFFSCREEN_URL,
+        reasons: [chrome.offscreen.Reason.WORKERS],
+        justification: 'Runs C2PA WASM verification and metadata forensics.',
+      });
+    })();
+    // Concurrent callers share this promise; a failure clears it for retry.
+    offscreenReady.catch(() => {
+      offscreenReady = null;
+    });
+  }
+  return offscreenReady;
 }
 
 async function bumpStat(): Promise<void> {

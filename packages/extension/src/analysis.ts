@@ -31,10 +31,20 @@ const registry = new SignalRegistry()
   .register(factCheckSignal)
   .register(aiModelSignal);
 
+const MAX_ANALYSIS_BYTES = 32 * 1024 * 1024;
+
 export async function fetchMedia(url: string): Promise<Blob> {
   const res = await fetch(url, { credentials: 'include' });
   if (!res.ok) throw new Error(`fetch failed: HTTP ${res.status}`);
-  return res.blob();
+  const len = Number(res.headers.get('content-length') ?? 0);
+  if (len > MAX_ANALYSIS_BYTES) {
+    throw new Error(`media too large for analysis (${Math.round(len / 1048576)} MB)`);
+  }
+  const blob = await res.blob();
+  if (blob.size > MAX_ANALYSIS_BYTES) {
+    throw new Error(`media too large for analysis (${Math.round(blob.size / 1048576)} MB)`);
+  }
+  return blob;
 }
 
 export function base64ToBlob(b64: string, type: string): Blob {

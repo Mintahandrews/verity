@@ -4,8 +4,8 @@ import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge, findMediaElement } from './badge';
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
-  if (msg.type === 'verity:verify-one') void verify(msg.media);
-  if (msg.type === 'verity:scan-page') void scanPage();
+  if (msg.type === 'verity:verify-one') void verify(msg.media).catch(() => {});
+  if (msg.type === 'verity:scan-page') scanPage();
 });
 
 /** Pull caption context for the fact-check signal: alt, figcaption, enclosing article. */
@@ -165,7 +165,14 @@ function scanPanel(total: number): ScanPanel {
   };
 }
 
+let scanActive = false;
+
 function scanPage(): void {
+  if (scanActive) {
+    const el = toast('Verity: a scan is already running on this page.');
+    setTimeout(() => el.remove(), 4000);
+    return;
+  }
   const imgs = [...document.querySelectorAll('img')]
     .filter((i) => i.naturalWidth >= MIN_SIZE && /^https?:/.test(i.currentSrc || i.src))
     .slice(0, SCAN_LIMIT);
@@ -174,21 +181,29 @@ function scanPage(): void {
     setTimeout(() => el.remove(), 4000);
     return;
   }
+  scanActive = true;
   const panel = scanPanel(imgs.length);
   let done = 0;
+  const finishOne = () => {
+    done++;
+    panel.setProgress(done);
+    if (done === imgs.length) {
+      panel.finish();
+      scanActive = false;
+    }
+  };
   for (const img of imgs) {
-    void verify({ url: img.currentSrc || img.src, kind: 'image' }).then((res) => {
-      if (res?.ok && res.verdict) {
-        panel.addResult(
-          res.verdict.error ? 'error' : res.verdict.state,
-          res.verdict.headline,
-          res.verdictId,
-        );
-      }
-    }).finally(() => {
-      done++;
-      panel.setProgress(done);
-      if (done === imgs.length) panel.finish();
-    });
+    void verify({ url: img.currentSrc || img.src, kind: 'image' })
+      .then((res) => {
+        if (res?.ok && res.verdict) {
+          panel.addResult(
+            res.verdict.error ? 'error' : res.verdict.state,
+            res.verdict.headline,
+            res.verdictId,
+          );
+        }
+      })
+      .catch(() => panel.addResult('error', 'Check could not run on this media.', null))
+      .finally(finishOne);
   }
 }
