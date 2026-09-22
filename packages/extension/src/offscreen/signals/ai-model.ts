@@ -1,4 +1,5 @@
 import type { Evidence, Signal, SignalResult } from '@verity/core';
+import { storageGet } from '../../storage';
 
 /**
  * Probabilistic layer of the AI-detection ensemble: an ONNX image classifier
@@ -64,11 +65,11 @@ export const aiModelSignal: Signal = {
   supports: (m) => m.kind === 'image',
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
-    const { aiModelEnabled, aiModelUrl, aiLabelIndex } = (await chrome.storage.local.get([
-      'aiModelEnabled',
-      'aiModelUrl',
-      'aiLabelIndex',
-    ])) as { aiModelEnabled?: boolean; aiModelUrl?: string; aiLabelIndex?: number };
+    const { aiModelEnabled, aiModelUrl, aiLabelIndex } = await storageGet<{
+      aiModelEnabled?: boolean;
+      aiModelUrl?: string;
+      aiLabelIndex?: number;
+    }>(['aiModelEnabled', 'aiModelUrl', 'aiLabelIndex']);
 
     const modelUrl = aiModelUrl ?? DEFAULT_MODEL_URL;
     if (!aiModelEnabled && !aiModelUrl) {

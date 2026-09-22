@@ -1,4 +1,5 @@
 import type { Evidence, Signal, SignalResult } from '@verity/core';
+import { storageGet } from '../../storage';
 
 /**
  * Reverse image search - the "real photo, wrong context" detector.
@@ -34,9 +35,7 @@ export const reverseSearchSignal: Signal = {
   supports: (m) => m.kind === 'image' && /^https?:/.test(m.url),
   async analyze(media): Promise<SignalResult> {
     const base = { signalId: this.id, signalName: this.name };
-    const { reverseSearch } = (await chrome.storage.local.get('reverseSearch')) as {
-      reverseSearch?: boolean;
-    };
+    const { reverseSearch } = await storageGet<{ reverseSearch?: boolean }>('reverseSearch');
     if (!reverseSearch) {
       return {
         ...base,

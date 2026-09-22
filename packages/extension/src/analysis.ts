@@ -16,6 +16,7 @@ import { c2paSignal } from './offscreen/signals/c2pa';
 import { aiModelSignal } from './offscreen/signals/ai-model';
 import { reverseSearchSignal } from './offscreen/signals/reverse-search';
 import { lookupVerdict, submitVerdict, type RegistryHit } from './registry-client';
+import { storageGet } from './storage';
 import { extractText } from './ocr';
 
 const MAX_OCR_CHARS = 1000;
@@ -106,10 +107,10 @@ export async function runPipeline(media: MediaDescriptor, blob: Blob): Promise<V
   // Claims live in pixels too (memes, screenshots) - OCR enriches the
   // fact-check signal's context text. Lazy-loaded; off via popup toggle.
   // locationLookup stays opt-in: coordinates are sent to a geocoder.
-  const { ocrEnabled, geoLookup } = (await chrome.storage.local.get([
-    'ocrEnabled',
-    'geoLookup',
-  ])) as { ocrEnabled?: boolean; geoLookup?: boolean };
+  const { ocrEnabled, geoLookup } = await storageGet<{
+    ocrEnabled?: boolean;
+    geoLookup?: boolean;
+  }>(['ocrEnabled', 'geoLookup']);
   let enriched: MediaDescriptor = { ...media, locationLookup: geoLookup ?? false };
   if (media.kind === 'image' && ocrEnabled !== false) {
     const ocrText = await extractText(blob);

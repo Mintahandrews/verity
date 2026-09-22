@@ -1,4 +1,5 @@
 import type { Verdict } from '@verity/core';
+import { storageGet } from './storage';
 
 export interface RegistryHit {
   match: 'exact' | 'similar';
@@ -14,9 +15,7 @@ const DEFAULT_REGISTRY = 'https://verity.codemintah.dev';
 const TIMEOUT_MS = 3000;
 
 async function base(): Promise<string> {
-  const { registryUrl } = (await chrome.storage.local.get('registryUrl')) as {
-    registryUrl?: string;
-  };
+  const { registryUrl } = await storageGet<{ registryUrl?: string }>('registryUrl');
   return (registryUrl ?? DEFAULT_REGISTRY).replace(/\/$/, '');
 }
 
