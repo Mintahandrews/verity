@@ -3,6 +3,8 @@ import { daylightClaim, classifySun, estimatedUtc } from './daylight.ts';
 import { weatherClaim, wmoLabel } from './weather.ts';
 import { firstUpload } from './commons.ts';
 import { registrationDate } from './rdap.ts';
+import { elaStats } from './ela.ts';
+import { bestSauceSimilarity } from './external-apis.ts';
 import { sha1Hex } from '../hash.ts';
 
 describe('daylight helpers', () => {
@@ -62,6 +64,62 @@ describe('rdap helpers', () => {
     expect(d?.toISOString()).toBe('2020-01-01T00:00:00.000Z');
     expect(registrationDate([])).toBeNull();
     expect(registrationDate(undefined)).toBeNull();
+  });
+});
+
+describe('elaStats', () => {
+  // 64x64 gray image, one 8x8 block heavily corrupted in the "re-encode".
+  const w = 64;
+  const h = 64;
+  const mk = (): Uint8ClampedArray => {
+    const a = new Uint8ClampedArray(w * h * 4);
+    for (let i = 0; i < a.length; i += 4) {
+      a[i] = 128; a[i + 1] = 128; a[i + 2] = 128; a[i + 3] = 255;
+    }
+    return a;
+  };
+
+  it('flags a localized hot block', () => {
+    const orig = mk();
+    const recon = mk();
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const i = (y * w + x) * 4;
+        recon[i] = 20; recon[i + 1] = 240; recon[i + 2] = 20;
+      }
+    }
+    const s = elaStats(orig, recon, w, h)!;
+    expect(s.max).toBeGreaterThan(100);
+    expect(s.hotFraction).toBeGreaterThan(0);
+    expect(s.hotFraction).toBeLessThan(0.2);
+    expect(s.max).toBeGreaterThan(4 * s.mean);
+  });
+
+  it('uniform error has no hotspot fraction', () => {
+    const orig = mk();
+    const recon = mk();
+    for (let i = 0; i < recon.length; i += 4) {
+      recon[i] = 130; recon[i + 1] = 130; recon[i + 2] = 130;
+    }
+    const s = elaStats(orig, recon, w, h)!;
+    expect(s.hotFraction).toBe(0);
+  });
+
+  it('returns null for tiny images', () => {
+    expect(elaStats(new Uint8ClampedArray(16 * 16 * 4), new Uint8ClampedArray(16 * 16 * 4), 16, 16)).toBeNull();
+  });
+});
+
+describe('bestSauceSimilarity', () => {
+  it('returns the max similarity', () => {
+    expect(
+      bestSauceSimilarity([
+        { header: { similarity: '62.5' } },
+        { header: { similarity: '91.2' } },
+      ]),
+    ).toBe(91.2);
+    expect(bestSauceSimilarity([])).toBe(0);
+    expect(bestSauceSimilarity(undefined)).toBe(0);
   });
 });
 

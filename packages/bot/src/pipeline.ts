@@ -2,6 +2,9 @@ import {
   SignalRegistry,
   aiMetadataSignal,
   commonsSignal,
+  createClaimBusterSignal,
+  createSauceNaoSignal,
+  createSightengineSignal,
   daylightSignal,
   factCheckSignal,
   fuse,
@@ -39,6 +42,20 @@ const signals = new SignalRegistry()
   .register(gdeltSignal)
   .register(rdapSignal)
   .register(factCheckSignal);
+
+// Key-gated third-party signals - active only when the operator provides
+// API keys. All upload media/text to the provider, hence opt-in.
+if (process.env.SAUCENAO_API_KEY) {
+  signals.register(createSauceNaoSignal(process.env.SAUCENAO_API_KEY));
+}
+if (process.env.SIGHTENGINE_USER && process.env.SIGHTENGINE_SECRET) {
+  signals.register(
+    createSightengineSignal(process.env.SIGHTENGINE_USER, process.env.SIGHTENGINE_SECRET),
+  );
+}
+if (process.env.CLAIMBUSTER_API_KEY) {
+  signals.register(createClaimBusterSignal(process.env.CLAIMBUSTER_API_KEY));
+}
 
 interface RegistryHit {
   match: 'exact' | 'similar';

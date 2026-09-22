@@ -4,7 +4,7 @@
  * Redis if it ever scales past one process.
  */
 export class RateLimiter {
-  private hits = new Map<number, number[]>();
+  private hits = new Map<number | string, number[]>();
   private lastSweep = Date.now();
   private readonly limit: number;
   private readonly windowMs: number;
@@ -15,7 +15,7 @@ export class RateLimiter {
   }
 
   /** True if the key may proceed; records the hit. False when over the limit. */
-  allow(key: number, now = Date.now()): boolean {
+  allow(key: number | string, now = Date.now()): boolean {
     this.sweep(now);
     const times = (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs);
     if (times.length >= this.limit) {
@@ -28,7 +28,7 @@ export class RateLimiter {
   }
 
   /** Seconds until the oldest in-window hit expires, for the "slow down" reply. */
-  retryAfterSeconds(key: number, now = Date.now()): number {
+  retryAfterSeconds(key: number | string, now = Date.now()): number {
     const times = this.hits.get(key) ?? [];
     const oldest = times.filter((t) => now - t < this.windowMs)[0];
     if (oldest === undefined) return 0;

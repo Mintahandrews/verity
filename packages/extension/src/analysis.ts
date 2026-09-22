@@ -3,6 +3,7 @@ import {
   aiMetadataSignal,
   commonsSignal,
   daylightSignal,
+  elaSignal,
   factCheckSignal,
   fuse,
   gdeltSignal,
@@ -28,6 +29,7 @@ const MAX_OCR_CHARS = 1000;
 const registry = new SignalRegistry()
   .register(c2paSignal)
   .register(aiMetadataSignal)
+  .register(elaSignal)
   .register(metadataSignal)
   .register(geolocationSignal)
   .register(daylightSignal)
