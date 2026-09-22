@@ -21,3 +21,9 @@ CLAUDE.md
 .aider*
 .continue/
 .github/copilot-instructions.md
+
+# Store-submission helpers - local task files, not project files
+CHROMEWEBSTORE.md
+docs/assets/cws/
+scripts/.tmp-cws/
+scripts/generate-cws-assets.mjs
