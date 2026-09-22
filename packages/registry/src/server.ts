@@ -159,7 +159,7 @@ const handle = async (req: import('node:http').IncomingMessage, res: import('nod
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'access-control-allow-origin': '*',
-      'access-control-allow-methods': 'GET, POST, OPTIONS',
+      'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
       'access-control-allow-headers': 'content-type',
     });
     res.end();
@@ -369,6 +369,18 @@ ${urls.join('\n')}
       });
     }
     send(res, 201, { id: body.sha256, shareUrl: `${PUBLIC_URL}/v/${body.sha256}` });
+    return;
+  }
+
+  // Moderation: trusted-key delete (removes poisoned/abuse records).
+  const deleteMatch = path.match(/^\/api\/verdicts\/([0-9a-f]{64})$/);
+  if (deleteMatch && req.method === 'DELETE') {
+    if (!trustedSubmit(req)) {
+      send(res, 403, { error: 'deletion requires a trusted submitter key' });
+      return;
+    }
+    const gone = await store.remove(deleteMatch[1]!);
+    send(res, gone ? 200 : 404, { ok: gone });
     return;
   }
 

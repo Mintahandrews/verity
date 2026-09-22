@@ -32,6 +32,8 @@ export interface Store {
   get(sha256: string): MaybePromise<RegistryRecord | undefined>;
   peek(sha256: string): MaybePromise<RegistryRecord | undefined>;
   put(rec: RegistryRecord): MaybePromise<void>;
+  /** Moderation: drop a record + its index entries. Returns false if absent. */
+  remove(sha256: string): MaybePromise<boolean>;
   similar(phash: string, maxDist: number): MaybePromise<SimilarHit[]>;
   count(): MaybePromise<number>;
   recent(limit?: number): MaybePromise<RegistryRecord[]>;
@@ -62,6 +64,22 @@ export abstract class IndexedStore implements Store {
     }
   }
 
+  /** Drop from memory + rebuild the pHash index (BK-trees have no remove). */
+  protected deindex(sha256: string): boolean {
+    if (!this.records.delete(sha256)) return false;
+    this.phashIndex.clear();
+    this.tree = new BKTree();
+    for (const r of this.records.values()) {
+      for (const phash of r.phashes ?? (r.phash ? [r.phash] : [])) {
+        this.tree.add(BigInt(`0x${phash}`));
+        const list = this.phashIndex.get(phash) ?? [];
+        list.push(r);
+        this.phashIndex.set(phash, list);
+      }
+    }
+    return true;
+  }
+
   abstract get(sha256: string): MaybePromise<RegistryRecord | undefined>;
 
   peek(sha256: string): RegistryRecord | undefined {
@@ -69,6 +87,8 @@ export abstract class IndexedStore implements Store {
   }
 
   abstract put(rec: RegistryRecord): MaybePromise<void>;
+
+  abstract remove(sha256: string): MaybePromise<boolean>;
 
   similar(phash: string, maxDist: number): SimilarHit[] {
     return this.tree
@@ -140,6 +160,12 @@ export class RegistryStore extends IndexedStore {
   put(rec: RegistryRecord): void {
     this.index(rec);
     this.dirty = true;
+  }
+
+  remove(sha256: string): boolean {
+    const gone = this.deindex(sha256);
+    if (gone) this.dirty = true;
+    return gone;
   }
 
   flush(): void {

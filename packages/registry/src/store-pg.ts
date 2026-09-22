@@ -86,4 +86,12 @@ export class PostgresStore extends IndexedStore {
     );
     this.index(rec);
   }
+
+  async remove(sha256: string): Promise<boolean> {
+    const { rowCount } = await this.pool.query('DELETE FROM verdicts WHERE sha256 = $1', [
+      sha256,
+    ]);
+    this.deindex(sha256);
+    return (rowCount ?? 0) > 0;
+  }
 }
