@@ -203,6 +203,10 @@ const handle = async (req: import('node:http').IncomingMessage, res: import('nod
     return;
   }
 
+  // Link validators (Discord, crawlers) probe with HEAD - treat as GET;
+  // Node suppresses the response body for HEAD automatically.
+  if (req.method === 'HEAD') req.method = 'GET';
+
   const url = new URL(req.url ?? '/', PUBLIC_URL);
   const path = url.pathname;
 
