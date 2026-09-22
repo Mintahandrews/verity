@@ -20,7 +20,7 @@ function contextFor(el: HTMLElement | null): string | undefined {
   return text.slice(0, 500) || undefined;
 }
 
-async function verify(media: MediaDescriptor): Promise<void> {
+async function verify(media: MediaDescriptor): Promise<AnalyzeResponse | null> {
   const contextText = contextFor(findMediaElement(media.url));
   const desc: MediaDescriptor = {
     ...media,
@@ -29,8 +29,9 @@ async function verify(media: MediaDescriptor): Promise<void> {
   };
   const res = await analyze(desc);
   // 'opened-in-tab' (Firefox, no offscreen API) → verdict opened directly, no badge.
-  if (!res.ok) return;
+  if (!res.ok) return null;
   attachBadge(media.url, res.verdictId, res.verdict.error ? 'error' : res.verdict.state);
+  return res;
 }
 
 type Send = (m: RuntimeMessage) => Promise<AnalyzeResponse>;
@@ -94,6 +95,76 @@ function toast(text: string): HTMLDivElement {
   return el;
 }
 
+const RESULT_GLYPH: Record<string, string> = {
+  verified: '✓', unverified: '?', suspicious: '!', error: '×',
+};
+const RESULT_COLOR: Record<string, string> = {
+  verified: '#68ef3f', unverified: '#b7bda5', suspicious: '#ff8a5c', error: '#d6d6d6',
+};
+
+interface ScanPanel {
+  setProgress(done: number): void;
+  addResult(state: string, headline: string, verdictId: string | null): void;
+  finish(): void;
+}
+
+function scanPanel(total: number): ScanPanel {
+  const root = document.createElement('div');
+  root.style.cssText =
+    'position:fixed;bottom:20px;right:20px;z-index:2147483647;width:300px;max-height:55vh;' +
+    'display:flex;flex-direction:column;background:#122314;color:#f2f5eb;' +
+    'font:13px/1.45 system-ui,sans-serif;border:1px solid #68ef3f;border-radius:16px;' +
+    'box-shadow:0 8px 32px rgba(0,0,0,.45);overflow:hidden';
+  const head = document.createElement('div');
+  head.style.cssText =
+    'display:flex;justify-content:space-between;align-items:center;' +
+    'padding:10px 14px;border-bottom:1px solid #273f2b;font-weight:600;flex-shrink:0';
+  const title = document.createElement('span');
+  title.textContent = `Verity: checking 0/${total}`;
+  const close = document.createElement('button');
+  close.textContent = '×';
+  close.title = 'Close';
+  close.style.cssText = 'background:none;border:0;color:#b7bda5;font-size:16px;cursor:pointer;padding:0 0 0 10px';
+  close.addEventListener('click', () => root.remove());
+  head.append(title, close);
+  const list = document.createElement('div');
+  list.style.cssText = 'overflow-y:auto;padding:6px';
+  const foot = document.createElement('div');
+  foot.style.cssText = 'padding:8px 14px;border-top:1px solid #273f2b;color:#b7bda5;font-size:11px;display:none;flex-shrink:0';
+  foot.textContent = 'Click a result for the full evidence - or a badge on the page.';
+  root.append(head, list, foot);
+  document.documentElement.appendChild(root);
+  return {
+    setProgress(done) {
+      title.textContent = done < total ? `Verity: checking ${done}/${total}` : `Verity: ${total} checked`;
+    },
+    addResult(state, headline, verdictId) {
+      const item = document.createElement('button');
+      item.style.cssText =
+        'display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;' +
+        'background:none;border:0;border-radius:10px;padding:8px;color:inherit;' +
+        'font:inherit;cursor:pointer';
+      item.innerHTML =
+        `<span style="color:${RESULT_COLOR[state] ?? '#b7bda5'};font-weight:700;flex-shrink:0">${RESULT_GLYPH[state] ?? '?'}</span>` +
+        `<span style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical"></span>`;
+      (item.lastElementChild as HTMLElement).textContent = headline;
+      item.addEventListener('mouseenter', () => { item.style.background = '#273f2b'; });
+      item.addEventListener('mouseleave', () => { item.style.background = 'none'; });
+      if (verdictId) {
+        item.addEventListener('click', () => {
+          void chrome.runtime.sendMessage({ type: 'verity:open', verdictId });
+        });
+      } else {
+        item.style.cursor = 'default';
+      }
+      list.appendChild(item);
+    },
+    finish() {
+      foot.style.display = 'block';
+    },
+  };
+}
+
 function scanPage(): void {
   const imgs = [...document.querySelectorAll('img')]
     .filter((i) => i.naturalWidth >= MIN_SIZE && /^https?:/.test(i.currentSrc || i.src))
@@ -103,14 +174,21 @@ function scanPage(): void {
     setTimeout(() => el.remove(), 4000);
     return;
   }
-  const el = toast(`Verity is checking ${imgs.length} images...`);
+  const panel = scanPanel(imgs.length);
   let done = 0;
   for (const img of imgs) {
-    void verify({ url: img.currentSrc || img.src, kind: 'image' }).finally(() => {
+    void verify({ url: img.currentSrc || img.src, kind: 'image' }).then((res) => {
+      if (res?.ok && res.verdict) {
+        panel.addResult(
+          res.verdict.error ? 'error' : res.verdict.state,
+          res.verdict.headline,
+          res.verdictId,
+        );
+      }
+    }).finally(() => {
       done++;
-      el.textContent =
-        done < imgs.length ? `Verity is checking... ${done}/${imgs.length}` : `Verity: ${imgs.length} checked`;
-      if (done === imgs.length) setTimeout(() => el.remove(), 4000);
+      panel.setProgress(done);
+      if (done === imgs.length) panel.finish();
     });
   }
 }

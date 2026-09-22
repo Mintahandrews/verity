@@ -62,7 +62,7 @@ export function attachBadge(mediaUrl: string, verdictId: string | null, state: B
       `border:2px solid ${paint.border}`,
       `background:${paint.bg}`, `color:${paint.fg}`,
       'font:700 13px/20px Aeonik, Inter, system-ui, sans-serif',
-      'cursor:pointer', 'padding:0',
+      'cursor:pointer', 'padding:0', 'box-shadow:0 1px 5px rgba(0,0,0,.45)',
     ].join(';'),
   );
   if (verdictId) {
