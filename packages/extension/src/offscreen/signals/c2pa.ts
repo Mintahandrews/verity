@@ -8,7 +8,14 @@ function getC2pa(): ReturnType<typeof createC2pa> {
   // Assets are copied from @contentauth/c2pa-web into dist/assets by the vite plugin.
   c2paPromise ??= createC2pa({
     wasmSrc: chrome.runtime.getURL('assets/c2pa_bg.wasm'),
-    workerSrc: new URL(chrome.runtime.getURL('assets/c2pa_worker.js')),
+    // c2pa-web validates workerSrc.protocol === 'https:' before constructing
+    // the Worker, but extension workers load fine from chrome-extension: -
+    // the check is scheme-validation only, so satisfy it while passing the
+    // real URL through toString().
+    workerSrc: {
+      protocol: 'https:',
+      toString: () => chrome.runtime.getURL('assets/c2pa_worker.js'),
+    } as URL,
   });
   return c2paPromise;
 }

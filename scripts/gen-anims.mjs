@@ -38,11 +38,11 @@ const path = (v, i, o, closed = false) => ({
   ty: 'sh', ks: prop({ c: closed, v, i: i ?? v.map(() => [0, 0]), o: o ?? v.map(() => [0, 0]) }),
 });
 const shapeLayer = (ind, name, shapes, ks = ident()) => ({
-  ddd: 0, ind, ty: 4, nm: name, sr: 1, ks, ao: 0, ip: 0, op: 120, st: 0,
+  ddd: 0, ind, ty: 4, nm: name, sr: 1, ks, shapes, ao: 0, ip: 0, op: 120, st: 0,
 });
 
 const doc = (name, layers) => ({
-  v: '5.7.4', fr: 60, ip: 0, op: 90, w: 512, h: 512, nm: name, layers,
+  v: '5.7.4', fr: 60, ip: 0, op: 90, w: 512, h: 512, nm: name, layers, assets: [],
 });
 
 // Circle that pops 0 -> 108 -> 100.
