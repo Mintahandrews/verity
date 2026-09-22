@@ -295,4 +295,5 @@ Verdict icon animations (`verified`, `unverified`, `suspicious`, `loading`) are
 "checkmark", "help", "alertTriangle", and "loading" by
 [useAnimations](https://useanimations.com), licensed
 [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) and recolored to the
-Verity palette. The `sprout` animation is original Verity artwork.
+Verity palette. The `sprout` animation is "plant-item" by svgenius via
+[LottieFiles](https://lottiefiles.com), used under the Lottie Simple License.
