@@ -7,11 +7,10 @@ function esc(s: string): string {
 const TELEGRAM_BOT = 'https://t.me/CheckVerityBot';
 
 const CSS = `
-  header.hero { padding: 40px 0 56px; display: flex; gap: 32px; align-items: center; }
-  header.hero .herotext { flex: 1; min-width: 0; }
-  #sprout-anim { width: 180px; height: 180px; flex-shrink: 0; }
+  header.hero { padding: 40px 0 56px; }
   h1 { font-size: clamp(38px, 7vw, 64px); font-weight: 700; line-height: 1.05;
        letter-spacing: -0.03em; margin: 0 0 20px; }
+  h1 .nl { white-space: nowrap; }
   h1 em { font-family: var(--accent); font-weight: 400; font-style: italic; color: var(--sprout); }
   .lede { font-size: 19px; color: var(--fern); max-width: 620px; margin: 0 0 32px; }
   .lede b { color: var(--white); font-weight: 600; }
@@ -60,7 +59,7 @@ const CSS = `
   .faq-item strong { color: var(--onyx); }
   @media (max-width: 600px) {
     header.hero { padding: 24px 0 40px; }
-    #sprout-anim { display: none; }
+    h1 .nl { white-space: normal; }
     .lede { font-size: 16px; }
     .cta .btn { flex: 1 1 auto; text-align: center; padding: 12px 18px; }
     section.wrap { padding-top: 40px; padding-bottom: 40px; }
@@ -144,26 +143,21 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     css: CSS,
     hero: `
   <header class="hero">
-    <div class="herotext">
-      <h1>Is it real? <em>Better question:</em><br>what can we verify?</h1>
-      <p class="lede">Most viral misinformation isn't a deepfake &mdash; it's a <b>real photo with a false caption</b>.
-         Verity checks what evidence actually exists about a piece of media, and shows you its work.
-         Three transparent verdicts, never the word &ldquo;fake&rdquo;.</p>
-      <div class="cta">
-        <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Check media on Telegram</a>
-        <a class="btn ghost" href="#install">Get the browser extension</a>
-        <a class="btn ghost" href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
-      </div>
-      <div class="stats">
-        <span class="stat"><b>${stats['total'] ?? 0}</b> media checked</span>
-        <span class="stat"><b>${stats['verified'] ?? 0}</b> verified</span>
-        <span class="stat"><b>${stats['suspicious'] ?? 0}</b> suspicious</span>
-      </div>
+    <h1><span class="nl">Is it real? <em>Better question:</em></span><br>what can we verify?</h1>
+    <p class="lede">Most viral misinformation isn't a deepfake &mdash; it's a <b>real photo with a false caption</b>.
+       Verity checks what evidence actually exists about a piece of media, and shows you its work.
+       Three transparent verdicts, never the word &ldquo;fake&rdquo;.</p>
+    <div class="cta">
+      <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Check media on Telegram</a>
+      <a class="btn ghost" href="#install">Get the browser extension</a>
+      <a class="btn ghost" href="https://github.com/mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub (Open Source)</a>
     </div>
-    <div id="sprout-anim" aria-hidden="true"></div>
+    <div class="stats">
+      <span class="stat"><b>${stats['total'] ?? 0}</b> media checked</span>
+      <span class="stat"><b>${stats['verified'] ?? 0}</b> verified</span>
+      <span class="stat"><b>${stats['suspicious'] ?? 0}</b> suspicious</span>
+    </div>
   </header>`,
-    script: `<script src="/anim/lottie.min.js"></script>
-<script>var el=document.getElementById('sprout-anim');if(el)lottie.loadAnimation({container:el,renderer:'svg',loop:true,autoplay:true,path:'/anim/sprout.json?v=5'})</script>`,
     body: `
 <section class="wrap" aria-labelledby="verdicts-heading">
   <p class="kicker">The verdicts</p>
