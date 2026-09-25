@@ -7,6 +7,8 @@ function esc(s: string): string {
 const TELEGRAM_BOT = 'https://t.me/CheckVerityBot';
 const DISCORD_INVITE =
   'https://discord.com/oauth2/authorize?client_id=1551787274570698762&permissions=84992&integration_type=0&scope=bot';
+const CHROME_STORE =
+  'https://chromewebstore.google.com/detail/verity-media-authenticity/fihajmmndnkdmoeaogpiggjimeidbgkm';
 
 const CSS = `
   header.hero { padding: 40px 0 56px; }
@@ -152,7 +154,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <div class="cta">
       <a class="btn primary" href="${esc(TELEGRAM_BOT)}" target="_blank" rel="noopener noreferrer">Telegram bot</a>
       <a class="btn primary" href="${esc(DISCORD_INVITE)}" target="_blank" rel="noopener noreferrer">Discord bot</a>
-      <a class="btn ghost" href="#install">Browser extension</a>
+      <a class="btn ghost" href="${esc(CHROME_STORE)}" target="_blank" rel="noopener noreferrer">Browser extension</a>
       <a class="btn ghost" href="https://github.com/Mintahandrews/verity" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
     <div class="stats">
@@ -223,7 +225,7 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <h3>Discord Bot</h3>
     <p>Add <a href="${esc(DISCORD_INVITE)}" target="_blank" rel="noopener noreferrer">Verity to your Discord server</a> &mdash; it replies to image and video attachments (or <code>!verity</code>) with the same evidence-backed verdicts.</p>
     <h3>Chrome &amp; Firefox Extension (Manifest V3)</h3>
-    <p>Right-click any web image &rarr; <em>"Verify with Verity"</em>. Build from source: <code>npm install &amp;&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>. Chrome Web Store listing is under review &mdash; or get the prebuilt zip from <a href="https://github.com/Mintahandrews/verity/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.</p>
+    <p>Install from the <a href="${esc(CHROME_STORE)}" target="_blank" rel="noopener noreferrer">Chrome Web Store</a>, then right-click any web image &rarr; <em>"Verify with Verity"</em>. Or build from source: <code>npm install &amp;&amp; npm run build</code>, then load <code>packages/extension/dist</code> at <code>chrome://extensions</code>.</p>
     <h3>Prove Your Own Media (Signer CLI)</h3>
     <p>Content creators, photographers, and news organizations can stamp tamper-evident C2PA credentials directly into originals: <code>npm run sign -- photo.jpg signed.jpg --cert cert.pem --key key.pem</code></p>
     <h3>Self-Hostable Registry API</h3>

@@ -51,6 +51,9 @@ npm run pack
 ```
 
 ### Loading in Google Chrome
+
+Install the published build from the [Chrome Web Store](https://chromewebstore.google.com/detail/verity-media-authenticity/fihajmmndnkdmoeaogpiggjimeidbgkm), or sideload a local build:
+
 1. Open Chrome and navigate to `chrome://extensions/`.
 2. Enable **Developer mode** in the top right.
 3. Click **Load unpacked** and select `packages/extension/dist/`.

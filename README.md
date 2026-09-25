@@ -11,7 +11,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![C2PA Standard](https://img.shields.io/badge/Standard-C2PA%20Content%20Credentials-00c853.svg)](https://c2pa.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](https://www.typescriptlang.org/)
-[![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-yellow.svg)](packages/extension)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Install-4285F4.svg?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/verity-media-authenticity/fihajmmndnkdmoeaogpiggjimeidbgkm)
 [![Telegram Bot](https://img.shields.io/badge/Telegram-@CheckVerityBot-229ED9.svg)](https://t.me/CheckVerityBot)
 [![Discord Bot](https://img.shields.io/badge/Discord-Verity%235973-5865F2.svg)](https://discord.com/oauth2/authorize?client_id=1551787274570698762&permissions=84992&integration_type=0&scope=bot)
 [![Live Registry](https://img.shields.io/badge/Registry-verity.codemintah.dev-26a200.svg)](https://verity.codemintah.dev)
@@ -169,7 +169,9 @@ npm test            # Run Vitest test suites across workspaces
 
 ### 2. Browser Extension (Chrome & Firefox)
 
-Build the extension with Vite:
+**Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/verity-media-authenticity/fihajmmndnkdmoeaogpiggjimeidbgkm)** — then right-click any image on the web → **"Verify with Verity"**.
+
+Or build the extension from source with Vite:
 
 ```bash
 npm run build       # Production bundle to packages/extension/dist
@@ -177,7 +179,7 @@ npm run build       # Production bundle to packages/extension/dist
 npm run dev
 ```
 
-**Load the extension in Chrome:**
+**Load unpacked (development):**
 1. Open Google Chrome and go to `chrome://extensions/`.
 2. Enable **Developer mode** (toggle in upper right).
 3. Click **Load unpacked** and select `packages/extension/dist`.
