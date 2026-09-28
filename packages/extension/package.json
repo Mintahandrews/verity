@@ -1,6 +1,6 @@
 {
   "name": "@checkverity/extension",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Verity browser extension (Manifest V3) - client-side media authenticity inspector with C2PA and WASM sandbox",
   "author": "Andrews Mintah (https://github.com/Mintahandrews)",
   "license": "Apache-2.0",
