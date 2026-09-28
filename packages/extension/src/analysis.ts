@@ -11,6 +11,7 @@ import {
   metadataSignal,
   pHash64,
   pHashHex,
+  platformSignal,
   rdapSignal,
   sha256Hex,
   tweetIdsFrom,
@@ -47,6 +48,7 @@ const registry = new SignalRegistry()
   .register(commonsSignal)
   .register(gdeltSignal)
   .register(rdapSignal)
+  .register(platformSignal)
   .register(factCheckSignal)
   .register(aiModelSignal);
 

@@ -25,6 +25,7 @@ export { daylightSignal } from './signals/daylight.ts';
 export { weatherSignal } from './signals/weather.ts';
 export { commonsSignal } from './signals/commons.ts';
 export { rdapSignal } from './signals/rdap.ts';
+export { platformSignal, platformFor } from './signals/platform.ts';
 export { elaSignal, elaStats } from './signals/ela.ts';
 export {
   createSauceNaoSignal,

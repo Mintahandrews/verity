@@ -13,6 +13,7 @@ import {
   metadataSignal,
   pHash64,
   pHashHex,
+  platformSignal,
   rdapSignal,
   sha256Hex,
   tweetIdsFrom,
@@ -42,6 +43,7 @@ const signals = new SignalRegistry()
   .register(commonsSignal)
   .register(gdeltSignal)
   .register(rdapSignal)
+  .register(platformSignal)
   .register(factCheckSignal);
 
 // Key-gated third-party signals - active only when the operator provides

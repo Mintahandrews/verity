@@ -46,13 +46,29 @@ async function verifyTarget(kind: MediaDescriptor['kind']): Promise<void> {
   return verifyOne(media);
 }
 
-/** Pull caption context for the fact-check signal: alt, figcaption, enclosing article. */
+/**
+ * Pull claim context for the fact-check/GDELT signals. Media-level text first
+ * (alt, figcaption, enclosing article); on pages without captions - YouTube,
+ * social feeds, most sites - the claim lives in the page metadata, so fall
+ * back to Open Graph/Twitter cards and the document title.
+ */
 function contextFor(el: HTMLElement | null): string | undefined {
-  if (!el) return undefined;
+  const meta = (key: string): string | undefined => {
+    const v = document
+      .querySelector(`meta[property="${key}"],meta[name="${key}"]`)
+      ?.getAttribute('content')
+      ?.trim();
+    return v || undefined;
+  };
   const parts = [
-    el.getAttribute('alt'),
-    el.closest('figure')?.querySelector('figcaption')?.textContent,
-    el.closest('article')?.textContent,
+    el?.getAttribute('alt'),
+    el?.closest('figure')?.querySelector('figcaption')?.textContent,
+    el?.closest('article')?.textContent,
+    meta('og:title'),
+    meta('og:description'),
+    meta('twitter:title'),
+    meta('twitter:description'),
+    document.title,
   ].filter((s): s is string => Boolean(s?.trim()));
   const text = parts.join(' ').replace(/\s+/g, ' ').trim();
   return text.slice(0, 500) || undefined;
