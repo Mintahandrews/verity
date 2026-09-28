@@ -4,10 +4,47 @@ import { MAX_TRANSFER_BYTES } from '../messages';
 import { attachBadge, findMediaElement } from './badge';
 import { openVerdictOverlay } from './overlay';
 
+// Chrome supplies no srcUrl for media using <source> children - remember the
+// context-menu target so 'verity:verify-target' can resolve it in-page.
+let lastContextTarget: Element | null = null;
+document.addEventListener(
+  'contextmenu',
+  (e) => {
+    lastContextTarget = e.target instanceof Element ? e.target : null;
+  },
+  true,
+);
+
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage) => {
   if (msg.type === 'verity:verify-one') void verifyOne(msg.media).catch(() => {});
+  if (msg.type === 'verity:verify-target') void verifyTarget(msg.kind).catch(() => {});
   if (msg.type === 'verity:scan-page') scanPage();
 });
+
+/** Resolve a media URL from the right-clicked element (or the nearest one). */
+function mediaFromTarget(kind: MediaDescriptor['kind']): MediaDescriptor | null {
+  const el =
+    lastContextTarget?.closest('img,video,audio') ??
+    document.querySelector('video,audio') ??
+    [...document.querySelectorAll('img')].find((i) => i.naturalWidth >= MIN_SIZE) ??
+    null;
+  if (!el) return null;
+  const media = el as HTMLMediaElement;
+  const url = media.currentSrc || el.getAttribute('src') || (el as HTMLVideoElement).poster;
+  if (!url) return null;
+  const tag = el.tagName.toLowerCase();
+  return { url, kind: tag === 'video' ? 'video' : tag === 'audio' ? 'audio' : kind };
+}
+
+async function verifyTarget(kind: MediaDescriptor['kind']): Promise<void> {
+  const media = mediaFromTarget(kind);
+  if (!media) {
+    const el = toast('Verity: could not find the media you clicked.');
+    setTimeout(() => el.remove(), 4000);
+    return;
+  }
+  return verifyOne(media);
+}
 
 /** Pull caption context for the fact-check signal: alt, figcaption, enclosing article. */
 function contextFor(el: HTMLElement | null): string | undefined {

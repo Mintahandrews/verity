@@ -28,33 +28,45 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId !== MENU_ID || !tab?.id || !info.srcUrl) return;
+  if (info.menuItemId !== MENU_ID || !tab?.id) return;
   const kind: MediaKind =
     info.mediaType === 'video' ? 'video' : info.mediaType === 'audio' ? 'audio' : 'image';
-  const media: MediaDescriptor = { url: info.srcUrl, kind };
-  const msg = { type: 'verity:verify-one', media } satisfies RuntimeMessage;
+  // srcUrl is empty for <video>/<audio> using <source> children - the
+  // content script resolves the right-clicked element itself in that case.
+  const msg: RuntimeMessage = info.srcUrl
+    ? { type: 'verity:verify-one', media: { url: info.srcUrl, kind } }
+    : { type: 'verity:verify-target', kind };
   try {
     await chrome.tabs.sendMessage(tab.id, msg);
   } catch {
     // Content script not present - inject it (activeTab covers the gesture).
     try {
       await injectContentScript(tab.id);
-      // The injected file is a loader shim - the real listener registers a
-      // tick later, so retry briefly instead of racing it once.
       for (let i = 0; i < 8; i++) {
         try {
           await chrome.tabs.sendMessage(tab.id, msg);
-          break;
+          return;
         } catch {
           if (i === 7) throw new Error('no receiver');
           await new Promise((r) => setTimeout(r, 150));
         }
       }
     } catch {
-      // Restricted page (chrome://, Web Store, PDF viewer) - nothing to do.
+      flashFailure(tab.id);
     }
   }
 });
+
+/** Restricted page (chrome://, Web Store, PDF viewer) - flag it, don't fail silently. */
+function flashFailure(tabId: number): void {
+  void chrome.action.setBadgeBackgroundColor({ tabId, color: '#d6d6d6' });
+  void chrome.action.setBadgeText({ tabId, text: '×' });
+  void chrome.action.setTitle({ tabId, title: "Verity can't run checks on this page" });
+  setTimeout(() => {
+    void chrome.action.setBadgeText({ tabId, text: '' });
+    void chrome.action.setTitle({ tabId, title: 'Verity' });
+  }, 4000);
+}
 
 chrome.runtime.onMessage.addListener((msg: RuntimeMessage, _sender, sendResponse) => {
   if (msg.type === 'verity:analyze' || msg.type === 'verity:analyze-bytes') {

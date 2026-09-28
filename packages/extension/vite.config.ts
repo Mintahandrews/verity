@@ -45,41 +45,30 @@ function copyWasmAssets(): Plugin {
 
 // The content script is never registered statically - injection happens
 // on-demand via chrome.scripting (activeTab) when the user checks media.
-// crxjs only emits the loader shim + web-accessible wiring for declared
-// content scripts, so the declaration exists at build time but is stripped
-// from dist/manifest.json before shipping.
-const buildManifest = {
-  ...manifest,
-  content_scripts: [
-    {
-      matches: ['http://*/*', 'https://*/*'],
-      js: ['src/content/index.ts'],
-      run_at: 'document_idle',
-    },
-  ],
-};
-
+// It is bundled post-build as a self-contained IIFE (esbuild): the crxjs
+// loader relies on dynamic import(), which is subject to the HOST PAGE's
+// CSP in content scripts (crbug 1053639) - silently dying on strict sites
+// like X/Reddit/news. A plain file injection bypasses page CSP entirely.
 export const CONTENT_SCRIPT_FILE = 'assets/content-loader.js';
 
-function stripContentScripts(): Plugin {
+function bundleContentScript(): Plugin {
   return {
-    name: 'verity:strip-content-scripts',
-    closeBundle() {
-      const file = join(here, 'dist', 'manifest.json');
-      if (!existsSync(file)) return;
-      const json = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
-      delete json.content_scripts;
-      writeFileSync(file, JSON.stringify(json, null, 2));
-      // Give the hashed loader a fixed name - executeScript injects it by path.
-      const assets = join(here, 'dist', 'assets');
-      const loader = readdirSync(assets).find((f) => /-loader-[^/]*\.js$/.test(f));
-      if (loader) cpSync(join(assets, loader), join(assets, 'content-loader.js'));
+    name: 'verity:bundle-content-script',
+    async closeBundle() {
+      const esbuild = await import('esbuild');
+      await esbuild.build({
+        entryPoints: [join(here, 'src', 'content', 'index.ts')],
+        bundle: true,
+        format: 'iife',
+        target: 'chrome110',
+        outfile: join(here, 'dist', CONTENT_SCRIPT_FILE),
+      });
     },
   };
 }
 
 export default defineConfig({
-  plugins: [crx({ manifest: buildManifest }), copyWasmAssets(), stripContentScripts()],
+  plugins: [crx({ manifest }), copyWasmAssets(), bundleContentScript()],
   build: {
     rollupOptions: {
       input: {

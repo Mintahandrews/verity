@@ -1,4 +1,4 @@
-import type { MediaDescriptor, Verdict } from '@checkverity/core';
+import type { MediaDescriptor, MediaKind, Verdict } from '@checkverity/core';
 
 export const OFFSCREEN_URL = 'src/offscreen/index.html';
 export const VERDICT_PAGE_URL = 'src/verdict/index.html';
@@ -10,6 +10,9 @@ export const MAX_TRANSFER_BYTES = 32 * 1024 * 1024;
 export type RuntimeMessage =
   // background -> content: user picked "Verify with Verity" on this media
   | { type: 'verity:verify-one'; media: MediaDescriptor }
+  // background -> content: same, but Chrome gave no srcUrl (e.g. <video>
+  // with <source> children) - content resolves the context-menu target itself
+  | { type: 'verity:verify-target'; kind: MediaKind }
   // popup -> content: collect candidate media on the page and verify each
   | { type: 'verity:scan-page' }
   // content -> background: route an analysis request (background ensures offscreen).
@@ -28,20 +31,18 @@ export type AnalyzeResponse =
   | { ok: true; verdictId: string; verdict: Verdict }
   | { ok: false; error: string };
 
-/** Fixed loader path emitted by the build (hashed name is aliased by vite). */
+/** Fixed path of the self-contained content bundle emitted by the build. */
 export const CONTENT_SCRIPT_FILE = 'assets/content-loader.js';
 
 /**
- * Inject the content script on demand. Dev builds declare it statically in
- * the manifest; production strips the declaration to avoid broad host
- * access, so fall back to the fixed loader path.
+ * Inject the content script on demand. The bundle is a single IIFE file -
+ * no dynamic imports - so page CSP cannot block it and the listener is
+ * registered synchronously on execute.
  */
 export async function injectContentScript(tabId: number): Promise<void> {
-  const declared =
-    chrome.runtime.getManifest().content_scripts?.flatMap((cs) => cs.js ?? []) ?? [];
   await chrome.scripting.executeScript({
     target: { tabId },
-    files: declared.length ? declared : [CONTENT_SCRIPT_FILE],
+    files: [CONTENT_SCRIPT_FILE],
   });
 }
 
