@@ -1,4 +1,4 @@
-import { cpSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,9 +35,17 @@ function copyWasmAssets(): Plugin {
       }
       if (existsSync(ortDist)) {
         const ortOut = join(out, 'ort');
+        // Only the wasm EP is used - jsep/jspi/asyncify variants (~85MB) are
+        // for webgpu/asyncified builds we never load, and they break AMO's
+        // upload size handling.
         for (const f of readdirSync(ortDist)) {
-          if (/ort.*\.(wasm|mjs)$/.test(f)) cpSync(join(ortDist, f), join(ortOut, f));
+          if (/^ort-wasm-simd-threaded\.wasm$/.test(f)) cpSync(join(ortDist, f), join(ortOut, f));
         }
+      }
+      // Vite emits a hashed copy of the jsep wasm (webgpu EP) into assets/.
+      // Only the plain wasm EP is ever requested - drop the unused variants.
+      for (const f of readdirSync(out)) {
+        if (/ort-wasm.*(?:jsep|jspi|asyncify)[^/]*\.wasm$/.test(f)) rmSync(join(out, f));
       }
     },
   };

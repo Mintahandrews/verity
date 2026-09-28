@@ -46,7 +46,7 @@
     "anims": "node scripts/gen-anims.mjs",
     "banner": "node scripts/generate-banner.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
-    "pack": "npm run build && mkdir -p release && cd packages/extension/dist && zip -qr ../../../release/verity-extension.zip . && echo \"packed release/verity-extension.zip\"",
+    "pack": "npm run build && mkdir -p release && rm -f release/verity-extension.zip && cd packages/extension/dist && zip -qr ../../../release/verity-extension.zip . && echo \"packed release/verity-extension.zip\"",
     "start": "node scripts/start.mjs"
   },
   "allowScripts": {
