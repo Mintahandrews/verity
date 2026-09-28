@@ -223,11 +223,21 @@ function scanPanel(total: number): ScanPanel {
   foot.textContent = 'Click a result for the full evidence - or a badge on the page.';
   root.append(head, list, foot);
   document.documentElement.appendChild(root);
+  const seen = new Map<string, { count: number; label: HTMLElement }>();
   return {
     setProgress(done) {
       title.textContent = done < total ? `Verity: checking ${done}/${total}` : `Verity: ${total} checked`;
     },
     addResult(state, headline, verdictId, openUrl) {
+      // Identical outcomes collapse into one row with a count - a 25-image
+      // page of plain unverified results shouldn't scroll 25 dupes.
+      const key = `${state}|${headline}`;
+      const dup = seen.get(key);
+      if (dup) {
+        dup.count += 1;
+        dup.label.textContent = `${headline} ×${dup.count}`;
+        return;
+      }
       const item = document.createElement('button');
       item.style.cssText =
         'display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;' +
@@ -236,7 +246,9 @@ function scanPanel(total: number): ScanPanel {
       item.innerHTML =
         `<span style="color:${RESULT_COLOR[state] ?? '#b7bda5'};font-weight:700;flex-shrink:0">${RESULT_GLYPH[state] ?? '?'}</span>` +
         `<span style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical"></span>`;
-      (item.lastElementChild as HTMLElement).textContent = headline;
+      const label = item.lastElementChild as HTMLElement;
+      label.textContent = headline;
+      seen.set(key, { count: 1, label });
       item.addEventListener('mouseenter', () => { item.style.background = '#273f2b'; });
       item.addEventListener('mouseleave', () => { item.style.background = 'none'; });
       if (verdictId) {

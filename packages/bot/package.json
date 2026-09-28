@@ -1,6 +1,6 @@
 {
   "name": "@checkverity/bot",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "High-throughput Telegram & Discord media verification bot for Verity",
   "author": "Andrews Mintah (https://github.com/Mintahandrews)",
   "license": "Apache-2.0",

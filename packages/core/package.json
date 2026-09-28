@@ -1,6 +1,6 @@
 {
   "name": "@checkverity/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pure TypeScript multi-signal media authenticity engine, C2PA parser, and forensic fusion core",
   "author": "Andrews Mintah (https://github.com/Mintahandrews)",
   "license": "Apache-2.0",
