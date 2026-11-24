@@ -55,6 +55,10 @@ const CSS = `
   .howto p:last-child { margin-bottom: 0; }
   .howto a { color: var(--verdant); }
   .howto code { background: var(--wash); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+  .howto .embedbox { margin-bottom: 12px; background: var(--bone); border: 1px solid var(--mist);
+                     border-radius: 12px; padding: 10px 14px; }
+  .howto .embedbox code { display: block; word-break: break-all; color: var(--moss);
+                          background: none; padding: 0; font-size: 12px; }
   .faq-list { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
   .faq-item { background: var(--white); border: 1px solid var(--mist); border-radius: 20px; padding: 24px 28px; }
   .faq-item h3 { margin: 0 0 8px; font-size: 18px; color: var(--onyx); font-weight: 600; }
@@ -254,6 +258,10 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
     <p><code>GET ${esc(publicUrl)}/api/verdicts/&lt;sha256&gt;</code> &middot; <code>GET /api/similar?phash=&hellip;</code> &middot; <code>GET /api/stats</code> &mdash; zero dependencies, lightning fast, privacy-preserving.</p>
     <h3>npm Packages</h3>
     <p>The full engine ships as five public packages under <a href="https://www.npmjs.com/org/checkverity" target="_blank" rel="noopener noreferrer"><code>@checkverity</code></a> &mdash; <code>npm install @checkverity/core</code> for the signal engine, plus extension, registry, bot, and signer packages.</p>
+    <h3>Embeddable Badge</h3>
+    <p>Show a live Verity check counter in your README or site:</p>
+    <div class="embedbox"><code>${esc(`<a href="${publicUrl}"><img src="${publicUrl}/badge.svg" alt="Verity - media authenticity checks"></a>`)}</code></div>
+    <p style="margin-top:8px"><img src="/badge.svg" alt="Verity - media authenticity checks"></p>
   </div>
 </section>`,
   });

@@ -27,6 +27,8 @@
 | `GET` | `/api/v1/verdicts/:sha256` | JSON API endpoint for exact hash lookup. |
 | `POST` | `/api/v1/verdicts` | Submits a new verdict and indexes perceptual hashes. |
 | `GET` | `/api/v1/search/phash?hash=...&maxDistance=...` | Perceptual BK-tree search for near-duplicates. |
+| `GET` | `/badge.svg` | Embeddable site badge showing the live registry check count. |
+| `GET` | `/badge/:sha256.svg` | Embeddable per-verdict state badge (hotlink-safe SVG). |
 | `GET` | `/sitemap.xml` | Dynamic XML sitemap for search engines. |
 | `GET` | `/robots.txt` | Crawler policy directives. |
 | `GET` | `/llms.txt` | Generative Engine Optimization (GEO/AEO) index for AI answer engines. |

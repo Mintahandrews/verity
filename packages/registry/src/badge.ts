@@ -1,15 +1,6 @@
 import type { VerdictState } from '@checkverity/core';
 
-/** shields.io-style verdict badge - pure SVG, no font dependency at render. */
-export function badgeSvg(state: VerdictState | 'failed', label?: string): string {
-  const text = label ?? (state === 'failed' ? 'check failed' : state);
-  const colors: Record<string, string> = {
-    verified: '#26a200',
-    unverified: '#7e8371',
-    suspicious: '#d97706',
-    failed: '#555555',
-  };
-  const color = colors[state] ?? '#555555';
+function shieldsSvg(text: string, color: string, fg = '#fff'): string {
   const lw = 44; // "verity" label width
   const vw = text.length * 7 + 14; // ~7px/char at 11px monospace-ish
   const total = lw + vw;
@@ -23,7 +14,27 @@ export function badgeSvg(state: VerdictState | 'failed', label?: string): string
   </g>
   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
     <text x="${lw / 2}" y="14" fill="#68ef3f">verity</text>
-    <text x="${lw + vw / 2}" y="14">${text}</text>
+    <text x="${lw + vw / 2}" y="14" fill="${fg}">${text}</text>
   </g>
 </svg>`;
+}
+
+/** shields.io-style verdict badge - pure SVG, no font dependency at render. */
+export function badgeSvg(state: VerdictState | 'failed', label?: string): string {
+  const text = label ?? (state === 'failed' ? 'check failed' : state);
+  const colors: Record<string, string> = {
+    verified: '#26a200',
+    unverified: '#7e8371',
+    suspicious: '#d97706',
+    failed: '#555555',
+  };
+  return shieldsSvg(text, colors[state] ?? '#555555');
+}
+
+/**
+ * Site-wide embeddable badge: "verity | N checks". Embedders hotlink it and
+ * point the anchor at the registry homepage - every embed is a followed link.
+ */
+export function siteBadgeSvg(checks: number): string {
+  return shieldsSvg(`${checks.toLocaleString('en-US')} checks`, '#68ef3f', '#122314');
 }

@@ -12,7 +12,7 @@ import { NoteIndex } from './notes.ts';
 import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 import { privacyPage, termsPage } from './legal.ts';
-import { badgeSvg } from './badge.ts';
+import { badgeSvg, siteBadgeSvg } from './badge.ts';
 import { shell } from './layout.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
@@ -609,6 +609,16 @@ ${urls.join('\n')}
     } catch {
       send(res, 502, { error: 'upstream unreachable' });
     }
+    return;
+  }
+
+  // Site-wide embeddable badge: /badge.svg - live "N checks" counter for
+  // anyone embedding Verity in a README or site (followed link back to /).
+  if (path === '/badge.svg' && req.method === 'GET') {
+    sendText(req, res, 200, {
+      'content-type': 'image/svg+xml',
+      'cache-control': 'public, max-age=300',
+    }, siteBadgeSvg(await store.count()));
     return;
   }
 

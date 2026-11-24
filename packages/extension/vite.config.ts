@@ -2,9 +2,9 @@ import { cpSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } 
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { crx } from '@crxjs/vite-plugin';
+import { crx, type ManifestV3Export } from '@crxjs/vite-plugin';
 import { defineConfig, type Plugin } from 'vite';
-import manifest from './manifest.json';
+import manifestJson from './manifest.json';
 
 const require = createRequire(import.meta.url);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -74,6 +74,10 @@ function bundleContentScript(): Plugin {
     },
   };
 }
+
+// resolveJsonModule widens string arrays (e.g. gecko data_collection_permissions.required)
+// to string[], which is narrower-typed in the crx manifest enum - the values are valid.
+const manifest = manifestJson as unknown as ManifestV3Export;
 
 export default defineConfig({
   plugins: [crx({ manifest }), copyWasmAssets(), bundleContentScript()],
