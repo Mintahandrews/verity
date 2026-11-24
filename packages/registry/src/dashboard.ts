@@ -86,7 +86,7 @@ export function dashboardPage(
     .join('');
 
   return shell({
-    title: 'Verity Registry - Public Media Authenticity & Forensic Lookup',
+    title: 'Verity Registry - Media Authenticity Lookup',
     description:
       'Live newsroom verdict registry: cryptographic provenance lookup, recent checks, and perceptual near-duplicate matching for digital media.',
     canonicalUrl: publicUrl ? `${publicUrl}/dashboard` : undefined,
@@ -94,6 +94,16 @@ export function dashboardPage(
     ogDescription:
       'Search verdicts by SHA-256 or perceptual hash. Zero media stored, transparent evidence for digital journalists.',
     ogImage: publicUrl ? `${publicUrl}/assets/og-image.jpg` : undefined,
+    jsonLd: publicUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Verity', item: publicUrl },
+            { '@type': 'ListItem', position: 2, name: 'Registry', item: `${publicUrl}/dashboard` },
+          ],
+        }
+      : undefined,
     active: 'registry',
     back: { href: '/', label: 'Home' },
     css: CSS,

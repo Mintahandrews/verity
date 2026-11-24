@@ -92,6 +92,28 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
         'Multi-signal media authenticity engine verifying C2PA cryptographic provenance, metadata forensics, perceptual near-duplicates, and fact-checking.',
       license: 'https://www.apache.org/licenses/LICENSE-2.0',
       url: publicUrl,
+      downloadUrl: CHROME_STORE,
+      sameAs: 'https://github.com/Mintahandrews/verity',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Verity',
+      url: publicUrl,
+      logo: `${publicUrl}/assets/icon512.png`,
+      sameAs: [
+        'https://github.com/Mintahandrews/verity',
+        'https://www.npmjs.com/org/checkverity',
+        CHROME_STORE,
+        TELEGRAM_BOT,
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Verity',
+      url: publicUrl,
+      publisher: { '@type': 'Organization', name: 'Verity' },
     },
     {
       '@context': 'https://schema.org',
@@ -136,8 +158,8 @@ export function landingPage(stats: Record<string, number>, publicUrl: string): s
   return shell({
     title: 'Verity - Multi-Signal Media Authenticity & Provenance Engine',
     description:
-      'Open-source media authenticity engine. Verifies C2PA cryptographic provenance, metadata forensics, perceptual hash BK-trees, and newsroom fact-checking. Zero media stored.',
-    canonicalUrl: publicUrl,
+      'Open-source media authenticity engine. C2PA provenance, metadata forensics, perceptual near-duplicates, and fact-checking - zero media stored.',
+    canonicalUrl: `${publicUrl}/`,
     ogTitle: 'Verity - Multi-Signal Media Authenticity Engine',
     ogDescription:
       'Don\'t ask "is it fake?" Ask "what can we verify?" Transparent C2PA provenance, forensic evidence, and perceptual hash matching.',

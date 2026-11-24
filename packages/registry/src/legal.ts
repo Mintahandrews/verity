@@ -14,7 +14,8 @@ const UPDATED = 'Last updated: March 2025';
 export function termsPage(publicUrl: string): string {
   return shell({
     title: 'Terms of Service - Verity',
-    description: 'Terms of service for the Verity media authenticity platform.',
+    description:
+      'Terms of service for the Verity media authenticity platform - verdicts, public APIs, browser extension, and the Telegram/Discord bots.',
     canonicalUrl: `${publicUrl}/terms`,
     css: CSS,
     hero: `<header class="hero"><h1 style="font-size:clamp(30px,5vw,44px);margin:0">Terms of Service</h1></header>`,
@@ -75,7 +76,8 @@ Questions or abuse reports: open an issue on GitHub.</p>
 export function privacyPage(publicUrl: string): string {
   return shell({
     title: 'Privacy Policy - Verity',
-    description: 'Privacy policy for the Verity media authenticity platform.',
+    description:
+      'Privacy policy for Verity - local-first media analysis, hash-only registry lookups, and a strict zero-media-storage architecture.',
     canonicalUrl: `${publicUrl}/privacy`,
     css: CSS,
     hero: `<header class="hero"><h1 style="font-size:clamp(30px,5vw,44px);margin:0">Privacy Policy</h1></header>`,

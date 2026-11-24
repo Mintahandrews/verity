@@ -53,6 +53,7 @@ PORT=3000 VERITY_DB=data/registry.json npm start -w @checkverity/registry
 | `PUBLIC_URL` | `http://localhost:${PORT}` | Canonical base URL for Open Graph and sitemaps. |
 | `VERITY_DB` | `registry.json` | Path to JSON database file. |
 | `RATE_LIMIT_POSTS`| `120` | Maximum write submissions per IP per hour. |
+| `INDEXNOW_KEY` | unset | IndexNow verification key; serves `/<key>.txt` at the root so Bing/Yandex instant-index submissions verify host ownership. |
 
 ---
 

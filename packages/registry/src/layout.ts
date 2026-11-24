@@ -100,6 +100,13 @@ export interface ShellOpts {
   ogTitle?: string | undefined;
   ogDescription?: string | undefined;
   ogImage?: string | undefined;
+  /** og:image pixel size - defaults to the bundled cards' real dimensions. */
+  ogImageWidth?: number | undefined;
+  ogImageHeight?: number | undefined;
+  /** og:type - 'article' for verdict pages so published_time is emitted. */
+  ogType?: 'website' | 'article' | undefined;
+  /** ISO timestamp for article:published_time (only when ogType='article'). */
+  articlePublished?: string | undefined;
   active?: 'home' | 'registry' | undefined;
   /** Back link rendered in the header band above the hero - for deep pages. */
   back?: { href: string; label: string } | undefined;
@@ -120,7 +127,16 @@ const DEFAULT_KEYWORDS =
 const DEFAULT_OG_IMAGE = '/assets/og-image.jpg';
 
 export function shell(o: ShellOpts): string {
-  const ogImg = o.ogImage ?? DEFAULT_OG_IMAGE;
+  // og:image must be absolute for crawlers - resolve relative paths against
+  // the canonical URL when one was provided.
+  let ogImg = o.ogImage ?? DEFAULT_OG_IMAGE;
+  if (!/^https?:\/\//.test(ogImg) && o.canonicalUrl) {
+    ogImg = new URL(ogImg, o.canonicalUrl).href;
+  }
+  // Bundled cards: og-image.jpg is 1600x900, the verdict PNGs are 1200x630.
+  const ogW = o.ogImageWidth ?? (ogImg.endsWith('.png') ? 1200 : 1600);
+  const ogH = o.ogImageHeight ?? (ogImg.endsWith('.png') ? 630 : 900);
+  const ogMime = ogImg.endsWith('.png') ? 'image/png' : 'image/jpeg';
   const keywords = o.keywords ?? DEFAULT_KEYWORDS;
   const jsonLdScript = o.jsonLd
     ? `<script type="application/ld+json">${JSON.stringify(o.jsonLd).replace(/<\//g, '<\\/')}</script>`
@@ -149,12 +165,16 @@ ${o.canonicalUrl ? `<link rel="canonical" href="${esc(o.canonicalUrl)}">` : ''}
 
 <!-- Open Graph / Facebook -->
 <meta property="og:site_name" content="Verity">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${o.ogType ?? 'website'}">
 <meta property="og:title" content="${esc(o.ogTitle ?? o.title)}">
 <meta property="og:description" content="${esc(o.ogDescription ?? o.description ?? '')}">
 <meta property="og:image" content="${esc(ogImg)}">
+<meta property="og:image:type" content="${ogMime}">
+<meta property="og:image:width" content="${ogW}">
+<meta property="og:image:height" content="${ogH}">
 <meta property="og:image:alt" content="Verity - Multi-Signal Media Authenticity Engine">
 ${o.canonicalUrl ? `<meta property="og:url" content="${esc(o.canonicalUrl)}">` : ''}
+${o.articlePublished ? `<meta property="article:published_time" content="${esc(o.articlePublished)}">` : ''}
 <meta property="og:locale" content="en_US">
 
 <!-- Twitter Card -->
@@ -162,6 +182,7 @@ ${o.canonicalUrl ? `<meta property="og:url" content="${esc(o.canonicalUrl)}">` :
 <meta name="twitter:title" content="${esc(o.ogTitle ?? o.title)}">
 <meta name="twitter:description" content="${esc(o.ogDescription ?? o.description ?? '')}">
 <meta name="twitter:image" content="${esc(ogImg)}">
+<meta name="twitter:image:alt" content="Verity - Multi-Signal Media Authenticity Engine">
 
 <!-- Structured Data for Answer Engines (AEO) & Generative Search (GEO) -->
 ${jsonLdScript}

@@ -3,6 +3,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 import type { Verdict, VerdictState } from '@checkverity/core';
 import { RegistryStore, type Store } from './store.ts';
 import { verdictPage } from './page.ts';
@@ -12,6 +13,7 @@ import { dashboardPage } from './dashboard.ts';
 import { landingPage } from './landing.ts';
 import { privacyPage, termsPage } from './legal.ts';
 import { badgeSvg } from './badge.ts';
+import { shell } from './layout.ts';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const PUBLIC_URL = (process.env.PUBLIC_URL ?? `http://localhost:${PORT}`).replace(/\/$/, '');
@@ -175,12 +177,46 @@ function trustedSubmit(req: import('node:http').IncomingMessage): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-const JSON_HEADERS = { 'content-type': 'application/json', 'access-control-allow-origin': '*' };
+const JSON_HEADERS = {
+  'content-type': 'application/json',
+  'access-control-allow-origin': '*',
+  // API responses are machine-read JSON, not content - keep them out of the index.
+  'x-robots-tag': 'noindex',
+};
 
 function send(res: import('node:http').ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, JSON_HEADERS);
   res.end(JSON.stringify(body));
 }
+
+/**
+ * Human-facing text responses (HTML pages, sitemap, robots, llms.txt, badges):
+ * gzip when the client accepts it and the payload is worth compressing.
+ */
+function sendText(
+  req: import('node:http').IncomingMessage,
+  res: import('node:http').ServerResponse,
+  status: number,
+  headers: Record<string, string>,
+  body: string,
+): void {
+  const acceptsGzip = /\bgzip\b/i.test(String(req.headers['accept-encoding'] ?? ''));
+  if (acceptsGzip && body.length > 860) {
+    const gz = gzipSync(body);
+    res.writeHead(status, {
+      ...headers,
+      'content-encoding': 'gzip',
+      'content-length': gz.length,
+      vary: 'Accept-Encoding',
+    });
+    res.end(gz);
+    return;
+  }
+  res.writeHead(status, { ...headers, vary: 'Accept-Encoding' });
+  res.end(body);
+}
+
+const HTML_TYPE = 'text/html; charset=utf-8';
 
 async function readBody(req: import('node:stream').Readable): Promise<SubmitBody> {
   let size = 0;
@@ -215,6 +251,17 @@ const handle = async (req: import('node:http').IncomingMessage, res: import('nod
   res.setHeader('x-content-type-options', 'nosniff');
   res.setHeader('x-frame-options', 'SAMEORIGIN');
   res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
+  if (PUBLIC_URL.startsWith('https:')) {
+    res.setHeader('strict-transport-security', 'max-age=31536000; includeSubDomains');
+  }
+
+  // Canonical-path redirect: /dashboard/ etc. must not serve a second copy of
+  // the page at a different URL (duplicate-content signal for crawlers).
+  if (path.length > 1 && path.endsWith('/')) {
+    res.writeHead(301, { location: `${path.slice(0, -1)}${url.search}` });
+    res.end();
+    return;
+  }
 
   if (path === '/healthz') {
     send(res, 200, { ok: true, records: (await store.count()) });
@@ -223,13 +270,12 @@ const handle = async (req: import('node:http').IncomingMessage, res: import('nod
 
   // SEO: robots.txt
   if (path === '/robots.txt' && req.method === 'GET') {
-    res.writeHead(200, {
+    sendText(req, res, 200, {
       'content-type': 'text/plain; charset=utf-8',
       'cache-control': 'public, max-age=86400',
-    });
-    res.end(`User-agent: *
+    }, `User-agent: *
 Allow: /
-Disallow: /api/verdicts$
+Disallow: /api/
 
 Sitemap: ${PUBLIC_URL}/sitemap.xml
 `);
@@ -239,9 +285,10 @@ Sitemap: ${PUBLIC_URL}/sitemap.xml
   // SEO: sitemap.xml
   if (path === '/sitemap.xml' && req.method === 'GET') {
     const recent = (await store.recent(50));
+    const lastmod = recent[0]?.createdAt.split('T')[0];
     const urls = [
-      `  <url><loc>${PUBLIC_URL}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
-      `  <url><loc>${PUBLIC_URL}/dashboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>`,
+      `  <url><loc>${PUBLIC_URL}/</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}<changefreq>daily</changefreq><priority>1.0</priority></url>`,
+      `  <url><loc>${PUBLIC_URL}/dashboard</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}<changefreq>hourly</changefreq><priority>0.8</priority></url>`,
       `  <url><loc>${PUBLIC_URL}/terms</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>`,
       `  <url><loc>${PUBLIC_URL}/privacy</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>`,
       ...recent.map(
@@ -249,11 +296,10 @@ Sitemap: ${PUBLIC_URL}/sitemap.xml
           `  <url><loc>${PUBLIC_URL}/v/${r.sha256}</loc><lastmod>${r.createdAt.split('T')[0]}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
       ),
     ];
-    res.writeHead(200, {
+    sendText(req, res, 200, {
       'content-type': 'application/xml; charset=utf-8',
       'cache-control': 'public, max-age=3600',
-    });
-    res.end(`<?xml version="1.0" encoding="UTF-8"?>
+    }, `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
 </urlset>`);
@@ -262,11 +308,10 @@ ${urls.join('\n')}
 
   // GEO: llms.txt (Generative Engine Optimization standard for AI search scrapers)
   if ((path === '/llms.txt' || path === '/.well-known/llms.txt') && req.method === 'GET') {
-    res.writeHead(200, {
+    sendText(req, res, 200, {
       'content-type': 'text/markdown; charset=utf-8',
       'cache-control': 'public, max-age=86400',
-    });
-    res.end(`# Verity: Multi-Signal Media Authenticity Engine
+    }, `# Verity: Multi-Signal Media Authenticity Engine
 
 > An open-source media verification engine evaluating cryptographic provenance (C2PA), perceptual near-duplicate matching, metadata forensics, and fact-checking.
 
@@ -287,6 +332,17 @@ ${urls.join('\n')}
 - Telegram Bot: https://t.me/CheckVerityBot
 - Open-Source GitHub Repository: https://github.com/Mintahandrews/verity
 `);
+    return;
+  }
+
+  // IndexNow key file: serves /<INDEXNOW_KEY>.txt so Bing/Yandex instant-index
+  // submissions (e.g. via the OpenSEO MCP tool) verify ownership of this host.
+  const indexNowKey = process.env.INDEXNOW_KEY;
+  if (indexNowKey && path === `/${indexNowKey}.txt` && req.method === 'GET') {
+    sendText(req, res, 200, {
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'public, max-age=86400',
+    }, indexNowKey);
     return;
   }
 
@@ -365,18 +421,24 @@ ${urls.join('\n')}
     return;
   }
   if (path === '/' && req.method === 'GET') {
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(landingPage((await store.stats()), PUBLIC_URL));
+    sendText(req, res, 200, {
+      'content-type': HTML_TYPE,
+      'cache-control': 'public, max-age=60',
+    }, landingPage((await store.stats()), PUBLIC_URL));
     return;
   }
   if (path === '/dashboard' && req.method === 'GET') {
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(dashboardPage((await store.stats()), (await store.recent(20)), PUBLIC_URL));
+    sendText(req, res, 200, {
+      'content-type': HTML_TYPE,
+      'cache-control': 'public, max-age=60',
+    }, dashboardPage((await store.stats()), (await store.recent(20)), PUBLIC_URL));
     return;
   }
   if ((path === '/terms' || path === '/privacy') && req.method === 'GET') {
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(path === '/terms' ? termsPage(PUBLIC_URL) : privacyPage(PUBLIC_URL));
+    sendText(req, res, 200, {
+      'content-type': HTML_TYPE,
+      'cache-control': 'public, max-age=3600',
+    }, path === '/terms' ? termsPage(PUBLIC_URL) : privacyPage(PUBLIC_URL));
     return;
   }
 
@@ -556,11 +618,10 @@ ${urls.join('\n')}
   if (badgeMatch && req.method === 'GET') {
     const rec = await store.peek(badgeMatch[1]!);
     const state = rec ? (rec.verdict.error ? 'failed' : rec.verdict.state) : 'failed';
-    res.writeHead(200, {
+    sendText(req, res, 200, {
       'content-type': 'image/svg+xml',
       'cache-control': 'public, max-age=300',
-    });
-    res.end(badgeSvg(state, rec ? undefined : 'not found'));
+    }, badgeSvg(state, rec ? undefined : 'not found'));
     return;
   }
 
@@ -569,12 +630,33 @@ ${urls.join('\n')}
   if (pageMatch && req.method === 'GET') {
     const rec = (await store.peek(pageMatch[1]!));
     if (!rec) {
-      res.writeHead(404, { 'content-type': 'text/plain' });
-      res.end('verdict not found');
+      sendText(req, res, 404, {
+        'content-type': HTML_TYPE,
+        'cache-control': 'no-store',
+      }, shell({
+        title: 'Verdict not found - Verity',
+        description: 'No media verdict exists for this SHA-256 fingerprint yet.',
+        back: { href: '/dashboard', label: 'Registry' },
+        body: `<div class="wrap" style="padding:48px 0"><h1 style="font-size:28px;margin:0 0 8px">Verdict not found</h1>
+<p>No media has been checked against this SHA-256 fingerprint yet. Verdicts appear here once the extension or a bot submits one.</p>
+<p><a href="/dashboard" style="color:#26a200">Browse recent checks</a> &middot; <a href="/" style="color:#26a200">Back to Verity</a></p></div>`,
+      }));
       return;
     }
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(verdictPage(rec.verdict, rec.sha256, PUBLIC_URL, rec.ots));
+    // Internal links for crawlability: near-duplicate fingerprints plus the
+    // newest checks, so every /v/ page sits inside a crawlable link graph.
+    const [similarHits, recentRecs] = await Promise.all([
+      rec.phash ? store.similar(rec.phash, 8) : Promise.resolve([]),
+      store.recent(9),
+    ]);
+    const related = {
+      similar: similarHits.map((h) => h.record).filter((r) => r.sha256 !== rec.sha256).slice(0, 5),
+      recent: recentRecs.filter((r) => r.sha256 !== rec.sha256).slice(0, 8),
+    };
+    sendText(req, res, 200, {
+      'content-type': HTML_TYPE,
+      'cache-control': 'public, max-age=300',
+    }, verdictPage(rec.verdict, rec.sha256, PUBLIC_URL, rec.ots, related));
     return;
   }
 
