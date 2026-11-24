@@ -59,6 +59,7 @@ const CSS = `
            padding: 18px 22px; margin-top: 20px; font-size: 14px; color: var(--moss); }
   .means h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--onyx); }
   .means p { margin: 0; }
+  .means p.sub { margin-top: 8px; color: var(--lichen); font-size: 13px; }
   .related { margin-top: 24px; }
   .related h2 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
                 color: var(--lichen); margin: 0 0 10px; }
@@ -225,6 +226,7 @@ export function verdictPage(
   <div class="means">
     <h2>What &ldquo;${chipLabel.toLowerCase()}&rdquo; means</h2>
     <p>${STATE_MEANING[chipClass] ?? STATE_MEANING['failed']}</p>
+    <p class="sub">This record stores the verdict, ${verdict.signals.length} signal result${verdict.signals.length === 1 ? '' : 's'}, and the media's SHA-256 fingerprint - media bytes are never uploaded or kept. Check another item with the browser extension or @CheckVerityBot.</p>
   </div>
   <div class="sharerow">
     <a href="https://x.com/intent/post?text=${shareText}%20${shareLink}" target="_blank" rel="noopener noreferrer">Post on X</a>

@@ -129,6 +129,10 @@ export function dashboardPage(
     <h2>Recent checks</h2>
     ${rows || '<p class="empty">Nothing checked yet &mdash; verdicts appear here as media is verified.</p>'}
   </div>
+  <div class="panel">
+    <h2>About this registry</h2>
+    <p>Every entry maps a media fingerprint &mdash; a SHA-256 digest or a perceptual hash &mdash; to an evidence-backed verdict: <b>verified</b>, <b>unverified</b>, or <b>suspicious</b>, each with per-signal reasoning. Fingerprints let anyone compare media without this service ever storing the media itself. Paste a hash above to look a verdict up, or open any recent check to inspect the signals behind it. Verdicts arrive from the Verity browser extension and the Telegram/Discord bots; the same record powers the shareable <code>/v/&lt;sha256&gt;</code> pages and the JSON API.</p>
+  </div>
 </div>`,
   });
 }
