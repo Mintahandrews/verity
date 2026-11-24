@@ -245,7 +245,7 @@ export function verdictPage(
   }
   ${
     related?.recent.length
-      ? `<div class="related"><h2>Recent checks</h2><div class="rellinks">${related.recent.map(relLink).join('')}</div></div>`
+      ? `<div class="related"><h2>Nearby checks</h2><div class="rellinks">${related.recent.map(relLink).join('')}</div></div>`
       : ''
   }
 </div>`,

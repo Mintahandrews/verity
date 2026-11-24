@@ -47,6 +47,8 @@ export interface Store {
   similarEmbedding(vec: ArrayLike<number>, minCos: number): MaybePromise<EmbeddingHit[]>;
   count(): MaybePromise<number>;
   recent(limit?: number): MaybePromise<RegistryRecord[]>;
+  /** Records adjacent to sha256 in createdAt order (excluding it). */
+  neighbors(sha256: string, radius?: number): MaybePromise<RegistryRecord[]>;
   stats(): MaybePromise<Record<string, number>>;
   flush?(): MaybePromise<void>;
 }
@@ -153,6 +155,23 @@ export abstract class IndexedStore implements Store {
     return [...this.records.values()]
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
+  }
+
+  /**
+   * Temporal neighbors of a record - interlinks /v/ pages into a crawlable
+   * chain: global "recent N" lists only cover the newest records, whereas
+   * ±radius neighbors let crawlers walk the entire index from any entry point.
+   */
+  neighbors(sha256: string, radius = 4): RegistryRecord[] {
+    const sorted = [...this.records.values()].sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt),
+    );
+    const i = sorted.findIndex((r) => r.sha256 === sha256);
+    if (i === -1) return [];
+    return [
+      ...sorted.slice(Math.max(0, i - radius), i),
+      ...sorted.slice(i + 1, i + 1 + radius),
+    ];
   }
 
   stats(): Record<string, number> {

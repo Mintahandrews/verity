@@ -643,15 +643,16 @@ ${urls.join('\n')}
       }));
       return;
     }
-    // Internal links for crawlability: near-duplicate fingerprints plus the
-    // newest checks, so every /v/ page sits inside a crawlable link graph.
-    const [similarHits, recentRecs] = await Promise.all([
+    // Internal links for crawlability: near-duplicate fingerprints plus
+    // temporal neighbors, so every /v/ page chains to the records before and
+    // after it - crawlers can walk the whole index from any entry point.
+    const [similarHits, neighborRecs] = await Promise.all([
       rec.phash ? store.similar(rec.phash, 8) : Promise.resolve([]),
-      store.recent(9),
+      store.neighbors(rec.sha256, 4),
     ]);
     const related = {
       similar: similarHits.map((h) => h.record).filter((r) => r.sha256 !== rec.sha256).slice(0, 5),
-      recent: recentRecs.filter((r) => r.sha256 !== rec.sha256).slice(0, 8),
+      recent: neighborRecs.filter((r) => r.sha256 !== rec.sha256).slice(0, 8),
     };
     sendText(req, res, 200, {
       'content-type': HTML_TYPE,
